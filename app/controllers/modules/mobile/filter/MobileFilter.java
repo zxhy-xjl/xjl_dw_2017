@@ -228,8 +228,7 @@ public class MobileFilter extends BaseController{
 		}
 		//检查有没有绑定学生，如果没有绑定学生需要跳转到绑定学生页面
 		//wxUser = getWXUser();
-		if (wxUser.currentStudent == null&&"testPC".equals(deviceFlag)){ //本地调试手机版页面使用
-		//if (wxUser.currentStudent == null&&isMobile(userAgent)){
+		if (wxUser.currentStudent == null&&("testPC".equals(deviceFlag)||isMobile(userAgent))){ //本地调试手机版页面使用
 			render("modules/xjldw/mobile/my/student_none.html");
 		} else {
 			if(!"PC".equals(sessionInfo.getDeviceFlag())){
