@@ -35,32 +35,45 @@ public class MobileFilter extends BaseController{
 	@Before(unless = { "Application.index","LoginService.index", "LoginService.mIndex","LoginService.login",
 			"LoginService.logout","LoginService.mlogout" })
 	static void checkLogin() {
+		log.debug("checkLogin开始检查登录状态");
 		String userAgent = request.headers.get("user-agent").value().toLowerCase();
 		String deviceFlag = params.get("flag");
+		log.debug("userAgent:"+ userAgent);
+		log.debug("deviceFlag:" + deviceFlag);
 		boolean isNeedInterface =false;
 		SessionInfo sessionInfo=getSessionInfo();
 		WxUser 	wxUser = null;
 		if(sessionInfo!=null){
+			log.debug("当前session不为空");
 			wxUser = sessionInfo.getWxUser();
+			log.debug("当前用户:" + wxUser);
 			if(CommonValidateUtil.isMobile(userAgent)){ //手机端获取微信用户信息
+				log.debug("当前访问是通过手机访问");
 				if(wxUser!=null&&(DateUtil.getNowDate().compareTo(DateUtil.getDateTimeNowFun(wxUser.upOpenidTime,"d",1))<=0)){
 					//还在有效期内
+					log.debug("还在有效期内");
 					isNeedInterface = false;
 				}else{
+					log.debug("已经过期，需要重新获取");
 					//已经是三天前的数据，过期重新获取
 					isNeedInterface = true;
 				}
 			}
 		}else{
+			log.debug("当前session为空");
 			if(!isMobile(userAgent)){ //pc
+				log.debug("当前浏览器不是手机，这里认为是pc");
 				if("testPC".equals(deviceFlag)){
+					log.debug("是pc上的测试标示testPC");
 					wxUser = WxUser.getFindByOpenId(null);
 					if(null != wxUser){
+						log.debug("使用模拟用户加入到session中，昵称是:" + wxUser.nickName);
 						sessionInfo=new SessionInfo();
 		        		sessionInfo.setWxUser(wxUser);
 		        		setSessionInfo(sessionInfo);
 						isNeedInterface = false;
 					}else{
+						log.error("数据库中一个微信用户都没有,模拟用户失败");
 						Logger.error("++++++++++++++++模拟oxh64jkHZeWtbUYc2AMqDc0HiJZg登录失败");
 					}
 				}else{
@@ -246,6 +259,7 @@ public class MobileFilter extends BaseController{
 	 */
 	public static SessionInfo getSessionInfo() {
 		String userKey = getSessionKey();
+		log.debug("userKey:"+userKey);
 		SessionInfo sessionInfo = null;
 		if (Cache.get(userKey)!=null) {
 			sessionInfo = (SessionInfo) Cache.get(userKey);
@@ -253,17 +267,17 @@ public class MobileFilter extends BaseController{
 		return sessionInfo;
 	}
 	public static WxUser getWXUser() {
-		String userKey = getSessionKey();
-		SessionInfo sessionInfo = null;
-		WxUser wxUser = null;
-		if (Cache.get(userKey)!=null) {
-			sessionInfo = (SessionInfo) Cache.get(userKey);
-			wxUser=sessionInfo.getWxUser();
+		SessionInfo sessionInfo = getSessionInfo();
+		if (sessionInfo!=null) {
+			WxUser wxUser=sessionInfo.getWxUser();
+			log.debug("wxUser信息 openId:"+wxUser.wxOpenId + " nickName:"+wxUser.nickName);
+			return wxUser;
 		}
 		else{
+			log.debug("session为空");
         	nok(Messages.get("appletSessionBeOverdue"));
 		}
-		return wxUser;
+		return null;
 	}
 
 	private static void setSessionInfo(SessionInfo sessionInfo){

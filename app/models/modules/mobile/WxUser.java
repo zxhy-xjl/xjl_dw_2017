@@ -10,6 +10,7 @@ import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.slf4j.LoggerFactory;
 
 import controllers.comm.BOResult;
 import controllers.comm.SessionInfo;
@@ -27,7 +28,7 @@ import utils.jpa.sql.SQLParser;
 @Entity
 @Table(name = "wx_user")
 public class WxUser extends GenericModel{
-
+	private static org.slf4j.Logger log = LoggerFactory.getLogger(WxUser.class);
 	@Id
 	@Column(name = "WX_OPEN_ID")
 	public String wxOpenId;
@@ -104,6 +105,7 @@ public class WxUser extends GenericModel{
 	 * @return
 	 */
 	public static WxUser getFindByOpenId(String openid) {
+		log.debug("getFindByOpenId方法openId:" + openid);
 		int pageIndex = 1;
         int pageSize = 100;
         Map condition = new HashMap<String, String>();
@@ -115,7 +117,9 @@ public class WxUser extends GenericModel{
         if (retData.isEmpty()){
         	throw new RuntimeException("没有该用户:"+openid);
         } else {
+        	log.debug("一共查询符合条件的数据有:" + retData.size());
         	WxUser wxUser = retData.get(0);
+        	log.debug("获取第一个符合条件的微信数据:" + wxUser.nickName);
 //        	//查询该用户默认关注的编辑和学生
 //        	XjlDwWxClass wxClass = XjlDwWxClass.getDefaultByOpenId(openid);
 //        	if (wxClass != null){
