@@ -37,8 +37,8 @@ public class Sign {
 	 */
 	public static String getAccessToken(String appid,String secret) {
 		log.debug("获取accessToken");
-		log.debug("appid",appid);
-		log.debug("secret",secret);
+		log.debug("appid:"+appid);
+		log.debug("secret:"+secret);
 		//请求Jsapi_Ticket的时间
 		Date requestDate = null;
 		
@@ -67,20 +67,19 @@ public class Sign {
 				sBuilder.append("&appid="+appid);
 				sBuilder.append("&secret="+secret);
 				//System.out.println("-----------请求access_token的URL:"+sBuilder.toString());
-				log.debug("url",sBuilder.toString());
+				log.debug("url:"+sBuilder.toString());
 				url = new URL(sBuilder.toString());
 				is = url.openStream();
 				reader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
 				return_josn = reader.readLine();
-				log.debug("url return",return_josn);
+				log.debug("url return:"+return_josn);
 				// 将字符串转换成jsonObject对象
 				myJsonObject = new JSONObject(return_josn);
 				// 获取对应的值
 				access_token = myJsonObject.getString("access_token");
 				hashMapAccessToken.put(appid, new AccessToken(requestDate,access_token));
-				log.debug("access_token",access_token);
+				log.debug("access_token:"+access_token);
 			} catch (Exception e) {
-				System.out.println("-------------ERROR------"+e.toString());
 				log.error("获取新的access_token发生错误",e);
 			}
 		}

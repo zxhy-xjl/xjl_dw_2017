@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 
 import models.modules.mobile.WxUser;
 import models.modules.mobile.XjlDwSchool;
@@ -30,6 +31,7 @@ import controllers.modules.mobile.bo.WxUserBo;
  * @describe  类说明
  */
 public class MobileFilter extends BaseController{
+	private static org.slf4j.Logger log = LoggerFactory.getLogger(MobileFilter.class);
 	@Before(unless = { "Application.index","LoginService.index", "LoginService.mIndex","LoginService.login",
 			"LoginService.logout","LoginService.mlogout" })
 	static void checkLogin() {
@@ -218,7 +220,9 @@ public class MobileFilter extends BaseController{
 			render("modules/xjldw/mobile/my/student_none.html");
 		} else {
 			if(!"PC".equals(sessionInfo.getDeviceFlag())){
-				 Logger.info("当前登录用户:"+wxUser.nickName + " 当前班级:"+wxUser.currentClass.className);	
+				log.debug("当前登录设备不是pc，是:" + sessionInfo.getDeviceFlag());
+				log.debug("当前登录用户:"+wxUser.nickName);
+				 //Logger.info("当前登录用户:"+wxUser.nickName + " 当前班级:"+wxUser.currentClass.className);	
 			}
 		}
 	}
