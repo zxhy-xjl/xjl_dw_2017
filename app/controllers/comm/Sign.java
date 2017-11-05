@@ -12,7 +12,6 @@ import models.modules.weixin.AppletSessionKey;
 import models.modules.weixin.JsapiTicket;
 
 import org.json.JSONObject;
-import org.slf4j.LoggerFactory;
 
 import play.Logger;
  /**
@@ -21,7 +20,7 @@ import play.Logger;
  * @describe  类说明
  */
 public class Sign {
-	private static org.slf4j.Logger log = LoggerFactory.getLogger(Sign.class);
+	
 	//保存上一次获取access_token的时间以及取得的值
 	private static HashMap<String, AccessToken> hashMapAccessToken = new HashMap<String, AccessToken>();
 	//保存上一次获取JSApiToken的时间以及取得的值
@@ -36,9 +35,6 @@ public class Sign {
 	 * @return
 	 */
 	public static String getAccessToken(String appid,String secret) {
-		log.debug("获取accessToken");
-		log.debug("appid:"+appid);
-		log.debug("secret:"+secret);
 		//请求Jsapi_Ticket的时间
 		Date requestDate = null;
 		
@@ -52,8 +48,9 @@ public class Sign {
 		if (requestDate!=null) {
 			second = (int)(nowTime.getTime() - requestDate.getTime())/1000;
 		}
+		Logger.info("accesstoeknrequestDate = " + requestDate);
+		Logger.info("accesstoeknsecond = " + second);
 		if (requestDate==null||second>7000) {
-			log.debug("以前的accessToken超时，需要重新获取");
 			try {
 				requestDate = new Date();
 				String return_josn="";
@@ -66,24 +63,23 @@ public class Sign {
 				sBuilder.append("?grant_type=client_credential");
 				sBuilder.append("&appid="+appid);
 				sBuilder.append("&secret="+secret);
+				Logger.info("sBuilder = " + sBuilder);
 				//System.out.println("-----------请求access_token的URL:"+sBuilder.toString());
-				log.debug("url:"+sBuilder.toString());
 				url = new URL(sBuilder.toString());
 				is = url.openStream();
 				reader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
 				return_josn = reader.readLine();
-				log.debug("url return:"+return_josn);
 				// 将字符串转换成jsonObject对象
 				myJsonObject = new JSONObject(return_josn);
+				Logger.info("myJsonObject = " + myJsonObject);
 				// 获取对应的值
 				access_token = myJsonObject.getString("access_token");
 				hashMapAccessToken.put(appid, new AccessToken(requestDate,access_token));
-				log.debug("access_token:"+access_token);
 			} catch (Exception e) {
-				log.error("获取新的access_token发生错误",e);
+				System.out.println("-------------ERROR------"+e.toString());
+				Logger.info("-------------ERROR------"+e.toString());
 			}
 		}
-		log.debug("本次请求返回的access_token",access_token);
 		return access_token;
 	}
 	/**
