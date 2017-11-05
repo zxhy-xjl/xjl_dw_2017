@@ -153,8 +153,9 @@ wx.config({
                                             url:serverId,openId:openId
                                         }}).done(function(res){
                                             if (res.ret=="0"&&res.data) {
-                                            	showPhoto.getPhoto(localIds[0]);//展示图片
+                                            	//showPhoto.getPhoto(localIds[0]);//展示图片
                                                 params = res.data;
+                                                $("#imgs").attr("src",res.data);
                                             }else{
                                             	//上传失败
                                             	layer.open({
