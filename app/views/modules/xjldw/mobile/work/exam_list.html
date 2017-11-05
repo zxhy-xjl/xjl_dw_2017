@@ -70,12 +70,9 @@
     <div class="content">
       <div class="clearfix posrel" ng-repeat="examInfo in examList"> 
         <a href="/mobile/W/examDetail?examId={{examInfo.exam.examId}}">
-	        <div class=" wid70">
+	        <div>
 	          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main"><span>{{examInfo.exam.examTitle}}</span></h3>
 	          <p class="margin-t-10 margin-b-10 font-size-13"><span class="padded-r-10">平均：{{examInfo.mma.avg}}分</span><span class="padded-r-10">最高：{{examInfo.mma.max}}分</span><span class="padded-r-10">最低：{{examInfo.mma.min}}分</span></p>
-	        </div>
-	        <div class="right-btn wid30">
-	          <img src="../images/subject_01.png" ng-show="false"/>
 	        </div>
         </a> 
         <div class="hr"></div>

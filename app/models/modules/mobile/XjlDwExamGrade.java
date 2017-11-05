@@ -85,8 +85,8 @@ public class XjlDwExamGrade extends GenericModel{
 	 * @return
 	 */
 	public static Map queryMaxMinAvg(Long examId){
-		String sql = "select max(exam_grade),min(exam_grade),round(avg(exam_grade),2) from ("+
-"select student_id,sum(exam_grade) as exam_grade from xjl_dw_exam_grade where [exam_id=l:examId] group by student_id "+
+		String sql = "select max(exam_grade),min(exam_grade),round(avg(exam_grade),1) from ("+
+"select student_id,round(sum(exam_grade),1) as exam_grade from xjl_dw_exam_grade where [exam_id=l:examId] group by student_id "+
 ")  as foo";
 		Map condition = new HashMap();
 		condition.put("examId", String.valueOf(examId));

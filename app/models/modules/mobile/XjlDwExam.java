@@ -47,7 +47,7 @@ public class XjlDwExam extends GenericModel{
 	public Date createTime;
 	public static Map query(Map<String, String> condition,int pageIndex, int pageSize){
 		String sql = "select * ";
-		sql += "from xjl_dw_exam a where a.status='0AA' [ and class_id=l:classId]";
+		sql += "from xjl_dw_exam a where a.status='0AA' [ and class_id=l:classId] order by CREATE_TIME desc";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlDwExam> data = ModelUtils.queryData(pageIndex, pageSize, ret, XjlDwExam.class);
 		return ModelUtils.createResultMap(ret, data);
