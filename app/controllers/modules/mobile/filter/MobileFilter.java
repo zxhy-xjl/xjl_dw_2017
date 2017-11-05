@@ -114,6 +114,8 @@ public class MobileFilter extends BaseController{
 			}
 			String appId = xjlDwSchool.wxServer.appId;
 			String secret = xjlDwSchool.wxServer.appSecret;
+			params.put("appId", appId);
+			params.put("secret", secret);
 			if(!StringUtil.isNotEmpty(appId)||!StringUtil.isNotEmpty(secret)){
 	    		nok(Messages.get("paramsLose"));
 	    	}
@@ -151,6 +153,7 @@ public class MobileFilter extends BaseController{
 			        subscribe = json.containsKey("subscribe")?json.getString("subscribe"):subscribe;
 			        params.remove("code");// 一次性，用完作废
 					params.put("openId", openId);
+					params.put("accessToken",json.getString("access_token"));
 					wxUser = WxUser.findById(openId);
 					//最多三天取一次
 					if(wxUser!=null&&(DateUtil.getNowDate().compareTo(DateUtil.getDateTimeNowFun(wxUser.upOpenidTime,"d",1))<=0)){

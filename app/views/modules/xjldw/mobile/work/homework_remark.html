@@ -12,20 +12,47 @@
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
 <link rel="stylesheet" href="/public/css/main.css" />
 
+ <script src="/public/widgets/layer.m/layer.m.js"></script>
 <script src="/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/public/widgets/dropload/dropload.min.js"></script>
 <script src="/public/widgets/angularjs/angular.min.js"></script>
 <script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script>
-
-        angular.module('app', ['ngTouch'])
+var openId = 'oxh64jkHZeWtbUYc2AMqDc0HiJZg';
+var params = [];
+//通过config接口注入权限验证配置
+wx.config({
+	    debug: false,
+	    appId: 'wx4ae50eb9b72cef71',
+	    timestamp:'${timestamp}',
+	    nonceStr: '${nonceStr}',
+	    signature: '${signature}',
+	    jsApiList: [
+	        'chooseImage',
+	        'getLocalImgData',
+	        'uploadImage'
+	    ]
+	});
+      angular.module('app', ['ngTouch'])
                 .value('appValue', {
                     index: 1,
                     size: 10
                 })
+                .factory('valid',function(){
+                	return {
+                		remarkInfo:function(obj){
+                			if(obj.remark == ''){
+                				 return {flag: false, msg: '评语不能为空'}
+                			}
+                			return {flag: true, msg: '验证通过'};
+                		}
+                	}
+                })
                 .factory('agentRemote', ['$http', 'appValue', function ($http, appValue) {
                     return {
                     	saveRemark: function(remark) {
+                    		//上传照片得到对应id
                             return $http({
                                 method: 'GET',
                                 url: '/mobile/WorkService/saveHomeworkRemark',
@@ -37,7 +64,20 @@
                         
                     }
                 }])
-                .controller('MainController', ['$scope', 'appValue','agentRemote','$timeout', function ($scope, appValue,agentRemote,$timeout) {
+                .factory('showPhoto',function(){
+                	return {
+                		getPhoto:function(id){
+                			wx.getLocalImgData({
+                			    localId: id, // 图片的localID
+                			    success: function (res) {
+                			        var localData = res.localData; // localData是图片的base64数据，可以用img标签显示
+                			        document.getElementById("imgs").src = localData;
+                			    }
+                			});
+                		}
+                	}
+                })
+                .controller('MainController', ['$scope', 'appValue','valid','agentRemote','showPhoto','$timeout', function ($scope, appValue,valid,agentRemote,showPhoto,$timeout) {
                 	//init page function
                 	$scope.remark = {
                 			homeworkId:'',
@@ -50,11 +90,93 @@
                     };
                     $scope.initPage();
                     $scope.saveRemark = function(){
-                    	agentRemote.saveRemark($scope.remark).then(function (response) {
-                            console.log("response",response);
-                            window.location = "/mobile/W/homeworkDetail?homeworkId=${homeworkId}";
-                        }, function (response) {
-                            //err
+                    	var vaildRes = valid.remarkInfo($scope.remark);
+                    	if(vaildRes.flag){
+                    		if(params.length ==0){
+                    			 layer.open({
+                                     content: '请上传标榜图',
+                                     btn: ['知道了']
+                                 });
+                    			 return;
+                    		}
+                    		$scope.remark.url=params;
+                    		agentRemote.saveRemark($scope.remark).then(function (res) {
+                   			  if (res.data.ret == '-1') {
+                                     layer.open({
+                                         content: res.data.desc,
+                                         btn: ['知道了']
+                                     });
+                               }else{
+                            	   $scope.remark = res.data.data;
+                                   layer.open({
+                                       content: '发布成功',
+                                       btn: ['确定'],
+                                       end: function () {
+                                           location.href = "/mobile/W/homeworkDetail?homeworkId=${homeworkId}";
+                                           params = [];
+                                       }
+                                   });
+                               }
+                               //window.location = "/mobile/W/homeworkDetail?homeworkId=${homeworkId}";
+                            }, function (response) {
+                                //err
+                            	 layer.open({
+                                     content: '提交异常',
+                                     btn: ['知道了']
+                                 });
+                            }).finally(function () {
+                                layer.close(index);
+                            });
+                    	}else{
+                    		layer.open({
+                                content: vaildRes.msg,
+                                btn: ['知道了']
+                            });
+                    	}
+                    	
+                    };
+                    $scope.chooseImage = function(){
+                    	var imageList = [];
+                       // 选择张片
+                        wx.chooseImage({
+                            count: 1, // 默认9
+                            sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                            sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+                            success: function(res) {
+                                var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+                                wx.uploadImage({
+                                    localId: localIds[0],
+                                    isShowProgressTips: 1,
+                                    success: function (res) {
+                                        var serverId = res.serverId; // 返回图片的服务器端ID
+                                        $.ajax({url:'/mobile/A/uploadLogo',data:{
+                                            url:serverId,openId:openId
+                                        }}).done(function(res){
+                                            if (res.ret=="0"&&res.data) {
+                                            	showPhoto.getPhoto(localIds[0]);//展示图片
+                                                params = res.data;
+                                            }else{
+                                            	//上传失败
+                                            	layer.open({
+                                                    content: res.desc,
+                                                    btn: ['知道了']
+                                                });
+                                            }
+                                        }).fail(function(){
+                                            layer.open({
+                                                content: '上传失败,请稍后再试',
+                                                btn: ['知道了']
+                                            });
+                                        })
+                                    },
+                                    error: function () {
+                                        layer.open({
+                                            content: '上传失败,请稍后再试',
+                                            btn: ['知道了']
+                                        });
+                                    }
+                                });
+                            }
                         });
                     }
                 }]);
@@ -65,7 +187,11 @@
   <div class="row">
     <h3 class="padded-b-10 padded-t-20">标榜图<span class="text-pink padded-l-5">*</span></h3>
     <div class="padded-5 btnbox">
-       <input type="button" value="拍照上传" class="btn btn-white"/>
+    	<img src=" "  id="imgs" data-gid="g2" data-index="1"  >
+    </div>
+    <div class="padded-5 btnbox">
+      <!--  <input type="file" style="/* visibility: hidden */" capture="camera" accept="image/*,video/*" value="拍照上传" class="btn btn-white"/> -->
+    	 <input type="button" value="拍照上传" ng-click="chooseImage()" class="btn btn-white"/>
     </div>
     <h3 class="padded-b-10 padded-t-20">评语<span class="text-pink padded-l-5">*</span></h3>
     <div class="border padded-5">
