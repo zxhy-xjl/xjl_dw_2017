@@ -43,7 +43,7 @@
                 	$scope.remarkList = [];
                     $scope.initPage = function (me) {
                 		console.log("初始化标榜列表");
-                		agentRemote.queryHomeworkRemarkList(1).then(function (response) {
+                		agentRemote.queryHomeworkRemarkList(${homework.homeworkId}).then(function (response) {
                             $scope.remarkTotal = response.data.data.total;
                             $scope.remarkList = response.data.data.data;
                             console.log($scope.remarkList);
