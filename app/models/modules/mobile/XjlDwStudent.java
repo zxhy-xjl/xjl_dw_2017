@@ -57,7 +57,7 @@ public class XjlDwStudent extends GenericModel{
 		
 		String sql = "select * ";
 		sql += "from xjl_dw_student a ";
-		sql += "where status='0AA' [ and a.class_id=l:classId] ";
+		sql += "where status='0AA' [ and a.class_id=l:classId] order by convert_to(STUDENT_NAME,'GBK')";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlDwStudent> data = ModelUtils.queryData(pageIndex,pageSize, ret,XjlDwStudent.class);
 		return ModelUtils.createResultMap(ret, data);

@@ -71,14 +71,14 @@
 <body class="userbg" ng-cloak ng-controller="MainController">
 <div class="main bg-white border-b">
   <div class="row">
-    <div class="padded-t-20 padded-b-20 posrel clearfix" onClick="window.location='/mobile/m/userEdit'" >
+    <div class="padded-t-20 padded-b-20 posrel clearfix" >
       <div class="fl student"><img src="${wxUser.headImgUrl}"/></div>
       <div class="fl font-size-14">
         <div class="padded-t-5">昵称：<span class="text-auxiliary">${wxUser.nickName}</span></div>
         <div class="padded-t-5">手机：<span class="text-auxiliary">${wxUser.wxPhone}</span></div>
         <div class="padded-t-5">学生：<span class="text-auxiliary">{{studentName}}</span></div>
       </div>
-      <div class="arrow"></div>
+      <div class="arrow hide"></div>
     </div>
   </div>
 </div>
