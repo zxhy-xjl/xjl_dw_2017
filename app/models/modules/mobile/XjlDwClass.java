@@ -44,26 +44,10 @@ public class XjlDwClass extends GenericModel{
 		int pageIndex, int pageSize) {
 		String sql = "select * ";
 		sql += "from xjl_dw_class a ";
-		sql += "where 1=3 [or a.school_id=l:schoolId ][or a.class_id=l:classId ]  ";
-		SQLResult ret = SQLParser.parseSQL(sql, condition);
-		Query query = JPA.em().createNativeQuery(ret.getSql(), XjlDwClass.class);
-		int i = 1;
-		for (ParamObject o : ret.getParams()) {
-			query.setParameter(i++, o.getValue());
-		}
-		List<XjlDwClass> data = query.setFirstResult((pageIndex - 1) * pageSize)
-			.setMaxResults(pageSize).getResultList();
-		Query query2 = JPA.em().createNativeQuery(ret.getCountSql());
-		int j = 1;
-		for (ParamObject o : ret.getParams()) {
-			query2.setParameter(j++, o.getValue());
-		}
-		List<Object> countRet = query2.getResultList();
-		long total = Long.parseLong(countRet.get(0).toString());
-		Map hm = new HashMap();
-		hm.put("total", total);
-		hm.put("data", data);
-		return hm;
+		sql += "where STATUS='0AA' [and a.school_id=l:schoolId ][ and a.class_id=l:classId ]  ";
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlDwClass> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwClass.class);
+		return ModelUtils.createResultMap(ret,data);
 	}
 	/**
 	 * 根据班级id得到班级信息

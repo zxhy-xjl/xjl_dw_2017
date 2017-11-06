@@ -29,7 +29,7 @@
       </div>
     </div>
     
-    <div class="border-b padded-t-15 padded-b-15 posrel clearfix">
+    <div class="border-b padded-t-15 padded-b-15 posrel clearfix hide">
       <div class="wid30 fl padded-t-3">所在班级：</div>
       <div class="wid70 fr">
                  <select  ng-model="student.classId" ng-change="classChange()"
@@ -123,6 +123,8 @@
                 $scope.getClassInfo = function (me) {
                 	remote.getClassInfo('${wxUser.schoolId}').then(function (response) {
                         $scope.classList = response.data.data.data;
+                        $scope.student.classId=$scope.classList[0].classId;
+                        $scope.classChange();
                         if (me && me.resetload)
                             me.resetload();
 

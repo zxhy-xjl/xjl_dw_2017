@@ -19,8 +19,8 @@
     <div class="tabbtn">
       <input type="button" value="切换汇总" class="btn btn-blue" ng-click="switchSummary(true)"/>
     </div>
-    <div class="padded-t-10">参与人数：<span class="font-size-16 font-weight-b">{{totalBuyer}}&nbsp;</span>
-         <span>总金额：{{totalAmount}}元</span>&nbsp;&nbsp;<span>数量：{{totalCount}}</span>
+    <div class="padded-t-10">人数：<span class="font-size-16 font-weight-b">{{totalBuyer}}&nbsp;</span>
+         <span>金额：{{totalAmount}}元</span>&nbsp;&nbsp;<span>数量：{{totalCount}}</span>
     </div>
     <div class="padded-t-10 padded-b-10">购买数量统计：</div>
     <div class="padded-t-10 border-b" ng-repeat="studentInfo in studentInfoList">
@@ -32,7 +32,7 @@
       <p class="padded-10">合计：{{studentInfo.count}}个，{{studentInfo.amount}}元</p>
     </div>
     <div class="margin-t-15 margin-b-15 clearfix">
-      <span>截止时间:{{endTime}}</span>
+      <span>截止:{{endTime}}</span>
       <input ng-show="state=='1'" type="button" class="btn fr wid45 line-height-2 bg-warning" ng-click="closeGroupBuy()" value="现在关闭"/>
       <input ng-show="state=='2'" type="button" class="btn fr wid45 line-height-2 bg-warning" value="已结束"/>
     </div>
@@ -41,14 +41,14 @@
     <div class="tabbtn">
       <input type="button" value="切换明细" class="btn btn-blue" ng-click="switchSummary(false)"/>
     </div>
-    <div class="padded-t-10">参与人数：<span class="font-size-16 font-weight-b">{{totalBuyer}}&nbsp;</span>
-         <span>总金额：{{totalAmount}}元</span>&nbsp;&nbsp;<span>数量：{{totalCount}}</span>
+    <div class="padded-t-10">人数：<span class="font-size-16 font-weight-b">{{totalBuyer}}&nbsp;</span>
+         <span>金额：{{totalAmount}}元</span>&nbsp;&nbsp;<span>数量：{{totalCount}}</span>
     </div>
     <div class="padded-t-10 padded-b-10 hide">购买数量统计：</div>
     <div class="padded-t-10" id="groupEcharts" style="width: 100%;height:400px;"> 
     </div>
     <div class="margin-t-15 margin-b-15 clearfix">
-      <span>截止时间:{{endTime}}</span>
+      <span>截止:{{endTime}}</span>
       <input ng-show="${wxUser.isCommittee}==true && state=='1'" type="button" class="btn fr wid45 line-height-2 bg-warning" ng-click="closeGroupBuy()" value="现在关闭"/>
       <input ng-show="${wxUser.isCommittee}==false && state=='1'" type="button" class="btn fr wid45 line-height-2 bg-warning" value="进行中"/>
       <input ng-show="state=='2'" type="button" class="btn fr wid45 line-height-2 bg-warning" value="已结束"/>
