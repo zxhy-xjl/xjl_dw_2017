@@ -181,7 +181,7 @@ public class MobileFilter extends BaseController{
 				        		wxUser.city = json.getString("city");
 				        		wxUser.province = json.getString("province"); 
 				        		wxUser.country = json.getString("country");
-				        		wxUser.headImgUrl = json.getString("headimgurl").replace("/0", "/132");
+				        		wxUser.headImgUrl = getWXSmallHeadImage(json.getString("headimgurl"));
 				        		wxUser.schoolId =xjlDwSchool.schoolId;
 				        		wxUser.isConcerned = "Y";
 				    			//wxUser.wxRole="0";
@@ -209,7 +209,8 @@ public class MobileFilter extends BaseController{
 					    			wxUser.city = json.getString("city");
 					    			wxUser.province = json.getString("province"); 
 					    			wxUser.country = json.getString("country");
-					    			wxUser.headImgUrl = json.getString("headimgurl").replace("/0", "/132");
+					    			
+					    			wxUser.headImgUrl = getWXSmallHeadImage(json.getString("headimgurl"));
 					    			wxUser.schoolId =xjlDwSchool.schoolId;
 					    			wxUser.isConcerned = "Y";
 					    			//wxUser.wxRole="0";
@@ -241,8 +242,18 @@ public class MobileFilter extends BaseController{
 			}
 		}
 	}
-	
-	
+	/**
+	 * 得到微信头像，使用小图
+	 * @param headImageUrl
+	 * @return
+	 */
+	private static String getWXSmallHeadImage(String headImageUrl){
+		if (headImageUrl.endsWith("/0")){
+			return headImageUrl.substring(0, headImageUrl.length()-2)+"/132";
+		} else {
+			return headImageUrl;
+		}
+	}
 	private static boolean isMobile(String userAgent) {
 		if (userAgent != null) {
 			if (userAgent.indexOf("micromessenger") >= 0) {
@@ -288,5 +299,9 @@ public class MobileFilter extends BaseController{
 	public static String getSessionKey(){
 		return session.getId()+"_userkey";
 	}
+	public static void main(String[] args) {
+		System.out.println(MobileFilter.getWXSmallHeadImage("http://wx.qlogo.cn/mmopen/0wRpPfN90ibAwzs8Tsvm1T9dia4kdMEWIHqCsYR3IomWSSVtCPvXHk0gSMsLibypxRmuXEA1HROlVWZUa3vE031bU1dBs26cyKT/0"));
+	}
 }
+
  
