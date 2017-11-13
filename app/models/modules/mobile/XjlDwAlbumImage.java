@@ -53,7 +53,7 @@ public class XjlDwAlbumImage extends GenericModel{
 		int pageIndex, int pageSize) {
 			String sql = "select * ";
 			sql += "from xjl_dw_album_image a where status='0AA' ";
-			if(null !=condition){
+			if(null !=condition&&null!=condition.get("albumId")){
 				sql +=" and ALBUM_ID = "+condition.get("albumId");
 			}
 			SQLResult ret = ModelUtils.createSQLResult(condition, sql);
