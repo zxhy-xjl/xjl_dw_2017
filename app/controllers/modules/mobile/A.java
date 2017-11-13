@@ -92,6 +92,12 @@ public class A extends MobileFilter {
 		renderArgs.put("wxUser",getWXUser());
         render("modules/xjldw/mobile/activity/album_add.html");
     }
+    public static void albumImageList(){
+    	WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser",getWXUser());
+		renderArgs.put("albumId", params.get("albumId"));
+		render("modules/xjldw/mobile/activity/album_image_list.html");
+    }
     //选择照片
     public static void albumAddImage(){
     	WxUser wxUser = getWXUser();

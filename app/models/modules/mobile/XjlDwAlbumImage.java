@@ -51,17 +51,29 @@ public class XjlDwAlbumImage extends GenericModel{
 	
 	public static Map queryXjlDwAlbumImageListByPage(Map<String, String> condition,
 		int pageIndex, int pageSize) {
-		String sql = "select * ";
-		sql += "from xjl_dw_album_image a order by IMAGE_ORDER";
-		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
-		
-		List<XjlDwAlbumImage> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwAlbumImage.class);
-		for (XjlDwAlbumImage xjlDwAlbumImage : data) {
-			XjlDwFile file = XjlDwFile.queryXjlDwFileById(xjlDwAlbumImage.fileId);
-			if (file != null){
-				xjlDwAlbumImage.fileUrl = file.fileUrl;
+			String sql = "select * ";
+			sql += "from xjl_dw_album_image a where status='0AA' ";
+			if(null !=condition){
+				sql +=" and ALBUM_ID = "+condition.get("albumId");
 			}
-		}
+			SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+			System.out.println(sql);
+			List<XjlDwAlbumImage> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwAlbumImage.class);
+			for (XjlDwAlbumImage xjlDwAlbumImage : data) {
+				XjlDwFile file = XjlDwFile.queryXjlDwFileById(xjlDwAlbumImage.fileId);
+				if (file != null){
+					xjlDwAlbumImage.fileUrl = file.fileUrl;
+				}
+			}
+			return ModelUtils.createResultMap(ret, data);
+	}
+	
+	public static Map queryXjlDwAlbumImageByAlbumId(Long albumId,int pageIndex, int pageSize){
+		String sql = "select * from xjl_dw_album_image  where status='0AA' [ and ALBUM_ID = l:albumId ] ";
+		Map<String, String> condition = new HashMap<String, String>();
+		condition.put("albumId", String.valueOf(albumId));
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlDwAlbumImage> data = ModelUtils.queryData(pageIndex, pageSize,ret,XjlDwGroupBuyOrder.class);
 		return ModelUtils.createResultMap(ret, data);
 	}
 }

@@ -16,6 +16,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import models.modules.mobile.WxUser;
 import models.modules.mobile.XjlDwAlbum;
+import models.modules.mobile.XjlDwAlbumImage;
 import models.modules.mobile.XjlDwAlbumTemplate;
 import models.modules.mobile.XjlDwArticle;
 import models.modules.mobile.XjlDwFile;
@@ -437,6 +438,13 @@ public class ActivityService extends MobileFilter {
 		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
 		Map condition = params.allSimple();
 		Map ret = XjlDwAlbum.queryXjlDwAlbumListByPage(condition, pageIndex, pageSize);
+		ok(ret);
+	}
+	public static void queryAlbumImageList(){
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map condition = params.allSimple();
+		Map ret = XjlDwAlbumImage.queryXjlDwAlbumImageListByPage(condition, pageIndex, pageSize);
 		ok(ret);
 	}
 	/**
