@@ -137,6 +137,7 @@ public class WxUser extends GenericModel{
     			wxUser.isParent = true;
     			wxUser.isCommittee = XjlDwParentCommittee.isParentCommittee(wxUser.currentClass.classId, wxUser.wxOpenId);
     		}
+        	wxUser.isTeacher = XjlDwWxTeacher.isTeacher(wxUser.wxOpenId);
         	return wxUser;
         }
 	}
