@@ -84,6 +84,9 @@ angular.module('app', ['ngTouch'])
 			<div ng-if="album.templateImageList[0]!=null">
 				<img src="{{album.templateImageList[0].fileUrl}}" width="60" height="60" class="default" />
 			</div>
+			<div ng-if="album.templateImageList[0]==null">
+				<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			</div>
         </li>
         <li>
         	<div ng-if="album.templateImageList[1]!= null">
