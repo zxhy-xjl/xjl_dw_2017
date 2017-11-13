@@ -74,6 +74,7 @@ public class XjlDwAlbum extends GenericModel{
 				}
 				XjlDwAlbumTemplate template = templateMap.get(String.valueOf(xjlDwAlbum.albumTemplateId));
 				if (template != null){
+					condition.put("albumId",String.valueOf(xjlDwAlbum.albumId));
 					//添加相册模板
 					xjlDwAlbum.template = template;
 					//添加相册封面上的图片列表
