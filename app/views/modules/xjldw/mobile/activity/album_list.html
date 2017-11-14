@@ -71,49 +71,87 @@ angular.module('app', ['ngTouch'])
                     });
 			 };
 			 $scope.initPage();
+			 $('#scroller').dropload({
+                 domUp: {
+                     domClass: 'dropload-up',
+                     domRefresh: '<div class="dropload-refresh">↓下拉刷新</div>',
+                     domUpdate: '<div class="dropload-update">↑释放更新</div>',
+                     domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                 },
+                 domDown: {
+                     domClass: 'dropload-down',
+                     domRefresh: '<div class="dropload-refresh">↑上拉加载更多</div>',
+                     domUpdate: '<div class="dropload-update">↓释放加载</div>',
+                     domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                 },
+                 scrollArea: window,
+                 loadUpFn: function (me) {
+                     $scope.initPage(me);
+                     console.log('down');
+                 },
+                 loadDownFn: function (me) {
+
+                     $scope.nextPage(me);
+                     console.log('up');
+                 }
+             });
 		}])
 </script>
 </head>
 <body ng-cloak ng-controller="MainController">
-<div id="shadowpic" >
-<div style="width:100px;" ng-show="lists.length!=0" ng-repeat="album in lists">
-    <div class="title"><font>{{album.albumTitle}}</font></div>
-    <a href="/mobile/A/albumImageList?albumId={{album.albumId}}"> 
-	<ul>
-		<li>
-			<div ng-if="album.templateImageList[0]!=null">
-				<img src="{{album.templateImageList[0].fileUrl}}" width="60" height="60" class="default" />
+<div class="main">
+ <div class="row">
+ 	<h3 class="padded-b-10 border-b  padded-t-10 text-default">相册列表
+         <a href="#"  class="btn-blue btn fr padded-r-10 padded-l-10">发布相册</a>
+    </h3>
+    <div class="content" id="scroller" ng-show="lists.length!=0" >
+			<div id="shadowpic" style="width:200px;" ng-repeat="album in lists">
+			    <a href="/mobile/A/albumImageList?albumId={{album.albumId}}"> 
+			    <h6 class="padded-b-10   padded-t-10 ">{{album.albumTitle}}</h6>
+				<ul>
+					<li>
+						<div ng-if="album.templateImageList[0]!=null">
+							<img src="{{album.templateImageList[0].fileUrl}}" width="60" height="60" class="default" />
+						</div>
+						<div ng-if="album.templateImageList[0]==null">
+							<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+						</div>
+			        </li>
+			        <li>
+			        	<div ng-if="album.templateImageList[1]!= null">
+			        		<img src="{{album.templateImageList[1].fileUrl}}" width="60" height="60" class="default" />
+			        	</div>
+			        	<div ng-if="album.templateImageList[1]== null">
+			        		<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			        	</div>
+			        </li>
+			        <li>
+			        	<div ng-if="album.templateImageList[2]!= null">
+			        		<img src="{{album.templateImageList[2].fileUrl}}" width="60" height="60" class="default" />
+			        	</div>
+			        	<div ng-if="album.templateImageList[2]== null">
+			        		<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			        	</div>
+			        </li>
+			        <li>
+			        	<div ng-if="album.templateImageList[3]!= null">
+			        		<img src="{{album.templateImageList[3].fileUrl}}" width="60" height="60" class="default" />
+			        	</div>
+			        	<div ng-if="album.templateImageList[3]== null">
+			        		<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			        	</div>
+			        </li>  
+				</ul>
+				</a>
 			</div>
-			<div ng-if="album.templateImageList[0]==null">
-				<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
-			</div>
-        </li>
-        <li>
-        	<div ng-if="album.templateImageList[1]!= null">
-        		<img src="{{album.templateImageList[1].fileUrl}}" width="60" height="60" class="default" />
-        	</div>
-        	<div ng-if="album.templateImageList[1]== null">
-        		<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
-        	</div>
-        </li>
-        <li>
-        	<div ng-if="album.templateImageList[2]!= null">
-        		<img src="{{album.templateImageList[2].fileUrl}}" width="60" height="60" class="default" />
-        	</div>
-        	<div ng-if="album.templateImageList[2]== null">
-        		<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
-        	</div>
-        </li>
-        <li>
-        	<div ng-if="album.templateImageList[3]!= null">
-        		<img src="{{album.templateImageList[3].fileUrl}}" width="60" height="60" class="default" />
-        	</div>
-        	<div ng-if="album.templateImageList[3]== null">
-        		<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
-        	</div>
-        </li>  
-	</ul>
-	</a>
+			
+			<div class="dropload-down">
+		      	<div class="dropload-refresh">
+	                  当前<span ng-bind="lists.length"></span>条记录 总共<span ng-bind="total"></span>条记录(滑动刷新)
+		       </div>
+      		</div>
+    </div> 
+ </div>
 </div>
 </body>
 </html>
