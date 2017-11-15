@@ -60,7 +60,12 @@ public class XjlDwAlbum extends GenericModel{
 	public static Map queryXjlDwAlbumListByPage(Map<String, String> condition,
 		int pageIndex, int pageSize) {
 		String sql = "select a.* ";
-		sql += "from xjl_dw_album a order by create_time desc";
+		sql += "from xjl_dw_album a where status ='0AA' ";
+		if(null !=condition&&null!=condition.get("wxopenId")){
+			sql+=" and wx_open_id = '"+condition.get("wxopenId")+"'";
+		}
+		sql += " order by create_time desc";
+		System.out.println("conditionsql:"+sql);
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlDwAlbum> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwAlbum.class);
 		Map<String, XjlDwAlbumTemplate> templateMap = new HashMap<String, XjlDwAlbumTemplate>();

@@ -57,7 +57,6 @@ public class XjlDwAlbumImage extends GenericModel{
 				sql +=" and ALBUM_ID = "+condition.get("albumId");
 			}
 			SQLResult ret = ModelUtils.createSQLResult(condition, sql);
-			System.out.println(sql);
 			List<XjlDwAlbumImage> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwAlbumImage.class);
 			for (XjlDwAlbumImage xjlDwAlbumImage : data) {
 				XjlDwFile file = XjlDwFile.queryXjlDwFileById(xjlDwAlbumImage.fileId);

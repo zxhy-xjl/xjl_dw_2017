@@ -439,6 +439,8 @@ public class ActivityService extends MobileFilter {
 		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
 		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
 		Map condition = params.allSimple();
+		WxUser wxUser = getWXUser();
+		condition.put("wxopenId",wxUser.wxOpenId);
 		Map ret = XjlDwAlbum.queryXjlDwAlbumListByPage(condition, pageIndex, pageSize);
 		ok(ret);
 	}
