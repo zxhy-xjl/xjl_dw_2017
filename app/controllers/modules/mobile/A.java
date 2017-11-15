@@ -104,13 +104,13 @@ public class A extends MobileFilter {
     	WxUser wxUser = getWXUser();
 		renderArgs.put("wxUser",getWXUser());
 		renderArgs.put("albumId", params.get("albumId"));
-		String accessToken = Sign.getAccessToken("wx4ae50eb9b72cef71","2f66a0dd662948bc9b2b8aa26ebd0a4f");
-		String noceStr = UUID.randomUUID().toString();
-		String timestamp = Long.toString(System.currentTimeMillis() / 1000);
-		String str = "jsapi_ticket="+WxRegister.getTicket(accessToken)+"&noncestr="+noceStr+"&timestamp="+timestamp+"&url=http://dw201709.com/mobile/A/albumImageList?albumId="+params.get("albumId");
-		renderArgs.put("signature", WxRegister.SHA1(str));
-		renderArgs.put("nonceStr", noceStr);
-		renderArgs.put("timestamp",timestamp);
+//		String accessToken = Sign.getAccessToken("wx4ae50eb9b72cef71","2f66a0dd662948bc9b2b8aa26ebd0a4f");
+//		String noceStr = UUID.randomUUID().toString();
+//		String timestamp = Long.toString(System.currentTimeMillis() / 1000);
+//		String str = "jsapi_ticket="+WxRegister.getTicket(accessToken)+"&noncestr="+noceStr+"&timestamp="+timestamp+"&url=http://dw201709.com/mobile/A/albumImageList?albumId="+params.get("albumId");
+//		renderArgs.put("signature", WxRegister.SHA1(str));
+//		renderArgs.put("nonceStr", noceStr);
+//		renderArgs.put("timestamp",timestamp);
 		render("modules/xjldw/mobile/activity/album_image_list.html");
     }
     //选择照片
