@@ -11,36 +11,84 @@
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
 <link rel="stylesheet" href="/public/css/main.css" />
-
+ <script src="/public/widgets/layer.m/layer.m.js"></script>
 <script src="/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/public/widgets/dropload/dropload.min.js"></script>
 <script src="/public/widgets/angularjs/angular.min.js"></script>
 <script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+	   .factory('valid',function(){
+		   return {
+			   albumInfo:function(obj){
+				   if(obj.albumTitle == ''){
+					   return {flag:false, msg: '相册标题不能为空'};
+				   }
+				   return {flag: true, msg: '验证通过'};
+			   }
+		   }
+	   })
+	   .factory('remote',['$http',function($http){
+		   return {
+			   saveAlbum:function(album){
+				   return $http({
+					   method:'POST',
+					   url:'/mobile/ActivityService/saveAlbum',
+					   params: {
+						   albumTitle:album.albumTitle,
+						   albumTemplateId:album.albumTemplateId
+                       }
+					  
+				   })
+			   }
+		   }
+	   }])
+	   .controller('MainController',['$scope','valid','remote','$http',function($scope,valid,remote,$http){
+		   $scope.album = {
+				   albumTitle:'',
+				   albumTemplateId:'1'
+		   }
+		   $scope.saveAlbum = function(){
+			   var vaildRes = valid.albumInfo($scope.album);
+			   if(vaildRes.flag){
+				   remote.saveAlbum($scope.album).then(function(res){
+					   if (res.data.ret == '-1') {
+						   layer.open({
+                               content: res.data.desc,
+                               btn: ['知道了']
+                           });
+					   }else{
+						   layer.open({
+                               content: '发布成功',
+                               btn: ['确定'],
+                               end: function () {
+                                   location.href = "/mobile/A/albumList";
+                               }
+                           });
+					   }
+				   })
+			   }else{
+				   layer.open({
+                       content: vaildRes.msg,
+                       btn: ['知道了']
+                   });
+			   }
+		   }
+	   }])
+</script>
 </head>
-
-<body class=" userbg">
+<body ng-controller="MainController">
 <div class="main bg-white border-b">
   <div class="row">
     <h3 class="padded-b-10 padded-t-10 text-default font-weight-b">相册标题</h3>
     <div class="border padded-3 margin-b-15">
-      <input type="text" placeholder="请输入相册标题"/>
+      <input type="text" placeholder="请输入相册标题" ng-model="album.albumTitle"/>
     </div>
   </div>
-</div>
-<div class="main bg-white margin-t-10">
-  <div class="row">
-    <h3 class="padded-b-10 border-b padded-t-10 margin-b-10 text-default font-weight-b">选择模板</h3>
-    <div class="waterfall">
-      <div class="item active"><i></i><b></b><img src="../images/file_1.png"></div>
-      <div class="item"><i></i><b></b><img src="../images/file_2.png"></div>
-      <div class="item"><i></i><b></b><img src="../images/file_3.png"></div>
-      <div class="item"><i></i><b></b><img src="../images/file_4.png"></div>
-      <div class="item"><i></i><b></b><img src="../images/file_3.png"></div>
-      <div class="item"><i></i><b></b><img src="../images/file_2.png"></div>
+   <div class="margin-t-15 margin-b-15 btnbox">
+    <input type="button" class="btn btn-white line-height-2" onClick="window.location='/mobile/A/albumList'" value="取消"/>
+    <input type="button" class="btn btn-blue line-height-2 margin-l-15" ng-click="saveAlbum()" value="发布"/>
     </div>
-  </div>
 </div>
-<div class="height"></div>
-<div class="file_next"><a href="/mobile/A/albumAddImage">选择照片</a></div>
 </body>
 </html>

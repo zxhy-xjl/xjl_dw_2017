@@ -1,6 +1,7 @@
 package controllers.modules.mobile;
 import models.modules.mobile.WxUser;
 import models.modules.mobile.XjlDwArticle;
+import models.modules.mobile.XjlDwFile;
 import models.modules.mobile.XjlDwGroupBuy;
 import models.modules.mobile.XjlDwNotice;
 import models.modules.mobile.XjlDwWxClass;
@@ -8,8 +9,15 @@ import play.Logger;
 import play.cache.Cache;
 import play.i18n.Messages;
 import utils.SysParamUtil;
+import utils.WxRegister;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import controllers.comm.BaseController;
 import controllers.comm.SessionInfo;
+import controllers.comm.Sign;
 import controllers.modules.mobile.bo.XjlDwFileBo;
 import controllers.modules.mobile.bo.XjlDwWxClassBo;
 import controllers.modules.mobile.filter.MobileFilter;
@@ -96,6 +104,13 @@ public class A extends MobileFilter {
     	WxUser wxUser = getWXUser();
 		renderArgs.put("wxUser",getWXUser());
 		renderArgs.put("albumId", params.get("albumId"));
+		String accessToken = Sign.getAccessToken("wx4ae50eb9b72cef71","2f66a0dd662948bc9b2b8aa26ebd0a4f");
+		String noceStr = UUID.randomUUID().toString();
+		String timestamp = Long.toString(System.currentTimeMillis() / 1000);
+		String str = "jsapi_ticket="+WxRegister.getTicket(accessToken)+"&noncestr="+noceStr+"&timestamp="+timestamp+"&url=http://dw201709.com/mobile/A/albumImageList?albumId="+params.get("albumId");
+		renderArgs.put("signature", WxRegister.SHA1(str));
+		renderArgs.put("nonceStr", noceStr);
+		renderArgs.put("timestamp",timestamp);
 		render("modules/xjldw/mobile/activity/album_image_list.html");
     }
     //选择照片
@@ -135,6 +150,29 @@ public class A extends MobileFilter {
     }
     
     //上传头像
+    public static void uploadAlbum() {
+
+        String url = params.get("url");
+        String openId = params.get("openId");
+        Logger.info("上传图片url====" + url);
+
+        Logger.info(url);
+        String picUrl = downloadPhoto(url,openId, "A",null);
+        WxUser wxUser =  getWXUser();
+        XjlDwFile xjlDwFile = XjlDwFileBo.saveImage(picUrl, wxUser.wxOpenId);
+        if(picUrl.contains(".json;")&&picUrl.endsWith("encoding=utf-8")){
+        	//上传失败
+        	nok("上传失败，公众号没有足够的权限");
+        }
+        Logger.error("==========oldFileDelete ",params.get("oldFileDelete"));
+        if (params.get("oldFileDelete")!=null) {
+        	//如果上传图片的时候指定了旧图片（或文件），则上传成功后删除原文件
+            BaseController.deleteFile(params.get("oldFileDelete"));
+		}
+        Logger.info("picUrl" + picUrl);
+        ok(xjlDwFile);
+    }
+    //上传头像
     public static void uploadLogo() {
 
         String url = params.get("url");
@@ -144,7 +182,7 @@ public class A extends MobileFilter {
         Logger.info(url);
         String picUrl = downloadPhoto(url,openId, "A",null);
         WxUser wxUser =  getWXUser();
-        XjlDwFileBo.saveImage(picUrl, wxUser.wxOpenId);
+        XjlDwFile xjlDwFile = XjlDwFileBo.saveImage(picUrl, wxUser.wxOpenId);
         if(picUrl.contains(".json;")&&picUrl.endsWith("encoding=utf-8")){
         	//上传失败
         	nok("上传失败，公众号没有足够的权限");

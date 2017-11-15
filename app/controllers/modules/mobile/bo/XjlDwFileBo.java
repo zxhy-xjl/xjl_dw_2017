@@ -32,7 +32,7 @@ public class XjlDwFileBo {
 	 * @param imageType 文件类型
 	 * @return 0:成功
 	 */
-	public static String saveImage(String imageUrl,String wxOpenId) {
+	public static XjlDwFile saveImage(String imageUrl,String wxOpenId) {
 		XjlDwFile xjlDwFile = new XjlDwFile();
 		xjlDwFile.fileName = FileUploadPathUtil.getFileNameForPath(imageUrl);
 		xjlDwFile.fileUrl = imageUrl;
@@ -46,7 +46,7 @@ public class XjlDwFileBo {
 		} catch (Exception e) {
 	        Logger.error("记录上传图片文件失败图片信息：imageUrl="+imageUrl);
 		}
-		return "0";
+		return xjlDwFile;
 	}
 	
 	// 删除

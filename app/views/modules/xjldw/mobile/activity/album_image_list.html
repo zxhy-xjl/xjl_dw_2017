@@ -15,8 +15,28 @@
 <script src="/public/widgets/dropload/dropload.min.js"></script>
 <script src="/public/widgets/angularjs/angular.min.js"></script>
 <script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 </head>
 <script type="text/javascript">
+var openId = 'oxh64jkHZeWtbUYc2AMqDc0HiJZg';
+var vnoId = '1';
+var params = [];
+var url = window.location.href.split('#')[0];
+var ajaxReturn = $.ajax({url:"/Weixin/getWxSdkInfo", data: {url: url,openId:openId,vnoId:vnoId}});
+ajaxReturn.done(function (data) {
+	var appId = data.appId,
+    signature = data.signature,
+    timestamp = data.timestamp,
+    nonce = data.nonce;
+	 wx.config({
+         debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+         appId: appId, // 必填，公众号的唯一标识
+         timestamp: timestamp, // 必填，生成签名的时间戳
+         nonceStr: nonce, // 必填，生成签名的随机串
+         signature: signature,// 必填，签名，见附录1
+         jsApiList: ['chooseImage', 'uploadImage', 'closeWindow', 'previewImage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+     });
+});
 angular.module('app', ['ngTouch'])
 .value('appValue', {
     index: 1,
@@ -38,8 +58,26 @@ angular.module('app', ['ngTouch'])
 			
 		}
 }])
-.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue, agentRemote,$timeout){
+.factory('agentAlbumImage',['$http','appValue',function($http, appValue){
+	return {
+		saveAlbumImage:function(obj){
+			return $http({
+				method:'POST',
+				url:'/mobile/ActivityService/saveAlbumImage',
+				params:{
+					fileId:obj.fileId,
+					albumId:obj.albumId
+				}
+			})
+		}
+	}
+}])
+.controller('MainController',['$scope','appValue','agentRemote','agentAlbumImage','$timeout',function($scope, appValue, agentRemote,agentAlbumImage,$timeout){
 			 $scope.lists = [];
+			 $scope.albumImage = {
+					 fileId:'',
+					 albumId:'${albumId}'
+			 }
 			 $scope.nextPage = function(me){
 				 agentRemote.getData(++appValue.index).then(function(response){
 					 $scope.lists = $scope.lists.concat(response.data.data.data);
@@ -65,6 +103,57 @@ angular.module('app', ['ngTouch'])
 			 };
 			 $scope.initPage();
 			 loadShow();
+			 $scope.chooseImage = function(){
+				// 选择张片
+                 wx.chooseImage({
+                     count: 1, // 默认9
+                     sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                     sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+                     success: function(res) {
+                         var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+                         //showPhoto.getPhoto(localIds[0]);//展示图片
+                         wx.uploadImage({
+                             localId: localIds[0],
+                             isShowProgressTips: 1,
+                             success: function (res) {
+                                 var serverId = res.serverId; // 返回图片的服务器端ID
+                                 $.ajax({url:'/mobile/A/uploadAlbum',data:{
+                                     url:serverId,openId:openId
+                                 }}).done(function(res){
+                                     if (res.ret=="0"&&res.data) {
+                                    	 $scope.albumImage.fileId =res.data.fileId;
+                                    	 agentAlbumImage.saveAlbumImage($scope.albumImage);
+                                    	  // 插入到预览区  
+                                         var $preview = $('<li class="weui-uploader__file" style="background-image:url(' + res.data.fileUrl + ')"></li>');  
+                                    	  if($scope.lists.length > 0){
+                                    		 $('#uploadUl').append($preview);  
+                                    	 }else{
+                                    		 $("#uploadnoUl").append($preview);
+                                    	 }
+                                     }else{
+                                     	//上传失败
+                                     	layer.open({
+                                             content: res.desc,
+                                             btn: ['知道了']
+                                         });
+                                     }
+                                 }).fail(function(){
+                                     layer.open({
+                                         content: '上传失败,请稍后再试',
+                                         btn: ['知道了']
+                                     });
+                                 })
+                             },
+                             error: function () {
+                                 layer.open({
+                                     content: '上传失败,请稍后再试',
+                                     btn: ['知道了']
+                                 });
+                             }
+                         });
+                     }
+                 });
+			 }
 }])
 </script>
 <body ng-cloak ng-controller="MainController">
@@ -83,9 +172,19 @@ angular.module('app', ['ngTouch'])
                 <div class="weui-cell__bd">
                     <div class="weui-uploader">
                         <div class="weui-uploader__bd" id="uploaderFiles"  ng-show="lists.length!=0">
-                            <ul class="weui-uploader__files"  ng-repeat="image in lists">
+                            <ul class="weui-uploader__files" id="uploadUl"  ng-repeat="image in lists">
                                 <li class="weui-uploader__file" style="background-image:url({{image.fileUrl}})" ></li> 
                             </ul>
+                            <div class="weui-uploader__input-box">
+                                <input id="uploaderInput" class="weui-uploader__input" type="button" ng-click="chooseImage()" />
+                            </div>
+                        </div>
+                        <div class="weui-uploader__bd" id="uploaderFiles"  ng-show="lists.length==0">
+                         	<ul class="weui-uploader__files" id="uploadnoUl">
+                            </ul>
+                            <div class="weui-uploader__input-box">
+                                <input id="uploaderInput" class="weui-uploader__input" type="button" ng-click="chooseImage()" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -102,6 +201,7 @@ function loadShow(){
 	  var tmpl = '<li class="weui-uploader__file" style="background-image:url(url)"></li>',
       $gallery = $("#gallery"), $galleryImg = $("#galleryImg"),
       $uploaderFiles = $("#uploaderFiles");
+
 	  $uploaderFiles.on("click", "li", function(){
 	      $galleryImg.attr("style", this.getAttribute("style"));
 	      $gallery.fadeIn(100);

@@ -16,6 +16,55 @@
 <script src="/public/widgets/dropload/dropload.min.js"></script>
 <script src="/public/widgets/angularjs/angular.min.js"></script>
 <script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+			.value('appValue', {
+			    index: 1,
+			    size: 10
+			})
+			.factory('agentRemote',['$http','appValue',function($http, appValue){
+			return {
+				getData:function(index,size,searchText){
+					return $http({
+						method:'GET',
+						url:'/mobile/ActivityService/queryAlbumList',
+						params:{
+							PAGE_INDEX: index || appValue.index,
+                            PAGE_SIZE: size || appValue.size
+						}
+					});
+				}
+				
+			}
+		}])
+		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue, agentRemote,$timeout){
+			 $scope.lists = [];
+			 $scope.nextPage = function(me){
+				 agentRemote.getData(++appValue.index).then(function(response){
+					 $scope.lists = $scope.lists.concat(response.data.data.data);
+					 if (me && me.resetload)
+                         me.resetload();
+				 },function(response){
+					 
+				 })
+			 };
+			 //init page function
+			   $scope.initPage = function (me) {
+				   appValue.index = 1;
+		            agentRemote.getData(1).then(function (response) {
+                        $scope.total = response.data.data.total;
+                        $scope.lists = response.data.data.data;
+                        console.log($scope.lists);
+                        if (me && me.resetload)
+                            me.resetload();
+
+                    }, function (response) {
+                        //err
+                    });
+			 };
+			 
+		}])
+</script>
 </head>
 
 <body>

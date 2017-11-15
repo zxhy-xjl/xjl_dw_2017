@@ -31,6 +31,8 @@ import play.Logger;
 import play.cache.Cache;
 import play.i18n.Messages;
 import controllers.modules.mobile.bo.WxUserBo;
+import controllers.modules.mobile.bo.XjlDwAlbumBo;
+import controllers.modules.mobile.bo.XjlDwAlbumImageBo;
 import controllers.modules.mobile.bo.XjlDwArticleBo;
 import controllers.modules.mobile.bo.XjlDwGroupBuyBo;
 import controllers.modules.mobile.bo.XjlDwGroupBuyItemBo;
@@ -471,8 +473,22 @@ public class ActivityService extends MobileFilter {
         if (params.get("albumTitle") != null) {
         	album.albumTitle = params.get("albumTitle");
         }
-       
+        ok(XjlDwAlbumBo.save(album));
 	}
+	 public static void saveAlbumImage(){
+		   WxUser wxUser = getWXUser();
+		   XjlDwAlbumImage albumImage = new XjlDwAlbumImage();
+		   albumImage.wxOpenId = wxUser.wxOpenId;
+		   if(params.get("fileId") != null){
+			   albumImage.fileId = Long.parseLong(params.get("fileId"));
+		   }
+		   if(params.get("albumId") != null){
+			   albumImage.albumId = Long.parseLong(params.get("albumId"));
+		   }
+		   albumImage.imageTitle = "Wxphoto";
+		   albumImage.imageOrder = Long.parseLong("1");
+		   ok(XjlDwAlbumImageBo.save(albumImage));
+	   }
 	/**
 	 * 相册模板列表
 	 */
