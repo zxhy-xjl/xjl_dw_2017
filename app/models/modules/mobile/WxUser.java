@@ -161,4 +161,11 @@ public class WxUser extends GenericModel{
 		List<WxUser> data = ModelUtils.queryData(pageIndex, pageSize, ret, WxUser.class);
 		return ModelUtils.createResultMap(ret, data);
 	}
+	
+
+	public static int bindTeacher(Long teacherId,String wxOpenId){
+		String sql = "update wx_user set teacher_id='"+teacherId+"' where wx_open_id='"+wxOpenId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
 }

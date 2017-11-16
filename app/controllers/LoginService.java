@@ -4,6 +4,7 @@ import java.util.Map;
 import models.modules.mobile.WxUser;
 import models.modules.mobile.XjlDwClass;
 import models.modules.mobile.XjlDwStudent;
+import models.modules.mobile.XjlDwTeacher;
 import models.modules.mobile.XjlDwUser;
 import models.modules.mobile.XjlDwWxClass;
 import models.modules.mobile.XjlDwWxStudent;
@@ -148,4 +149,24 @@ public class LoginService extends BaseController {
      	ok(wxUser);
  	}
 
+ 	 /**
+     * 绑定老师页面
+     */
+    public static void teacherBind(){
+	    render("modules/xjldw/mobile/my/teacher_bind.html");
+    }
+ 	/**
+ 	 * 查询所有老师信息
+ 	 */
+ 	public static void queryTeacher(){
+ 		Map condition = params.allSimple();
+ 		Map ret  = XjlDwTeacher.queryXjlDwTeacherListByPage(condition,1,100);
+ 		ok(ret);
+ 	}
+ 	public static void bindTeacher(){
+ 		SessionInfo sessionInfo=MobileFilter.getSessionInfo();
+ 		WxUser wxUser =sessionInfo.getWxUser();
+ 		int a = WxUser.bindTeacher(Long.parseLong(params.get("teacherId")),wxUser.wxOpenId);
+ 		System.out.println("bindTeacherOver:"+a);
+ 	}
 }

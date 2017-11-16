@@ -1,0 +1,119 @@
+<!DOCTYPE HTML>
+<html ng-app="app">
+<head>
+<meta charset="UTF-8">
+<title>绑定老师</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/public/css/main.css" />
+<script src="/public/widgets/layer.m/layer.m.js"></script>
+<script src="/public/widgets/angularjs/angular.min.js"></script>
+<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+		.factory('valid',function(){
+			return {
+				teacherInfo:function(obj){
+					if(obj.teacherId == ''){
+						return {flag: false, msg: '请选择学生！'}
+					}
+					return {flag: true, msg: '验证通过'};
+				}
+			}
+		})
+		.factory('remote',['$http',function($http){
+			return {
+				getTeacherInfo:function(){
+					return $http({
+						method:'GET',
+						url:'/LoginService/queryTeacher'
+					});
+				},
+				save:function(obj){
+					return  $http({
+						method:'GET',
+						url:'/LoginService/bindTeacher',
+						params:{
+							teacherId:obj.teacherId
+						}
+					});
+				}
+			}
+	    }])
+	   .controller('MainController',['$scope','valid', 'remote','$http', function($scope,valid,remote,$http){
+		   $scope.teacherList=[];
+		   $scope.getTeacherInfo = function(me){
+			   remote.getTeacherInfo().then(function(response){
+				   $scope.teacherList = response.data.data.data;
+				   if (me && me.resetload)
+                       me.resetload();
+			   },function(response){
+				   //err
+			   })
+		   };
+		   $scope.save = function(){
+			   var validRes = valid.teacherInfo($scope.teacher);
+			   console.log($scope.teacher);
+			   if(validRes.flag){
+				   var index = layer.open({
+                       type: 2,
+                       shadeClose: false,
+                       content: '提交中'
+                   });
+				   remote.save($scope.teacher).then(function(res){
+					   if (res.data.ret == '-1') {
+                           layer.open({
+                               content: res.data.desc,
+                               btn: ['知道了']
+                           });
+                       }else{
+                    	   layer.open({
+                               content: '绑定成功',
+                               btn: ['确定'],
+                               end: function () {
+                                   location.href = "/mobile/M/studentList";
+                               }
+                           });
+                       }
+				   },function(){
+					   layer.open({
+                           content: '提交异常',
+                           btn: ['知道了']
+                       });
+				   }).finally(function () {
+                       layer.close(index);
+                   });
+			   }else{
+				   layer.open({
+                       content: validRes.msg,
+                       btn: ['知道了']
+                   });
+			   }
+		   }
+		   $scope.getTeacherInfo();
+	   }])
+</script>
+</head>
+<body ng-controller="MainController">
+ <div class="border-b padded-t-15 padded-b-15 posrel clearfix">
+      <div class="wid30 fl padded-t-3">老师姓名：</div>
+      <div class="wid70 fr">
+           <select  ng-model="teacher.teacherId"   
+                      ng-options="item.teacherId as item.teacherName for item in teacherList">
+                  <option>请选择老师</option>
+            </select>
+      </div>
+    </div>
+ <div class="main margin-t-10">
+  <div class="row">
+       <input type="button" class="btn btn-blue line-height-2" ng-click="save()" value="提交"/>
+  </div>
+</div>
+</body>
+</html>
