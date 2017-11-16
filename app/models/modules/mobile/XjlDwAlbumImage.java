@@ -10,6 +10,7 @@ import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import play.Logger;
 import play.db.jpa.GenericModel;
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
@@ -56,8 +57,11 @@ public class XjlDwAlbumImage extends GenericModel{
 			if(null !=condition&&null!=condition.get("albumId")){
 				sql +=" and ALBUM_ID = "+condition.get("albumId");
 			}
+			sql+=" order by IMAGE_ORDER";
 			SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+			Logger.info("retsql:"+ret.getSql());
 			List<XjlDwAlbumImage> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwAlbumImage.class);
+			Logger.info("datasize:"+data);
 			for (XjlDwAlbumImage xjlDwAlbumImage : data) {
 				XjlDwFile file = XjlDwFile.queryXjlDwFileById(xjlDwAlbumImage.fileId);
 				if (file != null){
@@ -68,7 +72,7 @@ public class XjlDwAlbumImage extends GenericModel{
 	}
 	
 	public static Map queryXjlDwAlbumImageByAlbumId(Long albumId,int pageIndex, int pageSize){
-		String sql = "select * from xjl_dw_album_image  where status='0AA' [ and ALBUM_ID = l:albumId ] ";
+		String sql = "select * from xjl_dw_album_image  where status='0AA'  and ALBUM_ID = '"+albumId+"'";
 		Map<String, String> condition = new HashMap<String, String>();
 		condition.put("albumId", String.valueOf(albumId));
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);

@@ -12,6 +12,7 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang.math.NumberUtils;
 
+import play.Logger;
 import play.db.jpa.GenericModel;
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
@@ -80,6 +81,7 @@ public class XjlDwAlbum extends GenericModel{
 				XjlDwAlbumTemplate template = templateMap.get(String.valueOf(xjlDwAlbum.albumTemplateId));
 				if (template != null){
 					condition.put("albumId",String.valueOf(xjlDwAlbum.albumId));
+					Logger.info("pageSize:"+template.albumTemplateImgNum.intValue());
 					//添加相册模板
 					xjlDwAlbum.template = template;
 					//添加相册封面上的图片列表

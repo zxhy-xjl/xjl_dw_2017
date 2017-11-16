@@ -78,7 +78,7 @@ angular.module('app', ['ngTouch'])
 					 fileId:'',
 					 albumId:'${albumId}'
 			 }
-			 $scope.nextPage = function(me){
+			/*  $scope.nextPage = function(me){
 				 agentRemote.getData(++appValue.index).then(function(response){
 					 $scope.lists = $scope.lists.concat(response.data.data.data);
 					 if (me && me.resetload)
@@ -86,14 +86,13 @@ angular.module('app', ['ngTouch'])
 				 },function(response){
 					 
 				 })
-			 };
+			 }; */
 			 //init page function
-			   $scope.initPage = function (me) {
+			 $scope.initPage = function (me) {
 				   appValue.index = 1;
 		            agentRemote.getData(1).then(function (response) {
                         $scope.total = response.data.data.total;
                         $scope.lists = response.data.data.data;
-                        console.log($scope.lists);
                         if (me && me.resetload)
                             me.resetload();
 
@@ -101,56 +100,69 @@ angular.module('app', ['ngTouch'])
                         //err
                     });
 			 };
+			 $scope.uploadImage = function(strs){
+				    wx.uploadImage({
+                        localId: strs[idx],
+                        isShowProgressTips: 1,
+                        success: function (res) {
+                            var serverId = res.serverId; // 返回图片的服务器端ID
+                            $.ajax({url:'/mobile/A/uploadAlbum',data:{
+                                url:serverId,openId:openId
+                            }}).done(function(res){
+                                if (res.ret=="0"&&res.data) {
+                                   	 $scope.albumImage.fileId =res.data.fileId;
+                                   	 agentAlbumImage.saveAlbumImage($scope.albumImage);
+                                   	  // 插入到预览区  
+                                        var $preview = $('<li class="weui-uploader__file" style="background-image:url(' + res.data.fileUrl + ')"></li>');  
+                                   	  if($scope.lists.length > 0){
+                                   		 $('#uploadUl').append($preview);  
+                                   	 }else{
+                                   		 $("#uploadnoUl").append($preview);
+                                   	 }
+                                   	 idx++;
+                                   	 if(idx < strs.length){
+                                   		 $scope.uploadImage(strs);
+                                   	 }
+                                }else{
+                                	//上传失败
+                                	layer.open({
+                                        content: res.desc,
+                                        btn: ['知道了']
+                                    });
+                                }
+                            }).fail(function(){
+                                layer.open({
+                                    content: '上传失败,请稍后再试',
+                                    btn: ['知道了']
+                                });
+                            })
+                        },
+                        error: function () {
+                            layer.open({
+                                content: '上传失败,请稍后再试',
+                                btn: ['知道了']
+                            });
+                        }
+                    });
+			 }
 			 $scope.initPage();
 			 loadShow();
+			 var idx = 0;
 			 $scope.chooseImage = function(){
 				// 选择张片
                  wx.chooseImage({
-                     count: 1, // 默认9
+                     count: 9, // 默认9
                      sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
                      sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
                      success: function(res) {
                          var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
-                         //showPhoto.getPhoto(localIds[0]);//展示图片
-                         wx.uploadImage({
-                             localId: localIds[0],
-                             isShowProgressTips: 1,
-                             success: function (res) {
-                                 var serverId = res.serverId; // 返回图片的服务器端ID
-                                 $.ajax({url:'/mobile/A/uploadAlbum',data:{
-                                     url:serverId,openId:openId
-                                 }}).done(function(res){
-                                     if (res.ret=="0"&&res.data) {
-                                    	 $scope.albumImage.fileId =res.data.fileId;
-                                    	 agentAlbumImage.saveAlbumImage($scope.albumImage);
-                                    	  // 插入到预览区  
-                                         var $preview = $('<li class="weui-uploader__file" style="background-image:url(' + res.data.fileUrl + ')"></li>');  
-                                    	  if($scope.lists.length > 0){
-                                    		 $('#uploadUl').append($preview);  
-                                    	 }else{
-                                    		 $("#uploadnoUl").append($preview);
-                                    	 }
-                                     }else{
-                                     	//上传失败
-                                     	layer.open({
-                                             content: res.desc,
-                                             btn: ['知道了']
-                                         });
-                                     }
-                                 }).fail(function(){
-                                     layer.open({
-                                         content: '上传失败,请稍后再试',
-                                         btn: ['知道了']
-                                     });
-                                 })
-                             },
-                             error: function () {
-                                 layer.open({
-                                     content: '上传失败,请稍后再试',
-                                     btn: ['知道了']
-                                 });
-                             }
-                         });
+                         var str = localIds.toString();
+                         var index = str.indexOf(',');
+                         var strs = str.split(',');
+                         var flag = true;
+                         //for(var i = 0;i<strs.length;i++){
+                        	 $scope.uploadImage(strs);
+                         //}
                      }
                  });
 			 }
@@ -197,6 +209,9 @@ angular.module('app', ['ngTouch'])
 </div>
 </body>
 <script type="text/javascript">
+function uploadImage(){
+	
+}
 function loadShow(){
 	  var tmpl = '<li class="weui-uploader__file" style="background-image:url(url)"></li>',
       $gallery = $("#gallery"), $galleryImg = $("#galleryImg"),
