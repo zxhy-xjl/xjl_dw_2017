@@ -74,6 +74,7 @@ angular.module('app', ['ngTouch'])
 }])
 .controller('MainController',['$scope','appValue','agentRemote','agentAlbumImage','$timeout',function($scope, appValue, agentRemote,agentAlbumImage,$timeout){
 			 $scope.lists = [];
+			 $scope.urls = Array();
 			 $scope.albumImage = {
 					 fileId:'',
 					 albumId:'${albumId}'
@@ -115,7 +116,7 @@ angular.module('app', ['ngTouch'])
                                    	  // 插入到预览区  
                                         var $preview = $('<li class="weui-uploader__file" style="background-image:url(' + res.data.fileUrl + ')"></li>');  
                                    	  if($scope.lists.length > 0){
-                                   		 $('#uploadUl').append($preview);  
+                                   		 $('.uploadUl').append($preview);  
                                    	 }else{
                                    		 $("#uploadnoUl").append($preview);
                                    	 }
@@ -145,8 +146,7 @@ angular.module('app', ['ngTouch'])
                         }
                     });
 			 }
-			 $scope.initPage();
-			 loadShow();
+			 //loadShow();
 			 var idx = 0;
 			 $scope.chooseImage = function(){
 				// 选择张片
@@ -160,12 +160,22 @@ angular.module('app', ['ngTouch'])
                          var index = str.indexOf(',');
                          var strs = str.split(',');
                          var flag = true;
-                         //for(var i = 0;i<strs.length;i++){
-                        	 $scope.uploadImage(strs);
-                         //}
+                         $scope.uploadImage(strs);
                      }
                  });
+			 };
+			 $scope.readImage = function(url){
+				 var http = window.location.href.split('.com');
+				 for(i = 0;i<$scope.lists.length;i++){
+					 $scope.urls.push(http[0]+'.com'+$scope.lists[i].fileUrl);
+                 }
+				 console.log(http[0]+'.com'+url);
+				 wx.previewImage({
+					    current:http[0]+'.com'+url, // 当前显示图片的http链接
+					    urls:$scope.urls // 需要预览的图片http链接列表
+					});
 			 }
+			 $scope.initPage();
 }])
 </script>
 <body ng-cloak ng-controller="MainController">
@@ -184,8 +194,8 @@ angular.module('app', ['ngTouch'])
                 <div class="weui-cell__bd">
                     <div class="weui-uploader">
                         <div class="weui-uploader__bd" id="uploaderFiles"  ng-show="lists.length!=0">
-                            <ul class="weui-uploader__files" id="uploadUl"  ng-repeat="image in lists">
-                                <li class="weui-uploader__file" style="background-image:url({{image.fileUrl}})" ></li> 
+                            <ul id="lightgallery" class="weui-uploader__files" class="uploadUl" >
+                                <li class="weui-uploader__file" style="background-image:url({{image.fileUrl}})" ng-click="readImage('{{image.fileUrl}}')"  ng-repeat="image in lists" ></li> 
                             </ul>
                             <div class="weui-uploader__input-box">
                                 <input id="uploaderInput" class="weui-uploader__input" type="button" ng-click="chooseImage()" />
@@ -209,9 +219,6 @@ angular.module('app', ['ngTouch'])
 </div>
 </body>
 <script type="text/javascript">
-function uploadImage(){
-	
-}
 function loadShow(){
 	  var tmpl = '<li class="weui-uploader__file" style="background-image:url(url)"></li>',
       $gallery = $("#gallery"), $galleryImg = $("#galleryImg"),
