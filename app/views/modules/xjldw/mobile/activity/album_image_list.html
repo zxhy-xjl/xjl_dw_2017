@@ -169,7 +169,6 @@ angular.module('app', ['ngTouch'])
 				 for(i = 0;i<$scope.lists.length;i++){
 					 $scope.urls.push(http[0]+'.com'+$scope.lists[i].fileUrl);
                  }
-				 console.log(http[0]+'.com'+url);
 				 wx.previewImage({
 					    current:http[0]+'.com'+url, // 当前显示图片的http链接
 					    urls:$scope.urls // 需要预览的图片http链接列表
