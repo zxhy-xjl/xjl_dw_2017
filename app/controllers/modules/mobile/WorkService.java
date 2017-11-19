@@ -66,10 +66,14 @@ public class WorkService extends MobileFilter {
 		Map ret = XjlDwExam.query(condition, pageIndex, pageSize);
 		List<XjlDwExam> list = (List<XjlDwExam>)ret.get("data");
 		List<Map> examInfoList = new ArrayList();
+		List<XjlDwStudent> dataStudent = null;
+		List<XjlDwExamSubject> dataExamSubject = null;
 		for (XjlDwExam xjlDwExam : list) {
 			Map examInfo = new HashMap();
 			examInfo.put("exam", xjlDwExam);
-			Map mma = XjlDwExamGrade.queryMaxMinAvg(xjlDwExam.examId);
+			dataStudent  = (List<XjlDwStudent>) XjlDwStudent.queryByClassId(wxUser.currentClass.classId).get("data");
+		    dataExamSubject =(List<XjlDwExamSubject>) XjlDwExamSubject.queryByExam(xjlDwExam.examId).get("data");
+			Map mma = XjlDwExamGrade.queryMaxMinAvg(xjlDwExam.examId,dataStudent.size(),dataExamSubject.size());
 			examInfo.put("mma", mma);
 			examInfoList.add(examInfo);
 		}

@@ -11,11 +11,12 @@
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
 <link rel="stylesheet" href="/public/css/main.css" />
-
+<link rel="stylesheet" href="/public/css/weui.css" />
 <script src="/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/public/widgets/dropload/dropload.min.js"></script>
 <script src="/public/widgets/angularjs/angular.min.js"></script>
 <script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="https://res.wx.qq.com/open/libs/weuijs/1.0.0/weui.min.js"></script>
 </head>
 <script>
 
@@ -132,12 +133,24 @@
     <div class="border padded-5 posrel">
           <input type="text" value="" class="border font-size-13" ng-model="exam.examTitle"/>
     </div>
-    <div class="padded-5 clearfix posrel" ng-repeat="subject in subjectList">
+    <!-- <div class="padded-5 clearfix posrel" ng-repeat="subject in subjectList">
           <span class="select cur">
           		<input type="checkbox" ng-model="subject.isExamSubject" ng-click="checkboxItemFun(subject.isExamSubject,$index)"/>
           </span>
           <span class="margin-l-10">{{subject.subjectTitle}}</span>
-    </div>
+    </div> -->
+    
+        <div class="weui-cells weui-cells_checkbox" ng-repeat="subject in subjectList">
+            <label class="weui-cell weui-check__label" for="checkbox{{subject.subjectId}}">
+                <div class="weui-cell__hd">
+                    <input type="checkbox" class="weui-check" name="checkbox1" ng-model="subject.isExamSubject" ng-click="checkboxItemFun(subject.isExamSubject,$index)" id="checkbox{{subject.subjectId}}" />
+                    <i class="weui-icon-checked"></i>
+                </div>
+                <div class="weui-cell__bd">
+                    <p>{{subject.subjectTitle}}</p>
+                </div>
+            </label>
+        </div>
     <input type="button" class="fr btn bg-success wid4 margin-r-10" ng-click="saveExamAndSubject()" value="保存考试科目"/>
  	<input type="button" class="btn btn-white fr" onClick="window.location='/mobile/W/examList'" value="返回"/>
   </div>

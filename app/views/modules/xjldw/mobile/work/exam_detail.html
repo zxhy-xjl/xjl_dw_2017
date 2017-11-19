@@ -11,7 +11,7 @@
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
 <link rel="stylesheet" href="/public/css/main.css" />
-
+<link rel="stylesheet" href="/public/css/weui.css" />
 <script src="/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/public/widgets/dropload/dropload.min.js"></script>
 <script src="/public/widgets/angularjs/angular.min.js"></script>
@@ -101,19 +101,19 @@
     <div class=" padded-t-10 padded-b-10">
       <div class="padded-t-5 border-b padded-b-5" ng-repeat="studentInfo in studentList">
         <div class="flex font-size-14"><!-- <span class="padded-r-5">{{studentInfo.student.studentNo}}</span> --><span class="padded-r-5 wid3">{{studentInfo.student.studentName}} 总分:{{studentInfo.total}}</span></div>
-        <div ng-if="${wxUser.isTeacher}" class="flex"><a href="#" ng-click="editExamGrade('{{studentInfo.student.studentId}}',$index)" class="btn fr bg-info">
+        <div  class="flex"><a href="#" ng-click="editExamGrade('{{studentInfo.student.studentId}}',$index)" class="btn fr bg-info">
         <span ng-show="{{studentInfo.total>0}}">
         编辑
         </span>
-         <span ng-if="${wxUser.isTeacher}" ng-show="{{studentInfo.total==0}}" class="bg-success">
+         <span ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" ng-show="{{studentInfo.total==0}}" class="bg-success">
         添加
         </span>
         </a></div>
-        <div ng-if="${wxUser.isParent}" class="flex"><a href="#" ng-click="editExamGrade('{{studentInfo.student.studentId}}',$index)" class="btn fr bg-info">
+      <!--   <div ng-if="${wxUser.isParent}" class="flex"><a href="#" ng-click="editExamGrade('{{studentInfo.student.studentId}}',$index)" class="btn fr bg-info">
         <span >
         编辑
         </span>
-        </a></div>
+        </a></div> -->
         <div class="btnbox margin-l-10 padded-t-5 font-size-13 text-auxiliary">
 	        <div class="flex" ng-repeat="grade in studentInfo.grade"><span class="padded-r-5">{{grade.subjectTitle}} {{grade.gradeValue}}</span></div>
         </div>
@@ -130,12 +130,20 @@
 <div class="tuan-select" id="examGradeDiv" ng-show="showExamGradeList==true">
   <div class="margin-15 clearfix">
     <div class="font-size-14 btnbox padded-t-10" ng-repeat="examGrade in currentStudentInfo.grade">
-	        <span>{{examGrade.subjectTitle}}</span>
+	      <!--   <span>{{examGrade.subjectTitle}}</span>
 	        <div class="wid1_5 subject margin-l-5 padded-l-3 margin-r-5 border bgdefault">
 	          <input type="text" value="" class="border font-size-13" ng-model="examGrade.gradeValue"/>
-	        </div>
+	        </div> -->
+	        <div class="weui-cells">
+            <div class="weui-cell">
+              <div class="weui-cell__hd"><label class="weui-label">{{examGrade.subjectTitle}}</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text"  ng-model="examGrade.gradeValue"/>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="hr margin-b-10 margin-t-10"></div>
+   <!--  <div class="hr margin-b-10 margin-t-10"></div> -->
     <div class="padded-5 clearfix"><span>合计：</span><span class="text-danger">{{examGradeTotal()}}</span>
       <input type="button" class="fr btn wid4"  ng-click="close()" value="关闭"/>
       <input type="button" class="fr btn bg-success wid4 margin-r-10" ng-click="save()" value="确定"/>

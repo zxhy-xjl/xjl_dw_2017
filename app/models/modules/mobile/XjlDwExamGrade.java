@@ -1,5 +1,6 @@
 package models.modules.mobile;
 import java.sql.*;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.*;
 
@@ -84,8 +85,8 @@ public class XjlDwExamGrade extends GenericModel{
 	 * @param examId
 	 * @return
 	 */
-	public static Map queryMaxMinAvg(Long examId){
-		String sql = "select max(exam_grade),min(exam_grade),round(avg(exam_grade),1) from ("+
+	public static Map queryMaxMinAvg(Long examId,int studentNum,int subjectNum){
+		String sql = "select max(exam_grade),min(exam_grade),round(avg(exam_grade),1),sum(exam_grade)  from ("+
 "select student_id,round(sum(exam_grade),1) as exam_grade from xjl_dw_exam_grade where [exam_id=l:examId] group by student_id "+
 ")  as foo";
 		Map condition = new HashMap();
@@ -93,6 +94,7 @@ public class XjlDwExamGrade extends GenericModel{
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<Object[]> data = ModelUtils.queryData(ret);
 		Map mma = new HashMap();
+		DecimalFormat df = new DecimalFormat("######0.00");
 		if (data.isEmpty()||data.get(0)==null){
 			mma.put("max", "0");
 			mma.put("min", "0");
@@ -104,11 +106,20 @@ public class XjlDwExamGrade extends GenericModel{
 				mma.put("avg", "0");
 			} else {
 				mma.put("max", data.get(0)[0].toString());
-				mma.put("min",  data.get(0)[1].toString());
-				mma.put("avg",  data.get(0)[2].toString());
+				mma.put("min", queryCount(examId)==studentNum?data.get(0)[1].toString():"0");
+				mma.put("avg",  df.format(Double.valueOf(data.get(0)[3].toString())/studentNum/subjectNum));
+				System.out.println("--------------------------------------------"+queryCount(examId));
 			}
 		}
 		return mma;
+	}
+	public static int queryCount(Long examId){
+		String sql = "select student_id,sum(exam_grade) as exam_grade from xjl_dw_exam_grade where [exam_id=l:examId] group by student_id";
+		Map condition = new HashMap();
+		condition.put("examId", String.valueOf(examId));
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<Object[]> data = ModelUtils.queryData(ret);
+		return data.size();
 	}
 	
 }

@@ -83,6 +83,8 @@ public class WxUser extends GenericModel{
 	//当前班级（家长和老师都会有这个值）
 	@Transient
 	public XjlDwClass currentClass;
+	@Transient
+	public String teacherName;
 	//当前学生（家长会有这个值，老师没有）
 	@Transient
 	public XjlDwStudent currentStudent;
@@ -136,6 +138,7 @@ public class WxUser extends GenericModel{
     			wxUser.currentClass=wxStudent.dwClass;
     			wxUser.isParent = true;
     			wxUser.isCommittee = XjlDwParentCommittee.isParentCommittee(wxUser.currentClass.classId, wxUser.wxOpenId);
+    			wxUser.teacherName="default";
     		}
         	//查询老师对应的班级信息
         	else if(wxUser.teacherId != null){
@@ -147,6 +150,7 @@ public class WxUser extends GenericModel{
     				XjlDwStudent student = new XjlDwStudent();
     				student.studentName = "text";
     				wxUser.currentStudent = student;
+    				wxUser.teacherName = XjlDwTeacher.queryByTeacherId(wxUser.teacherId).teacherName;
     			}
         	}
         	Logger.info("获取第一个符合条件老师:" + wxUser.teacherId);

@@ -371,7 +371,6 @@ z-index:
 2: .weui-cells和.weui-cell的1px线
 */
 .weui-cells {
-  margin-top: 1.17647059em;
   background-color: #FFFFFF;
   line-height: 1.47058824;
   font-size: 17px;
@@ -385,7 +384,6 @@ z-index:
   top: 0;
   right: 0;
   height: 1px;
-  border-top: 1px solid #e5e5e5;
   color: #e5e5e5;
   -webkit-transform-origin: 0 0;
           transform-origin: 0 0;
@@ -427,7 +425,7 @@ z-index:
   font-size: 14px;
 }
 .weui-cell {
-  padding: 10px 15px;
+	 padding: 10px 15px;
   position: relative;
   display: -webkit-box;
   display: -webkit-flex;
