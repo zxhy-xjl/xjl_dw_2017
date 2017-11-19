@@ -38,12 +38,15 @@ public class MobileFilter extends BaseController{
 		log.debug("checkLogin开始检查登录状态");
 		String userAgent = request.headers.get("user-agent").value().toLowerCase();
 		String deviceFlag = params.get("flag");
+		String newbind = params.get("bindFlag");
+		Logger.info("newbind:"+newbind);
 		log.debug("userAgent:"+ userAgent);
 		log.debug("deviceFlag:" + deviceFlag);
 		boolean isNeedInterface =false;
 		SessionInfo sessionInfo=getSessionInfo();
 		WxUser 	wxUser = null;
-		if(sessionInfo!=null){
+		Logger.info("filterwxUser："+wxUser);
+		  if(sessionInfo!=null){
 			log.debug("当前session不为空");
 			wxUser = sessionInfo.getWxUser();
 			log.debug("当前用户:" + wxUser);
@@ -52,7 +55,12 @@ public class MobileFilter extends BaseController{
 				if(wxUser!=null&&(DateUtil.getNowDate().compareTo(DateUtil.getDateTimeNowFun(wxUser.upOpenidTime,"d",1))<=0)){
 					//还在有效期内
 					log.debug("还在有效期内");
+					Logger.info("filterDate："+DateUtil.getDateTimeNowFun(wxUser.upOpenidTime,"d",1));
 					isNeedInterface = false;
+					 wxUser = WxUser.getFindByOpenId(wxUser.wxOpenId);
+					 Logger.info("toStudent:"+wxUser.isTeacher);
+					 sessionInfo.setWxUser(wxUser);
+			 		 Cache.add(MobileFilter.getSessionKey(), sessionInfo);
 				}else{
 					log.debug("已经过期，需要重新获取");
 					//已经是三天前的数据，过期重新获取
@@ -232,7 +240,8 @@ public class MobileFilter extends BaseController{
 		}
 		//检查有没有绑定学生，如果没有绑定学生需要跳转到绑定学生页面
 		//wxUser = getWXUser();
-		if (wxUser.currentStudent == null&&("testPC".equals(deviceFlag)||isMobile(userAgent))){ //本地调试手机版页面使用
+		Logger.info("isCommittee:"+wxUser.isCommittee);
+		if (!wxUser.isTeacher&&wxUser.currentStudent == null&&("testPC".equals(deviceFlag)||isMobile(userAgent))){ //本地调试手机版页面使用
 			render("modules/xjldw/mobile/my/student_none.html");
 		} else {
 			if(!"PC".equals(sessionInfo.getDeviceFlag())){
@@ -301,6 +310,14 @@ public class MobileFilter extends BaseController{
 	}
 	public static void main(String[] args) {
 		System.out.println(MobileFilter.getWXSmallHeadImage("http://wx.qlogo.cn/mmopen/0wRpPfN90ibAwzs8Tsvm1T9dia4kdMEWIHqCsYR3IomWSSVtCPvXHk0gSMsLibypxRmuXEA1HROlVWZUa3vE031bU1dBs26cyKT/0"));
+	}
+	
+	public static void refresh(String openid){
+		Logger.info("进入刷新方法:"+openid);
+		WxUser wxUser = WxUser.getFindByOpenId(openid);
+		SessionInfo sessionInfo=new SessionInfo();
+		sessionInfo.setWxUser(wxUser);
+		setSessionInfo(sessionInfo);
 	}
 }
 

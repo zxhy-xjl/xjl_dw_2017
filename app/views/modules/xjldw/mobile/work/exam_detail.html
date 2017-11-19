@@ -96,17 +96,22 @@
 <body  ng-cloak ng-controller="MainController">
 <div class="main">
   <div class="row">
-    <div class=" btnbox padded-t-10 padded-b-10"> ${wxUser.currentClass.className} ${exam.examTitle} </div>
+    <div  class=" btnbox padded-t-10 padded-b-10"> ${wxUser.currentClass.className} ${exam.examTitle} </div>
     <div class="hr"></div>
     <div class=" padded-t-10 padded-b-10">
       <div class="padded-t-5 border-b padded-b-5" ng-repeat="studentInfo in studentList">
-        <div class="flex font-size-14"><span class="padded-r-5">{{studentInfo.student.studentNo}}</span><span class="padded-r-5 wid3">{{studentInfo.student.studentName}} 总分:{{studentInfo.total}}</span></div>
-        <div class="flex"><a href="#" ng-click="editExamGrade('{{studentInfo.student.studentId}}',$index)" class="btn fr bg-info">
+        <div class="flex font-size-14"><!-- <span class="padded-r-5">{{studentInfo.student.studentNo}}</span> --><span class="padded-r-5 wid3">{{studentInfo.student.studentName}} 总分:{{studentInfo.total}}</span></div>
+        <div ng-if="${wxUser.isTeacher}" class="flex"><a href="#" ng-click="editExamGrade('{{studentInfo.student.studentId}}',$index)" class="btn fr bg-info">
         <span ng-show="{{studentInfo.total>0}}">
         编辑
         </span>
-         <span ng-show="{{studentInfo.total==0}}" class="bg-success">
+         <span ng-if="${wxUser.isTeacher}" ng-show="{{studentInfo.total==0}}" class="bg-success">
         添加
+        </span>
+        </a></div>
+        <div ng-if="${wxUser.isParent}" class="flex"><a href="#" ng-click="editExamGrade('{{studentInfo.student.studentId}}',$index)" class="btn fr bg-info">
+        <span >
+        编辑
         </span>
         </a></div>
         <div class="btnbox margin-l-10 padded-t-5 font-size-13 text-auxiliary">

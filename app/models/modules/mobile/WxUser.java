@@ -137,7 +137,22 @@ public class WxUser extends GenericModel{
     			wxUser.isParent = true;
     			wxUser.isCommittee = XjlDwParentCommittee.isParentCommittee(wxUser.currentClass.classId, wxUser.wxOpenId);
     		}
+        	//查询老师对应的班级信息
+        	else if(wxUser.teacherId != null){
+        		XjlDwClassTeacher classTeacher = XjlDwClassTeacher.queryByTeacher(wxUser.teacherId);
+    			if(null != classTeacher){
+    				XjlDwClass dwClass = XjlDwClass.queryXjlDwClassById(classTeacher.classId);
+    				Logger.info("wxuserClassTeacher"+dwClass.className);
+    				wxUser.currentClass=dwClass;
+    				XjlDwStudent student = new XjlDwStudent();
+    				student.studentName = "text";
+    				wxUser.currentStudent = student;
+    			}
+        	}
+        	Logger.info("获取第一个符合条件老师:" + wxUser.teacherId);
+        	Logger.info("获取第一个符合条件家会家长:" + wxUser.isCommittee);
         	wxUser.isTeacher = wxUser.teacherId != null;
+        	Logger.info("WxisTeacher:"+wxUser.isTeacher);
         	return wxUser;
         }
 	}

@@ -27,7 +27,7 @@ import models.modules.mobile.XjlDwWxClass;
 import models.modules.mobile.XjlDwStudent;
 import models.modules.mobile.XjlDwSubject;
 import models.modules.mobile.XjlDwWxStudent;
-
+import play.Logger;
 import play.cache.Cache;
 import play.i18n.Messages;
 import controllers.comm.SessionInfo;
@@ -165,24 +165,80 @@ public class WorkService extends MobileFilter {
 	 */
 	public static void queryStudentExamGradeList(){
 		WxUser wxUser = getWXUser();
+		//获取所有科目
 		List<XjlDwSubject> subjectList = XjlDwSubject.all().fetch();
-		
+		//通过考试编号获取所有成绩
 		Long examId = StringUtil.getLong(params.get("examId"));
 		List<XjlDwExamSubject> examSubjectList = (List<XjlDwExamSubject>)XjlDwExamSubject.queryByExam(examId).get("data");
-		
-		Map map = XjlDwStudent.queryByClassId(wxUser.currentClass.classId);
-		List<XjlDwStudent> studentList = (List<XjlDwStudent>)map.get("data");
 		List<Map> studentInfoList = new ArrayList<Map>();
-		
-		for (XjlDwStudent student : studentList) {
+		List<XjlDwExamGrade> studentGradeList = null;
+		List<Map> gradeList = null;
+		//通过班级得到所有学生
+		Map map = XjlDwStudent.queryByClassId(wxUser.currentClass.classId);
+		Logger.info("入口："+wxUser.isTeacher+":"+wxUser.isCommittee);
+		//老师&家委会入口
+		if(wxUser.isTeacher||wxUser.isCommittee){
+			List<XjlDwStudent> studentList = (List<XjlDwStudent>)map.get("data");
+			Map studentInfo = null;
+			Map gradeInfo  = null;
+			//遍历学生
+			for (XjlDwStudent student : studentList) {
+				studentInfo = new HashMap();
+				studentInfo.put("student", student);
+				gradeList = new ArrayList();
+				//通过考试编号与学生编号得到成绩
+				studentGradeList = (List<XjlDwExamGrade>)XjlDwExamGrade.queryByStudentAndExam(examId, student.studentId).get("data");
+				//遍历所有考试成绩
+				for (XjlDwExamSubject xjlDwExamSubject : examSubjectList) {
+					gradeInfo = new HashMap();
+					gradeInfo.put("subjectId", xjlDwExamSubject.subjectId);
+					//遍历所有科目
+					for (XjlDwSubject xjlDwSubject : subjectList) {
+						//把学生的考试成绩与所有科目进行比对记录
+						if (xjlDwSubject.subjectId == xjlDwExamSubject.subjectId){
+							gradeInfo.put("subjectTitle", xjlDwSubject.subjectTitle);
+							gradeInfo.put("gradeId", "0");
+							gradeInfo.put("gradeValue", "0");
+							break;
+						}
+					}
+					//得到学习成绩
+					for (XjlDwExamGrade grade : studentGradeList) {
+						if (grade.subjectId == xjlDwExamSubject.subjectId){
+							gradeInfo.put("gradeId", grade.examGradeId);
+							gradeInfo.put("gradeValue", grade.examGrade);
+							break;
+						}
+					}
+					gradeList.add(gradeInfo);
+				}
+				studentInfo.put("grade", gradeList);
+				double total = 0;
+				for (XjlDwExamGrade grade : studentGradeList) {
+					total += grade.examGrade;
+				}
+				studentInfo.put("total", total);
+				studentInfoList.add(studentInfo);
+			}
+			
+		}
+		//家长入口
+		else{
 			Map studentInfo = new HashMap();
-			studentInfo.put("student", student);
-			List<Map> gradeList = new ArrayList();
-			List<XjlDwExamGrade> studentGradeList = (List<XjlDwExamGrade>)XjlDwExamGrade.queryByStudentAndExam(examId, student.studentId).get("data");
+			Map gradeInfo = null;
+			gradeList = new ArrayList();
+			studentInfo.put("student", wxUser.currentStudent);
+			Logger.info("家长入口："+wxUser.currentStudent.studentName);
+			//通过考试编号与学生编号得到成绩
+			studentGradeList = (List<XjlDwExamGrade>)XjlDwExamGrade.queryByStudentAndExam(examId,wxUser.currentStudent.studentId).get("data");
+			//遍历所有考试成绩
 			for (XjlDwExamSubject xjlDwExamSubject : examSubjectList) {
-				Map gradeInfo = new HashMap();
+				gradeInfo = new HashMap();
 				gradeInfo.put("subjectId", xjlDwExamSubject.subjectId);
+				//遍历所有科目
 				for (XjlDwSubject xjlDwSubject : subjectList) {
+					Logger.info("科目:"+xjlDwSubject.subjectTitle);
+					//把学生的考试成绩与所有科目进行比对记录
 					if (xjlDwSubject.subjectId == xjlDwExamSubject.subjectId){
 						gradeInfo.put("subjectTitle", xjlDwSubject.subjectTitle);
 						gradeInfo.put("gradeId", "0");
@@ -190,6 +246,7 @@ public class WorkService extends MobileFilter {
 						break;
 					}
 				}
+				//得到学习成绩
 				for (XjlDwExamGrade grade : studentGradeList) {
 					if (grade.subjectId == xjlDwExamSubject.subjectId){
 						gradeInfo.put("gradeId", grade.examGradeId);
@@ -202,6 +259,7 @@ public class WorkService extends MobileFilter {
 			studentInfo.put("grade", gradeList);
 			double total = 0;
 			for (XjlDwExamGrade grade : studentGradeList) {
+				Logger.info("总分:"+grade.studentId+">"+grade.subjectId);
 				total += grade.examGrade;
 			}
 			studentInfo.put("total", total);
@@ -229,8 +287,8 @@ public class WorkService extends MobileFilter {
 		Long examId = StringUtil.getLong(params.get("examId"));
 		Long studentId = StringUtil.getLong(params.get("studentId"));
 		Map map = XjlDwExamGrade.queryByStudentAndExam(examId, studentId);
+		Logger.info("平均分:"+map);
 		List<XjlDwExamGrade> gradeList= (List<XjlDwExamGrade>)map.get("data");
-		
 		ok(map);
 	}
 	/**

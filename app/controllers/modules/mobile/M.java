@@ -28,6 +28,7 @@ public class M extends MobileFilter {
 	 public static void studentList() {
 		WxUser wxUser =  getWXUser();
 		renderArgs.put("wxUser",wxUser);
+		Logger.info("teacherUser:"+wxUser.isTeacher);
 	    render("modules/xjldw/mobile/my/student_list.html");
 	 }
 	 /**

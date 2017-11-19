@@ -60,4 +60,21 @@ public class XjlDwClassTeacher extends GenericModel{
 		hm.put("data", data);
 		return hm;
 	}
+	
+	public static XjlDwClassTeacher queryByTeacher(Long teacaherId){
+		String sql = "select * "
+				+ "from xjl_dw_class_teacher a where a.status='0AA' "
+				+ "and teacher_id='"+teacaherId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		condition.put("teacherId", String.valueOf(teacaherId));
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlDwClassTeacher> data = ModelUtils.queryData(ret,XjlDwClassTeacher.class);
+		if(data.isEmpty()){
+			return null;
+		}else{
+			XjlDwClassTeacher xjlDwClass = data.get(0);
+			return xjlDwClass;
+		}
+	}
+	
 }

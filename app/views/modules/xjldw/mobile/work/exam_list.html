@@ -40,6 +40,7 @@
                 .controller('MainController', ['$scope', 'appValue','agentRemote','$timeout', function ($scope, appValue,agentRemote,$timeout) {
                 	$scope.examTotal = 0;
                     $scope.examList = [];
+                    $scope.isTeacher = ${wxUser.isTeacher};
                 	//init page function
                     $scope.initPage = function (me) {
                 		console.log("考试列表")
@@ -64,7 +65,7 @@
 <body ng-cloak ng-controller="MainController">
 <div class="main">
   <div class="row">
-    <h3 class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentClass.className}成绩单
+    <h3  class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentClass.className}成绩单
       <input type="button" class="btn-blue btn fr margin-l-10" onClick="window.location='/mobile/W/examAdd'" value="公布成绩单"/>
     </h3>
     <div class="content">

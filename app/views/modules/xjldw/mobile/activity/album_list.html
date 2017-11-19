@@ -17,8 +17,8 @@
 <script src="/public/widgets/angularjs/angular-touch.min.js"></script>
 <style type="text/css">
 a,img{border:0;}
-#shadowpic{width:540px;height:auto;overflow:hidden;background:#fff;}
-#shadowpic ul{display:block;width:130px;height:120px;float:left;overflow:hidden;position:relative;list-style: none;margin:10%;}
+#shadowpic{width:300px;height:auto;overflow:hidden;background:#fff;}
+#shadowpic ul{display:block;width:300px;height:120px;float:left;overflow:hidden;position:relative;list-style: none;margin:10%;}
 #shadowpic li{width:60px;height:60px;position:relative;float:left;z-index:0;border-bottom:1px solid #fff;border-right:1px solid #fff;margin-bottom:1px}
 #shadowpic li img{position:absolute;left:0;top:0;z-index:20;}
 #shadowpic li img.default{z-index:30;border-radius:10px}
@@ -105,13 +105,13 @@ angular.module('app', ['ngTouch'])
          <a href="/mobile/A/albumAdd"  class="btn-blue btn fr padded-r-10 padded-l-10">发布相册</a>
     </h3>
     <div class="content" id="scroller" ng-show="lists.length!=0" >
-			<div id="shadowpic" style="width:200px;" ng-repeat="album in lists">
+			<div id="shadowpic" ng-repeat="album in lists">
 			    <a href="/mobile/A/albumImageList?albumId={{album.albumId}}"> 
 			    <h6 class="padded-b-10   padded-t-10 ">{{album.albumTitle}}</h6>
 				<ul>
 					<li>
 						<div ng-if="album.templateImageList[0]!=null">
-							<img src="{{album.templateImageList[0].fileUrl}}" width="60" height="60" class="default" />
+							<img src="{{album.templateImageList[0].fileUrl}}"  width="60" height="60" class="default" />
 						</div>
 						<div ng-if="album.templateImageList[0]==null">
 							<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />

@@ -63,4 +63,5 @@ public class XjlDwTeacher extends GenericModel{
 		hm.put("data", data);
 		return hm;
 	}
+	
 }

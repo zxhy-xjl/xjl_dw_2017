@@ -45,6 +45,8 @@ public class W extends MobileFilter {
 	 public static void examList() {
 		WxUser wxUser =  getWXUser();
 		renderArgs.put("wxUser",wxUser);
+		Logger.info("加载:"+wxUser.currentClass);
+		Logger.info("加载:"+wxUser.currentClass.className);
 	    render("modules/xjldw/mobile/work/exam_list.html");
 	 }
 	//成绩单发布

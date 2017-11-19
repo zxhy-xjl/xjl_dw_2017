@@ -43,7 +43,6 @@
                 .controller('MainController', ['$scope', 'agentRemote','$timeout', function ($scope, agentRemote,$timeout) {
                     $scope.myStudents = [];
                     $scope.studentWxId=0;
-                    $scope.studentName='${wxUser.currentStudent.studentName}';
                     //init page function
                     $scope.initPage = function () {
                         agentRemote.getData().then(function (response) {
@@ -75,8 +74,9 @@
       <div class="fl student"><img src="${wxUser.headImgUrl}"/></div>
       <div class="fl font-size-14">
         <div class="padded-t-5">昵称：<span class="text-auxiliary">${wxUser.nickName}</span></div>
-        <div class="padded-t-5">手机：<span class="text-auxiliary">${wxUser.wxPhone}</span></div>
-        <div class="padded-t-5">学生：<span class="text-auxiliary">{{studentName}}</span></div>
+        <div class="padded-t-5">手机：<span class="text-auxiliary">${wxUser.wxPhone}</span></div><c:if></c:if>
+        <div class="padded-t-5" ng-if="${wxUser.isTeacher}">老师：<span class="text-auxiliary">${wxUser.currentClass.className}</span></div>
+        <div class="padded-t-5" ng-if="${wxUser.isParent}">学生：<span class="text-auxiliary">${wxUser.currentStudent.studentName}</span></div>
       </div>
       <div class="arrow hide"></div>
     </div>
@@ -107,7 +107,7 @@
     </div>
     
     
-    <div class=" padded-t-15 padded-b-15 posrel clearfix" onClick="window.location='/mobile/m/studentAdd'">
+    <div class=" padded-t-15 padded-b-15 posrel clearfix" onClick="window.location='/mobile/m/studentAdd'" ng-if="${wxUser.isParent}">
       <div class="wid2 fl line-height-2 studentadd"><img src="/public/images/mobile/student_add.png"/></div>
       <div class="wid80 fr line-height-2"> <span class="text-info">添加学生</span> </div>
     </div>
@@ -116,7 +116,7 @@
 </div>
 
 
-<div class="main margin-t-10">
+<div class="main margin-t-10"  ng-if="${wxUser.isParent}">
   <div class="row text-auxiliaryed font-size-14">您可添加学生到当前设备，方便切换使用！</div>
 </div>
 
