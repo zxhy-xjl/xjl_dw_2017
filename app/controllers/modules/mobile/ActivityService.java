@@ -353,7 +353,7 @@ public class ActivityService extends MobileFilter {
 		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
 		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
 		Map condition = params.allSimple();
-		condition.put("classId", wxUser.currentClass.classId);
+		//condition.put("classId", wxUser.currentClass.classId);
 		Logger.info("wxUser.currentClass.classId==="+wxUser.currentClass.classId);
 		Map ret = XjlDwGroupBuy.queryXjlDwGroupBuyListByPage(condition, pageIndex, pageSize);
 		if(ret!=null&&ret.get("data")!=null){
@@ -377,7 +377,10 @@ public class ActivityService extends MobileFilter {
 				Map<String, Object> groupBuyMap = new HashMap<String, Object>();
 				//添加团购信息
 				groupBuyMap.put("groupBuyInfo", groupBuy);
-				boolean hasOrderFlag = XjlDwGroupBuyOrder.hasOrder(groupBuy.groupBuyId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
+				boolean hasOrderFlag = false;
+				if(!wxUser.isTeacher){
+					hasOrderFlag = XjlDwGroupBuyOrder.hasOrder(groupBuy.groupBuyId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
+				}
 				//添加订单信息
 				groupBuyMap.put("hasOrderFlag", hasOrderFlag);
 				groupBuyMap.put("isRunning", XjlDwGroupBuy.groupBuyState_running.equals(groupBuy.groupBuyState));
@@ -439,8 +442,8 @@ public class ActivityService extends MobileFilter {
 		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
 		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
 		Map condition = params.allSimple();
-		WxUser wxUser = getWXUser();
-		condition.put("wxopenId",wxUser.wxOpenId);
+		//WxUser wxUser = getWXUser();
+		//condition.put("wxopenId",wxUser.wxOpenId);
 		Map ret = XjlDwAlbum.queryXjlDwAlbumListByPage(condition, pageIndex, pageSize);
 		ok(ret);
 	}

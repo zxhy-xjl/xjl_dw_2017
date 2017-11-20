@@ -116,7 +116,7 @@ angular.module('app', ['ngTouch'])
                                    	  // 插入到预览区  
                                         var $preview = $('<li class="weui-uploader__file" style="background-image:url(' + res.data.fileUrl + ')"></li>');  
                                    	  if($scope.lists.length > 0){
-                                   		 $('.uploadUl').append($preview);  
+                                   		 $('#lightgallery').append($preview);  
                                    	 }else{
                                    		 $("#uploadnoUl").append($preview);
                                    	 }

@@ -66,7 +66,7 @@
 <div class="main">
   <div class="row">
     <h3  class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentClass.className}成绩单
-      <input type="button" class="btn-blue btn fr margin-l-10" onClick="window.location='/mobile/W/examAdd'" value="公布成绩单"/>
+      <input  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" type="button" class="btn-blue btn fr margin-l-10" onClick="window.location='/mobile/W/examAdd'" value="公布成绩单"/>
     </h3>
     <div class="content">
       <div class="clearfix posrel" ng-repeat="examInfo in examList"> 

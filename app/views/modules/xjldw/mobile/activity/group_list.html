@@ -10,12 +10,13 @@
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
 <link rel="stylesheet" href="/public/css/main.css" />
-
+<link rel="stylesheet" href="/public/css/weui.css" />
  <script src="/public/widgets/layer.m/layer.m.js"></script>
 <script src="/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/public/widgets/dropload/dropload.min.js"></script>
 <script src="/public/widgets/angularjs/angular.min.js"></script>
 <script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="https://res.wx.qq.com/open/libs/weuijs/1.0.0/weui.min.js"></script>
 <title>团购</title>
 <script>
         angular.module('app', ['ngTouch'])
@@ -236,8 +237,8 @@
 <body ng-cloak ng-controller="MainController">
 <div class="main">
   <div class="row">
-    <h3 class="padded-b-10 border-b  padded-t-10 text-default">团购
-      <input ng-show="true || ${wxUser.isCommittee}==true" type="button" class="btn-blue btn fr" onClick="window.location='/mobile/a/groupAdd'" value="发布新团购"/>
+    <h3  class="padded-b-10 border-b  padded-t-10 text-default">团购
+      <input ng-if="${wxUser.isCommittee}" ng-show="true || ${wxUser.isCommittee}==true" type="button" class="btn-blue btn fr" onClick="window.location='/mobile/a/groupAdd'" value="发布新团购"/>
     </h3>
     <div class="content">
       <ul>
@@ -251,7 +252,7 @@
                    <span class="text-warning padded-l-20 font-size-13">{{item.groupBuyInfo.groupBuyStateInfo}}</span>
             </p>
           </div>
-          <div class="tuan-btn"> 
+          <div ng-if="${wxUser.isParent}" class="tuan-btn"> 
             <input type="button" class=" btn wid3 bg-warning" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})"  
              		value="团"   ng-show="item.isRunning && !item.hasOrderFlag"/>
             <input type="button" class=" btn wid3 bg-warning" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})"  
@@ -268,14 +269,27 @@
 <div class="Nboxbg" ng-show="groupBuyFlag==true"></div>
 <div class="tuan-select" id="groupDiv" ng-show="groupBuyFlag==true">
   <div class="margin-15 padded-b-5">
-    <div class="padded-5 clearfix posrel" ng-repeat="item in groupItems">
+    <!-- <div class="padded-5 clearfix posrel" ng-repeat="item in groupItems">
           <span class="select cur">
           		<input type="checkbox" ng-disabled="isRunning==false" ng-model="item.isGroupBuy" ng-click="checkboxItemFun(item.isGroupBuy,$index)" />
           </span>
           <span class="margin-l-10">{{item.groupItemTitle}}</span>
           <span class="margin-l-15 font-size-14 text-auxiliary">￥{{item.groupItemPrice}}</span>
-    </div>
-  
+    </div> -->
+          <div class="weui-cells weui-cells_checkbox" ng-repeat="item in groupItems">
+            <label class="weui-cell weui-check__label" for="checkbox{{item.groupItemId}}">
+                <div class="weui-cell__hd">
+                    <input type="checkbox" class="weui-check" name="checkbox1" ng-model="item.isGroupBuy" ng-click="checkboxItemFun(item.isGroupBuy,$index)" id="checkbox{{item.groupItemId}}" />
+                    <i class="weui-icon-checked"></i>
+                </div>
+                <div class="weui-cell__bd">
+                  <!--   <p>{{item.groupItemTitle}}</p> -->
+                    <span class="margin-l-10">{{item.groupItemTitle}}</span>
+                   <!--  <p>￥{{item.groupItemPrice}}</p> -->
+                    <span class="margin-l-15 font-size-14 text-auxiliary">￥{{item.groupItemPrice}}</span>
+                </div>
+            </label>
+        </div>
     <div class="hr margin-b-10 margin-t-10"></div>
     <div class="padded-5 clearfix"><span>合计：</span><span class="text-danger">￥{{groupItemsTotalPrice}}</span>
       <input type="button" class="fr btn wid4"  ng-click="close()" value="关闭"/>

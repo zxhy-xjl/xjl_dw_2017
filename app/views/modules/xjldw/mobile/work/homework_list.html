@@ -65,7 +65,7 @@
 <div class="main">
   <div class="row">
     <h3 class="padded-b-10 border-b  padded-t-10 text-default">每周作业
-      <input type="button" class="btn-blue btn fr margin-l-10" onClick="window.location='/mobile/W/homeworkAdd'" value="发布作业"/>
+      <input ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" type="button" class="btn-blue btn fr margin-l-10" onClick="window.location='/mobile/W/homeworkAdd'" value="发布作业"/>
     </h3>
     <div class="content">
       <div class="clearfix posrel" ng-repeat="homeworkInfo in homeworkList"> <a href="/mobile/W/homeworkDetail?homeworkId={{homeworkInfo.homework.homeworkId}}">
