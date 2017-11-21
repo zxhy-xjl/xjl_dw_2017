@@ -11,7 +11,7 @@
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
 <link rel="stylesheet" href="/public/css/main.css" />
-
+<link rel="stylesheet" href="/public/css/weui.css" />
 <script src="/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/public/widgets/dropload/dropload.min.js"></script>
 <script src="/public/widgets/angularjs/angular.min.js"></script>
@@ -37,10 +37,27 @@
                         }
                     }
                 }])
-                .controller('MainController', ['$scope', 'appValue','agentRemote','$timeout', function ($scope, appValue,agentRemote,$timeout) {
+                .factory('delRemote',['$http', 'appValue',function($http, appValue){
+                	return {
+                		delDate :function(examId){
+                			return $http({
+                				method:'POST',
+                				url:'/mobile/WorkService/delExam',
+                				params:{
+                					examId:examId
+                				}
+                			});
+                		}
+                	}
+                }])
+                .controller('MainController', ['$scope', 'appValue','agentRemote','delRemote','$timeout', function ($scope, appValue,agentRemote,delRemote,$timeout) {
                 	$scope.examTotal = 0;
                     $scope.examList = [];
                     $scope.isTeacher = ${wxUser.isTeacher};
+                    $scope.examObj = {
+                    		examId:'',
+                    		examTitle:''
+                    }
                 	//init page function
                     $scope.initPage = function (me) {
                 		console.log("考试列表")
@@ -56,6 +73,22 @@
                             //err
                         });
                 	};
+                	 $scope.showFade = function(id,title){
+                       	$scope.examObj.examId = id;
+                       	$scope.examObj.examTitle = title;
+                       	$("#dialog_title").html("确定删除,"+$scope.examObj.examTitle+"吗？")
+                           $('#iosDialog1').fadeIn(200);
+                       }
+                       $scope.hideFade = function(){
+                       	$('#iosDialog1').fadeOut(200);
+                       }
+                       $scope.del = function(me){
+                       	delRemote.delDate($scope.examObj.examId).then(function(response){
+                       		 $scope.initPage();
+                       	},function(){
+                       	});
+                       	$('#iosDialog1').fadeOut(200);
+                       }
                 	//执行初始化方法
                 	$scope.initPage();
                 }]);
@@ -70,9 +103,12 @@
     </h3>
     <div class="content">
       <div class="clearfix posrel" ng-repeat="examInfo in examList"> 
+      <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">
+      	<span>{{examInfo.exam.examTitle}}</span>
+      	<a id="showIOSDialog1" ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="javascript:;" ng-click="showFade('{{examInfo.exam.examId}}','{{examInfo.exam.examTitle}}')"  class="weui-btn weui-btn_mini weui-btn_warn">删除</a>
+      	</h3>
         <a href="/mobile/W/examDetail?examId={{examInfo.exam.examId}}">
 	        <div>
-	          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main"><span>{{examInfo.exam.examTitle}}</span></h3>
 	          <p class="margin-t-10 margin-b-10 font-size-13"><span class="padded-r-10">平均：{{examInfo.mma.avg}}分</span><span class="padded-r-10">最高：{{examInfo.mma.max}}分</span><span class="padded-r-10">最低：{{examInfo.mma.min}}分</span></p>
 	        </div>
         </a> 
@@ -84,6 +120,20 @@
       </div>
     </div>
   </div>
+</div>
+<div id="dialogs">
+        <!--BEGIN dialog1-->
+        <div class="js_dialog" id="iosDialog1" style="display: none;">
+            <div class="weui-mask"></div>
+            <div class="weui-dialog">
+                <div class="weui-dialog__hd"><strong class="weui-dialog__title">删除提示</strong></div>
+                <div class="weui-dialog__bd" id="dialog_title"></div>
+                <div class="weui-dialog__ft">
+                    <a href="javascript:;" ng-click="hideFade()" class="weui-dialog__btn weui-dialog__btn_default">取消</a>
+                    <a href="javascript:;" ng-click="del()"class="weui-dialog__btn weui-dialog__btn_primary">确定</a>
+                </div>
+            </div>
+        </div>
 </div>
 </body>
 </html>

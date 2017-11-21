@@ -65,4 +65,9 @@ public class XjlDwExam extends GenericModel{
 		condition.put("classId", String.valueOf(classId));
 		return query(condition,pageIndex,pageSize);
 	}
+	public static int delExamByExamId(Long examId){
+		String sql = "update xjl_dw_exam set status='0XX' where EXAM_ID='"+examId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
 }

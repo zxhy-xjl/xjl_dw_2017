@@ -141,5 +141,9 @@ public class XjlDwExamGrade extends GenericModel{
 		return grade;
 	}
 	
-	
+	public static int delExamGradeByExamId(Long examId){
+		String sql = "update xjl_dw_exam_grade set status='0XX' where EXAM_ID='"+examId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
 }

@@ -82,6 +82,12 @@ public class WorkService extends MobileFilter {
 		ret.put("data", examInfoList);
 		ok(ret);
 	}
+	public static void delExam(){
+		Long examId = Long.parseLong(params.get("examId"));
+		int ret = XjlDwExamGrade.delExamGradeByExamId(examId);
+		ret = XjlDwExam.delExamByExamId(examId);
+		ok(ret);
+	}
 	/**
 	 * 保存考试科目，如果考试id为空，则创建考试
 	 */
