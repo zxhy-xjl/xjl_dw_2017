@@ -117,7 +117,7 @@ public class ActivityService extends MobileFilter {
 		filterArticleData(ret);
 		ok(ret);
 	}
-	public static void delArticleById(){
+	public static void delArticleById(){ 
 		Long articleId = Long.parseLong(params.get("articleId"));
 		int ret = XjlDwArticle.delArticleByarticleId(articleId);
 		ok(ret);

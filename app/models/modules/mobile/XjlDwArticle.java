@@ -54,13 +54,13 @@ public class XjlDwArticle extends GenericModel{
 	public static Map queryXjlDwArticleListByPage(Map<String, String> condition,
 		int pageIndex, int pageSize) {
 		String sql = "select * ";
-		sql += "from xjl_dw_article a a.status='0AA' order by a.ARTICLE_PUBLISH_DATE desc";
+		sql += "from xjl_dw_article a where a.status='0AA' order by a.ARTICLE_PUBLISH_DATE desc";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwArticle.class);
 		return ModelUtils.createResultMap(ret, data);
 	}
 	
-	public static int delArticleByarticleId(Long articleId){
+	public static int delArticleByarticleId(Long articleId){ 
 		String sql = "update xjl_dw_article set status='0XX' where ARTICLE_ID='"+articleId+"'";
 		Map<String, String> condition = new HashMap<String, String>();
 		return ModelUtils.executeDelete(condition, sql);
