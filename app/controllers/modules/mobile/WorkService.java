@@ -363,6 +363,13 @@ public class WorkService extends MobileFilter {
 		List<XjlDwExamGrade> gradeList= (List<XjlDwExamGrade>)map.get("data");
 		ok(map);
 	}
+	public static void delHomeWork(){
+		Long homeWorkId = Long.parseLong(params.get("homeWorkId"));
+		System.out.println(homeWorkId);
+		int ret = XjlDwHomeworkModel.delHomeworkModelByhomeworkId(homeWorkId);
+		ret = XjlDwHomework.delHomeworkByhomeworkId(homeWorkId);
+		ok(ret);
+	}
 	/**
 	 * 保存家庭作业
 	 */

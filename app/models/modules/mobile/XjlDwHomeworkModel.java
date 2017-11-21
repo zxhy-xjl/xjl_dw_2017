@@ -68,4 +68,10 @@ public class XjlDwHomeworkModel extends GenericModel{
 		List<Object> data = ModelUtils.queryData(ret);
 		return Long.parseLong(data.get(0).toString());
 	}
+	
+	public static int delHomeworkModelByhomeworkId(Long homeworkId){
+		String sql = "update xjl_dw_homework_model set status='0XX' where HOMEWORK_ID='"+homeworkId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
 }
