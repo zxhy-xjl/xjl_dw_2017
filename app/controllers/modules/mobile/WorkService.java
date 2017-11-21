@@ -11,6 +11,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import models.modules.mobile.ModelUtils;
 import models.modules.mobile.WxUser;
+import models.modules.mobile.XjlDWGradeChart;
 import models.modules.mobile.XjlDwAlbum;
 import models.modules.mobile.XjlDwAlbumTemplate;
 import models.modules.mobile.XjlDwArticle;
@@ -271,6 +272,72 @@ public class WorkService extends MobileFilter {
 		}
 		map.put("data", studentInfoList);
 		ok(map);
+	}
+	
+	public static void queryChart(){
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		WxUser wxUser = getWXUser();
+		Map condition = params.allSimple();
+		condition.put("classId", wxUser.currentClass.classId);
+		//通过班级Id得到关联的所有考试
+		Map ret = XjlDwExam.query(condition, pageIndex, pageSize);
+		List<XjlDwExam> list = (List<XjlDwExam>)ret.get("data");
+		List<XjlDWGradeChart> dataChart = new ArrayList<>();
+		XjlDWGradeChart chart = null;
+		List<XjlDwExamSubject> dataExamSubject = null;
+		List<XjlDwSubject> xjlDwSubjectList = null;
+		double  grade = 0;
+		Long  studentId = 0L;
+		Logger.info("用户类型老师："+wxUser.isTeacher);
+		Logger.info("用户类型家委会："+wxUser.isCommittee);
+		Logger.info("用户类型家长："+wxUser.isTeacher);
+		String flag = params.get("flag");
+		//判断老师家委会 得到所有学生的统计数据
+		if((wxUser.isTeacher||wxUser.isCommittee)&&flag==null){
+			//考试名称、各个科目，每场考试的各个科目的总分
+			//遍历
+			for (XjlDwExam xjlDwExam : list) {
+				//得到每一场考试的科目
+				dataExamSubject =(List<XjlDwExamSubject>) XjlDwExamSubject.queryByExam(xjlDwExam.examId).get("data");
+				for (XjlDwExamSubject xjlDwExamSubject : dataExamSubject) {
+					chart = new XjlDWGradeChart();
+					chart.exam = xjlDwExam.examTitle;
+					Logger.info("考试:"+xjlDwExam.examTitle);
+					//得到科目名称
+					xjlDwSubjectList = (List<XjlDwSubject>) XjlDwSubject.queryXjlDwBySubjectId(xjlDwExamSubject.subjectId).get("data");
+					grade = XjlDwExamGrade.queryGrade(xjlDwExam.examId, xjlDwExamSubject.subjectId,studentId);
+					Logger.info("科目:"+xjlDwSubjectList.get(0).subjectTitle+" 分数:"+grade);
+					chart.type = xjlDwSubjectList.get(0).subjectTitle;
+					chart.temperature = grade;
+					dataChart.add(chart);
+				}
+			}
+		}
+		//家长入口
+		else{
+			//通过班级得到所有学生
+			//Map map = XjlDwStudent.queryByClassId(wxUser.currentClass.classId);
+			//遍历所有场考试
+			for (XjlDwExam xjlDwExam : list) {
+				//得到每一场考试的科目
+				dataExamSubject =(List<XjlDwExamSubject>) XjlDwExamSubject.queryByExam(xjlDwExam.examId).get("data");
+				//遍历该场考试的科目
+				for (XjlDwExamSubject xjlDwExamSubject : dataExamSubject) {
+					chart = new XjlDWGradeChart();
+					chart.exam = xjlDwExam.examTitle;
+					Logger.info("考试:"+xjlDwExam.examTitle);
+					//得到科目名称
+					xjlDwSubjectList = (List<XjlDwSubject>) XjlDwSubject.queryXjlDwBySubjectId(xjlDwExamSubject.subjectId).get("data");
+					grade = XjlDwExamGrade.queryGrade(xjlDwExam.examId, xjlDwExamSubject.subjectId,wxUser.currentStudent.studentId);
+					Logger.info("科目:"+xjlDwSubjectList.get(0).subjectTitle+" 分数:"+grade);
+					chart.type = xjlDwSubjectList.get(0).subjectTitle;
+					chart.temperature = grade;
+					dataChart.add(chart);
+				}
+			}
+		}
+		ok(dataChart);
 	}
 	/**
 	 * 得到所有科目

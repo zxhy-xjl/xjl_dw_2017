@@ -99,7 +99,12 @@ public class W extends MobileFilter {
 		renderArgs.put("timestamp",timestamp);
 	    render("modules/xjldw/mobile/work/homework_remark.html");
 	 }
-	 
+	 //跳转到我的成绩统计
+	 public static void toGradeStatistice(){
+		 WxUser wxUser =  getWXUser();
+		 renderArgs.put("wxUser",wxUser);
+		  render("modules/xjldw/mobile/my/grade_statistics.html");
+	 }
 	 public static String getTicket(String accessToken){
 		 String ticket = null;
 		 String url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token="+ accessToken +"&type=jsapi";//这个url链接和参数不能变

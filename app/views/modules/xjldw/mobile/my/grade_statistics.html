@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html ng-app="app">
+<head>
+<title>成绩统计</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/public/css/main.css" />
+<script src="/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/public/widgets/dropload/dropload.min.js"></script>
+<script src="/public/widgets/angularjs/angular.min.js"></script>
+<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/public/js/jquery-1.9.1.min.js"></script>
+<script src="https://gw.alipayobjects.com/as/g/datavis/g2/2.3.13/index.js"></script>
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+	.factory('agentRemote',['$http',function($http){
+		return {
+			getData:function(flag){
+				return $http({
+					method: 'GET',
+                	url: '/mobile/WorkService/queryChart',
+               	  	params: {
+               		  flag:flag
+               	  	}
+				})
+			}
+		}
+	}])
+	.controller('MainController',['$scope', 'agentRemote','$timeout',function($scope, agentRemote,$timeout){
+		$scope.List = [];
+		$scope.initPage = function(flag){
+			var data = [];
+			agentRemote.getData(flag).then(function(response){
+				$scope.List = response.data.data;
+				for(var i = 0;i<$scope.List.length;i++){
+					data[i] = $scope.List[i]
+				}
+				console.log(data);
+				var chart = new G2.Chart({
+					  id: 'c1',
+					  forceFit: true,
+					  height: 450
+					});
+					chart.source(data, {
+					  exam: {
+					    alias: '考试',
+					    range: [0, 1]
+					  },
+					  temperature: {
+					      alias: '分数'
+					  },
+					  type:{
+						  alias: '科目'
+					  }
+					});
+					chart.source(data);
+					chart.line().position('exam*temperature').color('type').size(3).shape('type', ['语文','数学','英语','新概念','历史','政治','生物','地理']); // 展示不同的 step 算法
+					if(flag==null){
+						chart.render();
+					}else{
+						chart.changeData(data);
+					}
+			}, function (response) {
+            //err
+        	})
+		}
+		$scope.initPage();
+	}]);
+</script>
+</head>
+<body ng-cloak ng-controller="MainController">
+<div class="main">
+	<div class="row">
+		<h3 ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentClass.className}成绩曲线图
+			<input  ng-if="${wxUser.isCommittee}" type="button" class="btn-blue btn fr margin-l-10" ng-click="initPage(1)" value="展示关注学生"/>
+		</h3>
+		<h3 ng-if="${wxUser.isParent} && ${wxUser.isCommittee == false}" class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentStudent.studentName}成绩曲线图
+		</h3>
+	</div>
+</div>
+<div id="c1"></div>
+</body>
+</html>

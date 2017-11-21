@@ -122,4 +122,24 @@ public class XjlDwExamGrade extends GenericModel{
 		return data.size();
 	}
 	
+	public static double queryGrade(Long examId,Long subjectId,Long studentId){
+		String sql = "select sum(exam_grade) as examGrade from xjl_dw_exam_grade where exam_id='"+examId+"' and subject_id='"+subjectId+"'";
+		if(studentId>0){
+			sql+=" and STUDENT_ID='"+studentId+"'";
+		}
+		Map condition = new HashMap();
+		condition.put("examId", String.valueOf(examId));
+		condition.put("subjectId", String.valueOf(subjectId));
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<Object> data = ModelUtils.queryData(ret);
+		double grade = 0;
+		if (data.isEmpty()||data.get(0)==null){
+			grade = 0;
+		}else{
+			grade = Double.parseDouble(String.valueOf(data.get(0)));
+		}
+		return grade;
+	}
+	
+	
 }

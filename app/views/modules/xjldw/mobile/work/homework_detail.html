@@ -100,7 +100,7 @@ ajaxReturn.done(function (data) {
       </div>
        <div class="border-b posrel margin-t-20 padded-t-20"><div class="homework_title">标榜</div></div>
       <div class="padded-10 padded-t-20">
-        <input type="button" value="添加标榜" class="wid30 btn btn-blue" onClick="window.location='/mobile/W/homeworkAddRemark?homeworkId=${homework.homeworkId}'"/>
+        <input  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}"  type="button" value="添加标榜" class="wid30 btn btn-blue" onClick="window.location='/mobile/W/homeworkAddRemark?homeworkId=${homework.homeworkId}'"/>
       </div>
       <div class="padded-10 border-b padded-t-20" ng-repeat="remark in remarkList">
         {{remark.modelTitle}}<br/>

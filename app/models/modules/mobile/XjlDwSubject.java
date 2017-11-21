@@ -61,4 +61,12 @@ public class XjlDwSubject extends GenericModel{
 		hm.put("data", data);
 		return hm;
 	}
+	public static Map queryXjlDwBySubjectId(Long subjectId){
+		String sql = "select * from xjl_dw_subject where status = '0AA' and SUBJECT_ID='"+subjectId+"'";
+		Map<String, String> condition = new HashMap<String,String>();
+		condition.put("subjectId", String.valueOf(subjectId));
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlDwSubject> data = ModelUtils.queryData(ret, XjlDwSubject.class);
+		return ModelUtils.createResultMap(data);
+	}
 }
