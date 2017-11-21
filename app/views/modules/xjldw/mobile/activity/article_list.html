@@ -11,7 +11,7 @@
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
 <link rel="stylesheet" href="/public/css/main.css" />
-
+<link rel="stylesheet" href="/public/css/weui.css" />
 <script src="/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/public/widgets/dropload/dropload.min.js"></script>
 <script src="/public/widgets/angularjs/angular.min.js"></script>
@@ -37,6 +37,19 @@
                         }
                     }
                 }])
+                .factory('delRemote',['$http', 'appValue',function($http, appValue){
+                	return {
+                		delDate :function(articleId){
+                			return $http({
+                				method:'POST',
+                				url:'/mobile/ActivityService/delArticleById',
+                				params:{
+                					articleId:articleId
+                				}
+                			});
+                		}
+                	}
+                }])
                 .controller('MainController', ['$scope', 'appValue', 'agentRemote','$timeout', function ($scope, appValue, agentRemote,$timeout) {
                 	if(${wxUser.isCommittee}){
                 		$scope.articleCheck=true;
@@ -44,6 +57,9 @@
                 	 	$scope.articleCheck=false;
                 	}
                     $scope.notices = [];
+                    $scope.noticesObj = {
+                    		
+                    }
                     //next page function
                     $scope.nextPage = function (me) {
                         agentRemote.getData(++appValue.index).then(function (response) {
@@ -151,6 +167,7 @@
 	          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{notice.articleTitle}}</h3>
 	          <p class="padded-t-5"><span class="text-auxiliaryed padded-r-10">作者：{{notice.articleAuthor}}</span>
 	                                <span class="text-auxiliaryed font-size-13">{{notice.articlePublishDate}}</span>
+	           <a ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" id="showIOSDialog1" href="javascript:;" ng-click="showFade('{{notice.noticeId}}','{{notice.noticeTitle}}')"  class="weui-btn weui-btn_mini weui-btn_warn">删除</a>
 	          </p>
 	          <p class="padded-t-10" style="display:none;"><img src="../images/new_img.jpg"/></p>
 	          <p class="margin-t-10 margin-b-10">{{notice.articleContent}}</p>
@@ -166,14 +183,27 @@
        
       <div class="dropload-down">
 	      <div class="dropload-refresh">
-	                                             当前<span ng-bind="notices.length"></span>条记录 总共<span ng-bind="total"></span>条记录(滑动刷新)
+             当前<span ng-bind="notices.length"></span>条记录 总共<span ng-bind="total"></span>条记录(滑动刷新)
 	       </div>
       </div>
        
     </div><!-- content end -->
-    
-    
   </div>
+</div>
+
+<div id="dialogs">
+       <!--BEGIN dialog1-->
+       <div class="js_dialog" id="iosDialog1" style="display: none;">
+           <div class="weui-mask"></div>
+           <div class="weui-dialog">
+               <div class="weui-dialog__hd"><strong class="weui-dialog__title">删除提示</strong></div>
+               <div class="weui-dialog__bd" id="dialog_title"></div>
+               <div class="weui-dialog__ft">
+                   <a href="javascript:;" ng-click="hideFade()" class="weui-dialog__btn weui-dialog__btn_default">取消</a>
+                   <a href="javascript:;" ng-click="del()"class="weui-dialog__btn weui-dialog__btn_primary">确定</a>
+               </div>
+           </div>
+       </div>
 </div>
 </body>
 </html>

@@ -48,9 +48,14 @@ public class XjlDwNotice extends GenericModel{
 	public static Map queryNoticeListByPage(Map<String, String> condition,
 		int pageIndex, int pageSize) {
 		String sql = "select * ";
-		sql += "from xjl_dw_notice a order by a.notice_id desc";
+		sql += "from xjl_dw_notice a where a.status='0AA' order by a.notice_id desc";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlDwNotice> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwNotice.class);
 		return ModelUtils.createResultMap(ret, data);
+	}
+	public static int delNoticeByNoticeId(Long noticeId){
+		String sql = "update xjl_dw_notice set status='0XX' where NOTICE_ID='"+noticeId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
 	}
 }

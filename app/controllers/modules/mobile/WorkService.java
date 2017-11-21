@@ -64,12 +64,13 @@ public class WorkService extends MobileFilter {
 		WxUser wxUser = getWXUser();
 		Map condition = params.allSimple();
 		condition.put("classId", wxUser.currentClass.classId);
-		Map ret = XjlDwExam.query(condition, pageIndex, pageSize);
+		Map ret = XjlDwExam.query(condition, pageIndex, 200);
 		List<XjlDwExam> list = (List<XjlDwExam>)ret.get("data");
 		List<Map> examInfoList = new ArrayList();
 		List<XjlDwStudent> dataStudent = null;
 		List<XjlDwExamSubject> dataExamSubject = null;
 		for (XjlDwExam xjlDwExam : list) {
+			Logger.info("进入循环"+xjlDwExam.examTitle);
 			Map examInfo = new HashMap();
 			examInfo.put("exam", xjlDwExam);
 			dataStudent  = (List<XjlDwStudent>) XjlDwStudent.queryByClassId(wxUser.currentClass.classId).get("data");

@@ -34,6 +34,7 @@ angular.module('app', ['ngTouch'])
 	}])
 	.controller('MainController',['$scope', 'agentRemote','$timeout',function($scope, agentRemote,$timeout){
 		$scope.List = [];
+		$scope.height = 0;
 		$scope.initPage = function(flag){
 			var data = [];
 			agentRemote.getData(flag).then(function(response){
@@ -41,11 +42,10 @@ angular.module('app', ['ngTouch'])
 				for(var i = 0;i<$scope.List.length;i++){
 					data[i] = $scope.List[i]
 				}
-				console.log(data);
 				var chart = new G2.Chart({
 					  id: 'c1',
 					  forceFit: true,
-					  height: 450
+					  height: 400
 					});
 					chart.source(data, {
 					  exam: {
@@ -66,12 +66,22 @@ angular.module('app', ['ngTouch'])
 					}else{
 						chart.changeData(data);
 					}
+					window.addEventListener('orientationchange', function(event){
+					    if ( window.orientation == 180 || window.orientation==0 ) {
+					    	chart.changeSize('',400)
+					    }
+					    if( window.orientation == 90 || window.orientation == -90 ) {
+					    	chart.changeSize('',$(".main").height()-180)
+					    }
+					});
 			}, function (response) {
             //err
         	})
 		}
 		$scope.initPage();
 	}]);
+	
+ 
 </script>
 </head>
 <body ng-cloak ng-controller="MainController">
@@ -82,8 +92,8 @@ angular.module('app', ['ngTouch'])
 		</h3>
 		<h3 ng-if="${wxUser.isParent} && ${wxUser.isCommittee == false}" class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentStudent.studentName}成绩曲线图
 		</h3>
+		<div id="c1" style="width:100%;"></div>
 	</div>
 </div>
-<div id="c1"></div>
 </body>
 </html>

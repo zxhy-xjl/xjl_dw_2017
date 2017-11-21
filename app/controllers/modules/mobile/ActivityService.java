@@ -61,6 +61,11 @@ public class ActivityService extends MobileFilter {
 		filterNoticeData(ret);
 		ok(ret);
 	}
+	public static void delNoticeById(){
+		Long noticeId = Long.parseLong(params.get("noticeId"));
+		int ret = XjlDwNotice.delNoticeByNoticeId(noticeId);
+		ok(ret);
+	}
 	private static void filterNoticeData(Map ret){
 		List list = (List)ret.get("data");
 		for (int i = 0; i < list.size(); i++) {
@@ -110,6 +115,11 @@ public class ActivityService extends MobileFilter {
 		Map condition = params.allSimple();
 		Map ret = XjlDwArticle.queryXjlDwArticleListByPage(condition, pageIndex, pageSize);
 		filterArticleData(ret);
+		ok(ret);
+	}
+	public static void delArticleById(){
+		Long articleId = Long.parseLong(params.get("articleId"));
+		int ret = XjlDwArticle.delArticleByarticleId(articleId);
 		ok(ret);
 	}
 	/**
