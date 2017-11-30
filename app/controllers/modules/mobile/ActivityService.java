@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -80,6 +82,7 @@ public class ActivityService extends MobileFilter {
 		}
 		ret.put("data", list);
 	}
+	
 	/**
 	 * 保存公告
 	 */
@@ -101,11 +104,20 @@ public class ActivityService extends MobileFilter {
         	xjlDwNotice.noticeTitle = params.get("noticeTitle");
         }
         if (params.get("noticeContent") != null) {
-        	xjlDwNotice.noticeContent = params.get("noticeContent");
+        	xjlDwNotice.noticeContent = replaceBlank(params.get("noticeContent"));
         }
         ok(XjlDwNoticeBo.save(xjlDwNotice));
 
     }
+	 public static String replaceBlank(String str) {
+	        String dest = "";
+	        if (str!=null) {
+	            Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+	            Matcher m = p.matcher(str);
+	            dest = m.replaceAll("");
+	        }
+	        return dest;
+	    }
 	/**
 	 * 获取美文列表
 	 */
@@ -157,7 +169,7 @@ public class ActivityService extends MobileFilter {
         	xjlDwArticle.articleTitle = params.get("articleTitle");
         }
         if (params.get("articleContent") != null) {
-        	xjlDwArticle.articleContent = params.get("articleContent");
+        	xjlDwArticle.articleContent = replaceBlank(params.get("articleContent"));
         }
         if (params.get("articleAuthor") != null) {
         	xjlDwArticle.articleAuthor = params.get("articleAuthor");
@@ -457,6 +469,13 @@ public class ActivityService extends MobileFilter {
 		Map ret = XjlDwAlbum.queryXjlDwAlbumListByPage(condition, pageIndex, pageSize);
 		ok(ret);
 	}
+	
+	public static void delAlbum(){
+		Long albumId = Long.parseLong(params.get("albumId"));
+		int ret = XjlDwAlbumImage.delAlbumImageByAlbumId(albumId);
+		ret = XjlDwAlbum.delAlbumByAlbumId(albumId);
+		ok(ret);
+	}
 	public static void queryAlbumImageList(){
 		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
 		int pageSize = 120;
@@ -506,6 +525,12 @@ public class ActivityService extends MobileFilter {
 		   albumImage.imageOrder = Long.parseLong("1");
 		   ok(XjlDwAlbumImageBo.save(albumImage));
 	   }
+	 
+	 public static void delAlbumImage (){
+		 Long albumImageId = Long.parseLong(params.get("albumImageId"));
+		 int ret = XjlDwAlbumImage.delAlbumImageByAlbumImageId(albumImageId);
+		 ok(ret);
+	 }
 	/**
 	 * 相册模板列表
 	 */

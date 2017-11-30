@@ -48,6 +48,8 @@ public class XjlDwExamGrade extends GenericModel{
 
 	@Column(name = "CREATE_TIME")
 	public Date createTime;
+	
+	
 	/**
 	 * 根据考试id和学生查询该学生在某次考试中的所有科目成绩
 	 * @param examId
@@ -87,8 +89,7 @@ public class XjlDwExamGrade extends GenericModel{
 	 */
 	public static Map queryMaxMinAvg(Long examId,int studentNum,int subjectNum){
 		String sql = "select max(exam_grade),min(exam_grade),round(avg(exam_grade),1),sum(exam_grade)  from ("+
-"select student_id,round(sum(exam_grade),1) as exam_grade from xjl_dw_exam_grade where [exam_id=l:examId] group by student_id "+
-")  as foo";
+"select student_id,round(sum(exam_grade),1) as exam_grade from xjl_dw_exam_grade where [exam_id=l:examId] group by student_id )  as foo";
 		Map condition = new HashMap();
 		condition.put("examId", String.valueOf(examId));
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
@@ -106,20 +107,20 @@ public class XjlDwExamGrade extends GenericModel{
 				mma.put("avg", "0");
 			} else {
 				mma.put("max", data.get(0)[0].toString());
-				mma.put("min", queryCount(examId)==studentNum?data.get(0)[1].toString():"0");
+				//mma.put("min", queryCount(examId)==studentNum?data.get(0)[1].toString():"0");
 				mma.put("avg",  df.format(Double.valueOf(data.get(0)[3].toString())/studentNum/subjectNum));
 				System.out.println("--------------------------------------------"+queryCount(examId));
 			}
 		}
 		return mma;
 	}
-	public static int queryCount(Long examId){
-		String sql = "select student_id,sum(exam_grade) as exam_grade from xjl_dw_exam_grade where [exam_id=l:examId] group by student_id";
+	public static List<Object[]> queryCount(Long examId){
+		String sql = "select sum(exam_grade) as exam_grade from xjl_dw_exam_grade where [exam_id=l:examId] ";
 		Map condition = new HashMap();
 		condition.put("examId", String.valueOf(examId));
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<Object[]> data = ModelUtils.queryData(ret);
-		return data.size();
+		return data;
 	}
 	
 	public static double queryGrade(Long examId,Long subjectId,Long studentId){

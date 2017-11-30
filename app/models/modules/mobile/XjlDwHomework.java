@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import play.db.jpa.GenericModel;
 import play.db.jpa.JPA;
@@ -48,6 +49,8 @@ public class XjlDwHomework extends GenericModel{
 
 	@Column(name = "CREATE_TIME")
 	public Date createTime;
+	@Transient
+	public String time;
 
 	public static Map queryXjlDwHomeworkListByPage(Map<String, String> condition,
 		int pageIndex, int pageSize) {

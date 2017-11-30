@@ -1,5 +1,6 @@
 package controllers.modules.mobile;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,16 +68,18 @@ public class WorkService extends MobileFilter {
 		Map ret = XjlDwExam.query(condition, pageIndex, 200);
 		List<XjlDwExam> list = (List<XjlDwExam>)ret.get("data");
 		List<Map> examInfoList = new ArrayList();
-		List<XjlDwStudent> dataStudent = null;
-		List<XjlDwExamSubject> dataExamSubject = null;
+		//List<XjlDwStudent> dataStudent = null;
+		//List<XjlDwExamSubject> dataExamSubject = null;
 		for (XjlDwExam xjlDwExam : list) {
-			Logger.info("进入循环"+xjlDwExam.examTitle);
+			//Logger.info("进入循环"+xjlDwExam.examTitle);
 			Map examInfo = new HashMap();
 			examInfo.put("exam", xjlDwExam);
-			dataStudent  = (List<XjlDwStudent>) XjlDwStudent.queryByClassId(wxUser.currentClass.classId).get("data");
-		    dataExamSubject =(List<XjlDwExamSubject>) XjlDwExamSubject.queryByExam(xjlDwExam.examId).get("data");
-			Map mma = XjlDwExamGrade.queryMaxMinAvg(xjlDwExam.examId,dataStudent.size(),dataExamSubject.size());
-			examInfo.put("mma", mma);
+			//dataStudent  = (List<XjlDwStudent>) XjlDwStudent.queryByClassId(wxUser.currentClass.classId).get("data");
+		    //dataExamSubject =(List<XjlDwExamSubject>) XjlDwExamSubject.queryByExam(xjlDwExam.examId).get("data");
+			//Map mma = XjlDwExamGrade.queryMaxMinAvg(xjlDwExam.examId,dataStudent.size(),dataExamSubject.size());
+			examInfo.put("max", xjlDwExam.max == null?0:xjlDwExam.max);
+			examInfo.put("min", xjlDwExam.min == null?0:xjlDwExam.min);
+			examInfo.put("avg", xjlDwExam.avg == null?0:xjlDwExam.avg);
 			examInfoList.add(examInfo);
 		}
 		ret.put("data", examInfoList);
@@ -172,6 +175,32 @@ public class WorkService extends MobileFilter {
         }
 		ok();
 	}
+	
+	public static void saveExamStat(){
+		String[] allgrade = params.getAll("allgrade");
+		Logger.info("allgrade:"+params.get("allgrade"));
+		JSONArray allgradeList = JSONArray.fromObject(allgrade); 
+		String[] subjectGrade = params.getAll("subjectGrade");
+		Logger.info("subjectGrade:"+params.get("subjectGrade"));
+		JSONArray gradeList = JSONArray.fromObject(subjectGrade); 
+		XjlDwExam dwExam = new XjlDwExam();
+		dwExam.max = allgradeList.getJSONObject(0).getDouble("max");
+		dwExam.min = allgradeList.getJSONObject(0).getDouble("min");
+		dwExam.avg = allgradeList.getJSONObject(0).getDouble("avg");
+		dwExam.examId = allgradeList.getJSONObject(0).getLong("examId");
+		XjlDwExam.modifyExamStatByExamId(dwExam);
+		XjlDwExamSubject xjlDwExamSubject = null;
+		for (int i = 0; i < gradeList.size(); i++) {
+			JSONObject gradeJson = gradeList.getJSONObject(i);
+			xjlDwExamSubject = new XjlDwExamSubject();
+			xjlDwExamSubject.max = gradeJson.getDouble("max");
+			xjlDwExamSubject.min = gradeJson.getDouble("min");
+			xjlDwExamSubject.avg = gradeJson.getDouble("avg");
+			xjlDwExamSubject.examSubjectId = gradeJson.getLong("examSubjectId");
+			XjlDwExamSubject.modifyExamByExam(xjlDwExamSubject);
+		}
+		ok();
+	}
 	/**
 	 * 得到所有学生成绩信息
 	 */
@@ -182,14 +211,16 @@ public class WorkService extends MobileFilter {
 		//通过考试编号获取所有成绩
 		Long examId = StringUtil.getLong(params.get("examId"));
 		List<XjlDwExamSubject> examSubjectList = (List<XjlDwExamSubject>)XjlDwExamSubject.queryByExam(examId).get("data");
+		XjlDwExam  xjldwExam = XjlDwExam.queryById(examId);
+		Logger.info("得到考场名称:"+xjldwExam.examTitle);
 		List<Map> studentInfoList = new ArrayList<Map>();
 		List<XjlDwExamGrade> studentGradeList = null;
 		List<Map> gradeList = null;
 		//通过班级得到所有学生
 		Map map = XjlDwStudent.queryByClassId(wxUser.currentClass.classId);
 		Logger.info("入口："+wxUser.isTeacher+":"+wxUser.isCommittee);
-		//老师&家委会入口
-		if(wxUser.isTeacher||wxUser.isCommittee){
+		//老师入口
+		if(wxUser.isTeacher){
 			List<XjlDwStudent> studentList = (List<XjlDwStudent>)map.get("data");
 			Map studentInfo = null;
 			Map gradeInfo  = null;
@@ -222,19 +253,27 @@ public class WorkService extends MobileFilter {
 							break;
 						}
 					}
+					//得到每科的 最高分 最低分 平均成绩
+					Logger.info("得到每一科目平均分"+xjlDwExamSubject.max);
+					gradeInfo.put("max",xjlDwExamSubject.max == null?0:xjlDwExamSubject.max);
+					gradeInfo.put("min",xjlDwExamSubject.min == null?0:xjlDwExamSubject.min);
+					gradeInfo.put("avg",xjlDwExamSubject.avg == null?0:xjlDwExamSubject.avg);
+					gradeInfo.put("examSubjectId", xjlDwExamSubject.examSubjectId);
 					gradeList.add(gradeInfo);
 				}
 				studentInfo.put("grade", gradeList);
 				double total = 0;
 				for (XjlDwExamGrade grade : studentGradeList) {
+					Logger.info("遍历成绩计算总分："+total);
 					total += grade.examGrade;
 				}
 				studentInfo.put("total", total);
+				studentInfo.put("exam", xjldwExam);
 				studentInfoList.add(studentInfo);
 			}
 			
 		}
-		//家长入口
+		//家长和家委会入口
 		else{
 			Map studentInfo = new HashMap();
 			Map gradeInfo = null;
@@ -243,6 +282,7 @@ public class WorkService extends MobileFilter {
 			Logger.info("家长入口："+wxUser.currentStudent.studentName);
 			//通过考试编号与学生编号得到成绩
 			studentGradeList = (List<XjlDwExamGrade>)XjlDwExamGrade.queryByStudentAndExam(examId,wxUser.currentStudent.studentId).get("data");
+			Logger.info("通过考试编号和学生编号得到成绩:"+studentGradeList.size());
 			//遍历所有考试成绩
 			for (XjlDwExamSubject xjlDwExamSubject : examSubjectList) {
 				gradeInfo = new HashMap();
@@ -253,8 +293,8 @@ public class WorkService extends MobileFilter {
 					//把学生的考试成绩与所有科目进行比对记录
 					if (xjlDwSubject.subjectId == xjlDwExamSubject.subjectId){
 						gradeInfo.put("subjectTitle", xjlDwSubject.subjectTitle);
-						gradeInfo.put("gradeId", "0");
-						gradeInfo.put("gradeValue", "0");
+						gradeInfo.put("gradeId", 0);
+						gradeInfo.put("gradeValue",0);
 						break;
 					}
 				}
@@ -266,15 +306,23 @@ public class WorkService extends MobileFilter {
 						break;
 					}
 				}
+				//得到每科的 最高分 最低分 平均成绩
+				Logger.info("得到每一科目平均分"+xjlDwExamSubject.max);
+				gradeInfo.put("max",xjlDwExamSubject.max == null?0:xjlDwExamSubject.max);
+				gradeInfo.put("min",xjlDwExamSubject.min == null?0:xjlDwExamSubject.min);
+				gradeInfo.put("avg",xjlDwExamSubject.avg == null?0:xjlDwExamSubject.avg);
+				gradeInfo.put("examSubjectId", xjlDwExamSubject.examSubjectId);
 				gradeList.add(gradeInfo);
 			}
 			studentInfo.put("grade", gradeList);
 			double total = 0;
 			for (XjlDwExamGrade grade : studentGradeList) {
+				Logger.info("遍历成绩计算总分："+total);
 				Logger.info("总分:"+grade.studentId+">"+grade.subjectId);
 				total += grade.examGrade;
 			}
 			studentInfo.put("total", total);
+			studentInfo.put("exam", xjldwExam);
 			studentInfoList.add(studentInfo);
 		}
 		map.put("data", studentInfoList);
@@ -300,8 +348,12 @@ public class WorkService extends MobileFilter {
 		Logger.info("用户类型家委会："+wxUser.isCommittee);
 		Logger.info("用户类型家长："+wxUser.isTeacher);
 		String flag = params.get("flag");
+		//通过班级得到所有学生
+		Map map = XjlDwStudent.queryByClassId(wxUser.currentClass.classId);
+		List<XjlDwStudent> studentList = (List<XjlDwStudent>)map.get("data");
+		DecimalFormat df= new DecimalFormat("######0.00");   
 		//判断老师家委会 得到所有学生的统计数据
-		if((wxUser.isTeacher||wxUser.isCommittee)&&flag==null){
+		if(wxUser.isTeacher&&flag==null){
 			//考试名称、各个科目，每场考试的各个科目的总分
 			//遍历
 			for (XjlDwExam xjlDwExam : list) {
@@ -316,7 +368,7 @@ public class WorkService extends MobileFilter {
 					grade = XjlDwExamGrade.queryGrade(xjlDwExam.examId, xjlDwExamSubject.subjectId,studentId);
 					Logger.info("科目:"+xjlDwSubjectList.get(0).subjectTitle+" 分数:"+grade);
 					chart.type = xjlDwSubjectList.get(0).subjectTitle;
-					chart.temperature = grade;
+					chart.temperature = Double.parseDouble(df.format(grade/studentList.size()));
 					dataChart.add(chart);
 				}
 			}
@@ -401,7 +453,7 @@ public class WorkService extends MobileFilter {
 		XjlDwHomeworkModel model = new XjlDwHomeworkModel();
 		model.homeworkId=Long.parseLong(remarkJson.getString("homeworkId"));
 		model.modelTitle = remarkJson.getString("remark");
-		model.modelContent=remarkJson.getString("remark");
+		model.modelContent=remarkJson.getString("image");
 		XjlDwHomeworkModelBo.save(model);
 		ok();
 	}

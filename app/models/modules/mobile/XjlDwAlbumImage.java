@@ -79,4 +79,17 @@ public class XjlDwAlbumImage extends GenericModel{
 		List<XjlDwAlbumImage> data = ModelUtils.queryData(pageIndex, pageSize,ret,XjlDwGroupBuyOrder.class);
 		return ModelUtils.createResultMap(ret, data);
 	}
+	
+
+	public static int delAlbumImageByAlbumId(Long albumId){
+		String sql = "update xjl_dw_album_image set status='0XX' where ALBUM_ID='"+albumId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
+
+	public static int delAlbumImageByAlbumImageId(Long albumImageId){
+		String sql = "update xjl_dw_album_image set status='0XX' where ALBUM_IMAGE_ID='"+albumImageId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
 }

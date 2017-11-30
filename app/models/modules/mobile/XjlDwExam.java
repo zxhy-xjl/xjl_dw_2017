@@ -42,6 +42,15 @@ public class XjlDwExam extends GenericModel{
 	
 	@Column(name = "STATUS")
 	public String status;
+	
+	@Column(name = "MAX")
+	public Double max;
+	
+	@Column(name = "MIN")
+	public Double min;
+	
+	@Column(name = "AVG")
+	public Double avg;
 
 	@Column(name = "CREATE_TIME")
 	public Date createTime;
@@ -51,6 +60,13 @@ public class XjlDwExam extends GenericModel{
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlDwExam> data = ModelUtils.queryData(pageIndex, pageSize, ret, XjlDwExam.class);
 		return ModelUtils.createResultMap(ret, data);
+	}
+	
+	public static XjlDwExam queryById(Long examId){
+		String sql = "select * from xjl_dw_exam where status='0AA' and EXAM_ID='"+examId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		return (XjlDwExam) ModelUtils.queryData(ret, XjlDwExam.class).get(0);
 	}
 	/**
 	 * 根据班级号查询
@@ -68,6 +84,11 @@ public class XjlDwExam extends GenericModel{
 	public static int delExamByExamId(Long examId){
 		String sql = "update xjl_dw_exam set status='0XX' where EXAM_ID='"+examId+"'";
 		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
+	public static int modifyExamStatByExamId(XjlDwExam xjlDw){
+		String sql = "update xjl_dw_exam set max='"+xjlDw.max+"',min='"+xjlDw.min+"',avg='"+xjlDw.avg+"' where EXAM_ID='"+xjlDw.examId+"'";
+	    Map<String, String> condition = new HashMap<String, String>();
 		return ModelUtils.executeDelete(condition, sql);
 	}
 }

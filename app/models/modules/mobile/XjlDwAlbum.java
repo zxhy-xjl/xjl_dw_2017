@@ -91,4 +91,10 @@ public class XjlDwAlbum extends GenericModel{
 		}
 		return ModelUtils.createResultMap(ret, data);
 	}
+	
+	public static int delAlbumByAlbumId(Long albumId){
+		String sql = "update xjl_dw_album set status='0XX' where ALBUM_ID='"+albumId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
 }

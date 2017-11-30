@@ -196,6 +196,11 @@ public class A extends MobileFilter {
         ok(picUrl);
     }
 
-
+	
+	public static void totest(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser",getWXUser());
+        render("modules/xjldw/mobile/activity/text.html");
+	}
 }
 

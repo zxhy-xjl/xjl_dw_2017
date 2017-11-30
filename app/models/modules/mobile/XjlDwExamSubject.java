@@ -39,6 +39,15 @@ public class XjlDwExamSubject extends GenericModel{
 
 	@Column(name = "STATUS")
 	public String status;
+	
+	@Column(name = "MAX")
+	public Double max;
+	
+	@Column(name = "MIN")
+	public Double min;
+	
+	@Column(name = "AVG")
+	public Double avg;
 
 	public static Map queryByExam(Long examId) {
 		String sql = "select * ";
@@ -58,6 +67,12 @@ public class XjlDwExamSubject extends GenericModel{
 		String sql = "update xjl_dw_exam_subject set status='0XX' where [ EXAM_ID = l:examId ]";
 		Map<String, String> condition = new HashMap<String, String>();
 		condition.put("examId", String.valueOf(examId));
+		return ModelUtils.executeDelete(condition, sql);
+	}
+	
+	public static int modifyExamByExam(XjlDwExamSubject xjlDwExamSubject){
+		String sql = "update xjl_dw_exam_subject set max='"+xjlDwExamSubject.max+"',min='"+xjlDwExamSubject.min+"',avg='"+xjlDwExamSubject.avg+"' where EXAM_SUBJECT_ID='"+xjlDwExamSubject.examSubjectId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
 		return ModelUtils.executeDelete(condition, sql);
 	}
 }
