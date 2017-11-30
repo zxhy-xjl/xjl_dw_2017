@@ -2,10 +2,13 @@ package controllers.modules.mobile;
 import models.modules.mobile.WxUser;
 import models.modules.mobile.XjlDwArticle;
 import models.modules.mobile.XjlDwExam;
+import models.modules.mobile.XjlDwExamGrade;
+import models.modules.mobile.XjlDwExamSubject;
 import models.modules.mobile.XjlDwGroupBuy;
 import models.modules.mobile.XjlDwHomework;
 import models.modules.mobile.XjlDwNotice;
 import models.modules.mobile.XjlDwSchool;
+import models.modules.mobile.XjlDwStudent;
 import models.modules.mobile.XjlDwSubject;
 import models.modules.mobile.XjlDwWxClass;
 import net.sf.json.JSONObject;
@@ -19,7 +22,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -60,9 +68,22 @@ public class W extends MobileFilter {
 		WxUser wxUser =  getWXUser();
 		renderArgs.put("wxUser",wxUser);
 		XjlDwExam exam = XjlDwExam.findById(Long.parseLong(params.get("examId")));
-		renderArgs.put("exam", exam);
+		Logger.info("最大分数"+exam.max);
+		List<Object[]> total = XjlDwExamGrade.queryCount(exam.examId);
+		Logger.info("total"+total.get(0));
+		renderArgs.put("max", exam.max == null?0:doubleTrans1(exam.max));
+		renderArgs.put("min", exam.min == null?0:doubleTrans1(exam.min));
+		renderArgs.put("avg", exam.avg == null?0:doubleTrans1(exam.avg));
+		renderArgs.put("exam",exam);
+		renderArgs.put("total",total.get(0) == null?0:total.get(0));
 	    render("modules/xjldw/mobile/work/exam_detail.html");
 	 }
+	 public static String doubleTrans1(double num){
+	    if(num % 1.0 == 0){
+		        return String.valueOf((long)num);
+	    }
+	    return String.valueOf(num);
+	}
 	//作业列表
 	 public static void homeworkList() {
 		WxUser wxUser =  getWXUser();
@@ -76,10 +97,16 @@ public class W extends MobileFilter {
 	    render("modules/xjldw/mobile/work/homework_add.html");
 	 }
 	//作业详情
-	 public static void homeworkDetail() {
+	 public static void homeworkDetail() throws ParseException {
 		WxUser wxUser =  getWXUser();
 		renderArgs.put("wxUser",wxUser);
 		XjlDwHomework homework = XjlDwHomework.findById(Long.parseLong(params.get("homeworkId")));
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		if(null != homework){
+			Logger.info("工作时间："+sdf.format(homework.createTime));
+			String time = sdf.format(homework.createTime);
+			homework.time = time;
+		}
 		XjlDwSubject subject = XjlDwSubject.findById(homework.subjectId);
 		renderArgs.put("subjectTitle", subject == null ? "" : subject.subjectTitle);
 		renderArgs.put("homework", homework);
