@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html ng-app="app">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css">
+<link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+<link rel="stylesheet" href="/dw/public/css/weui3.css"/>
+<script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script src="/dw/public/js/zepto.min.js"></script>
+<script src="/dw/public/weui/js/lazyimg.js"></script>
+<script>
+$(function(){
+var lazyloadImg = new LazyloadImg({
+          el: '.weui-updown [data-src]', //匹配元素
+          top: 50, //元素在顶部伸出长度触发加载机制
+          right: 50, //元素在右边伸出长度触发加载机制
+          bottom: 50, //元素在底部伸出长度触发加载机制
+          left: 50, //元素在左边伸出长度触发加载机制
+          qriginal: false, // true，自动将图片剪切成默认图片的宽高；false显示图片真实宽高
+          load: function(el) {
+              el.style.cssText += '-webkit-animation: fadeIn 01s ease 0.2s 1 both;animation: fadeIn 1s ease 0.2s 1 both;';
+          },
+          error: function(el) {
+
+          }
+      });
+ });    
+</script>
+<body  ng-controller="MainController">
+ <div class="page-hd">
+        <h1 class="page-hd-title">
+            懒加载图片
+        </h1>
+        <p class="page-hd-desc">需要加载lazyimg.js</p>
+    </div>
+<div class="weui_cells">
+     <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+	<img src="https://www.baidu.com/img/bd_logo1.png" data-src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       </p>
+                </div>
+                <div class="weui_cell_ft">渐显.weui-updown</div>
+            </div>
+  
+       <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+						<img   src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       				</p>
+                </div>
+                <div class="weui_cell_ft">左边图片都是懒加载</div>
+            </div> 
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+<img   src="https://www.baidu.com/img/bd_logo1.png" data-src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       </p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </div>   
+       <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+<img   src="https://www.baidu.com/img/bd_logo1.png" data-src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       </p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </div>                      
+      <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+<img   src="https://www.baidu.com/img/bd_logo1.png" data-src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       </p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </div> 
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+<img   src="https://www.baidu.com/img/bd_logo1.png" data-src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       </p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </div>   
+       <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+						<img   src="https://www.baidu.com/img/bd_logo1.png" data-src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       			</p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </div>                 
+      <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+<img   src="https://www.baidu.com/img/bd_logo1.png" data-src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       </p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </div> 
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+<img   src="https://www.baidu.com/img/bd_logo1.png" data-src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       </p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </div>   
+       <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class='weui-updown'>
+<img   src="https://www.baidu.com/img/bd_logo1.png" data-src="https://www.baidu.com/img/bd_logo1.png" height='100' />
+       </p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </div>                 
+        
+        
+        </div>
+</body>
+</html>

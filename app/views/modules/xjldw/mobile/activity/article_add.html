@@ -10,7 +10,7 @@
 	<meta content="yes" name="apple-touch-fullscreen" />
 	<meta content="telephone=no" name="format-detection" />
 	<meta content="black" name="apple-mobile-web-app-status-bar-style" />
-	<link rel="stylesheet" href="/public/css/main.css" />
+	<link rel="stylesheet" href="/dw/public/css/main.css" />
 </head>
 
 <body ng-controller="MainController">
@@ -40,9 +40,9 @@
     </div>
   </div>
 </div>
- <script src="/public/widgets/layer.m/layer.m.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+ <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script>
     angular.module('app', ['ngTouch'])
            .factory('valid', function () {
@@ -66,7 +66,7 @@
                     saveArticle: function (article) {
                         return $http({
                             method: 'GET',
-                            url: '/mobile/ActivityService/saveArticle',
+                            url: '/dw/mobile/ActivityService/saveArticle',
                             params: article
                         })
                     }
@@ -120,7 +120,7 @@
                                             end: function () {
                                             	$scope.article = res.data.data;
                                                 console.log($scope.article);
-                                                location.href = "/mobile/A/articleList?type="+type;
+                                                location.href = "/dw/mobile/A/articleList?type="+type;
                                             }
                                         });
                                     }
@@ -145,7 +145,7 @@
                 	if($scope.article.articleId!=""){
                 		type="check";
                 	}
-                	location.href = "/mobile/A/articleList?type="+type;
+                	location.href = "/dw/mobile/A/articleList?type="+type;
                 };
 
             }]);

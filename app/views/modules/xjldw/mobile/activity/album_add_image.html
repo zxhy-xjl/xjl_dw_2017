@@ -10,12 +10,12 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/main.css" />
 
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script type="text/javascript">
 angular.module('app', ['ngTouch'])
 			.value('appValue', {
@@ -27,7 +27,7 @@ angular.module('app', ['ngTouch'])
 				getData:function(index,size,searchText){
 					return $http({
 						method:'GET',
-						url:'/mobile/ActivityService/queryAlbumList',
+						url:'/dw/mobile/ActivityService/queryAlbumList',
 						params:{
 							PAGE_INDEX: index || appValue.index,
                             PAGE_SIZE: size || appValue.size

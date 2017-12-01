@@ -23,7 +23,8 @@ public class AccessTokenHolder {
 	public static String getAccessToken(String wxCode) {
 
 		Logger.info("serverId = " + wxCode);
-		String token = (String) Cache.get(wxCode + "_token");
+		String token = null;//(String) Cache.get(wxCode + "_token");
+		Logger.info("getcache"+Cache.get(wxCode + "_token"));
 		if (token == null) {
 			WxServer server = WxServer.getServerByServerid(wxCode);
 			if (server != null) {
@@ -35,11 +36,12 @@ public class AccessTokenHolder {
 				token = getToken(appId, appSecret);
 				Logger.info("---appId----:"+appId);
 				Logger.info("---appSecret----:"+appSecret);
-				Logger.info("---token----:"+token);
+				Logger.info("---settoken----:"+token);
 				Cache.set(wxCode + "_token", token, "2h");
 			}
 		}
 //		play.Logger.info("------token is: %s", token);
+		Logger.info("returntoken:"+token);
 		return token;
 	}
 
@@ -47,6 +49,7 @@ public class AccessTokenHolder {
 		String wxCode = "";
 
 		WxServer server = WxServer.findById(1l);
+		Logger.info("server:"+server.wxCode);
 		wxCode = server.wxCode;
 		return getAccessToken(wxCode);
 	}

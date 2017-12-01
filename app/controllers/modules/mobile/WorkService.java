@@ -157,6 +157,7 @@ public class WorkService extends MobileFilter {
 		Long examId = Long.parseLong(params.get("examId"));
 		Long studentId = Long.parseLong(params.get("studentId"));
 		String [] grade=params.getAll("grade");
+		Logger.info("examgrade:"+params.get("grade"));
         JSONArray gradeList = JSONArray.fromObject(grade); 
         for (int i = 0; i < gradeList.size(); i++){
         	JSONObject gradeJson = gradeList.getJSONObject(i);
@@ -170,6 +171,7 @@ public class WorkService extends MobileFilter {
         	} else {
         		examGrade = XjlDwExamGrade.findById(gradeId);
         	}
+        	Double.parseDouble(String.valueOf(gradeJson.get("gradeValue")));
         	examGrade.examGrade = gradeJson.getDouble("gradeValue");
         	XjlDwExamGradeBo.save(examGrade);
         }
@@ -368,7 +370,7 @@ public class WorkService extends MobileFilter {
 					grade = XjlDwExamGrade.queryGrade(xjlDwExam.examId, xjlDwExamSubject.subjectId,studentId);
 					Logger.info("科目:"+xjlDwSubjectList.get(0).subjectTitle+" 分数:"+grade);
 					chart.type = xjlDwSubjectList.get(0).subjectTitle;
-					chart.temperature = Double.parseDouble(df.format(grade/studentList.size()));
+					chart.temperature = xjlDwExamSubject.avg;//Double.parseDouble(df.format(grade/studentList.size()));
 					dataChart.add(chart);
 				}
 			}

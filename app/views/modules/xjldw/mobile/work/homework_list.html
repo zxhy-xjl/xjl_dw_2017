@@ -10,12 +10,15 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
-<link rel="stylesheet" href="/public/css/weui.css" />
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css" />
+ <link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+  <link rel="stylesheet" href="/dw/public/css/weui3.css"/>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
+ <script src="/dw/public/js/zepto.min.js"></script> 
 <script>
 
         angular.module('app', ['ngTouch'])
@@ -28,7 +31,7 @@
                     	queryHomework: function(index, size, searchText) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/WorkService/queryHomeworkList',
+                                url: '/dw/mobile/WorkService/queryHomeworkList',
                                 params: {
                                     PAGE_INDEX: index || appValue.index,
                                     PAGE_SIZE: size || appValue.size
@@ -42,7 +45,7 @@
                 		delDate :function(homeWorkId){
                 			return $http({
                 				method:'POST',
-                				url:'/mobile/WorkService/delHomeWork',
+                				url:'/dw/mobile/WorkService/delHomeWork',
                 				params:{
                 					homeWorkId:homeWorkId
                 				}
@@ -57,6 +60,17 @@
                     		homeWorkId:'',
                     		homeWorkTitle:''
                     }
+                  //next page function
+                    $scope.nextPage = function (me) {
+                        agentRemote.queryHomework(++appValue.index).then(function (response) {
+                        	$scope.homeworkList =$scope.homeworkList.concat(response.data.data.data);
+                            if (me && me.resetload)
+                                me.resetload();
+
+                        }, function (response) {
+                            //err
+                        });
+                    };
                 	//init page function
                     $scope.initPage = function (me) {
                 		console.log("考试列表")
@@ -64,7 +78,9 @@
                         agentRemote.queryHomework(1).then(function (response) {
                             $scope.homeworkTotal = response.data.data.total;
                             $scope.homeworkList = response.data.data.data;
-                            console.log($scope.homeworkList);
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                              	 loadScript("/dw/public/js/slideleft.js", function() {})
+                              }
                             if (me && me.resetload)
                                 me.resetload();
 
@@ -75,53 +91,99 @@
                 	 $scope.showFade = function(id,title){
                       	$scope.homeWorkObj.homeWorkId = id;
                       	$scope.homeWorkObj.homeWorkTitle = title;
-                      	$("#dialog_title").html("确定删除,"+$scope.homeWorkObj.homeWorkTitle+"吗？")
-                          $('#iosDialog1').fadeIn(200);
+                      	delRemote.delDate($scope.homeWorkObj.homeWorkId).then(function(response){
+                     		 $scope.initPage();
+                     	},function(){
+                     	});
+                      	//$("#dialog_title").html("确定删除,"+$scope.homeWorkObj.homeWorkTitle+"吗？")
+                        //$('#iosDialog1').fadeIn(200);
                       }
                       $scope.hideFade = function(){
                       	$('#iosDialog1').fadeOut(200);
                       }
                       $scope.del = function(me){
-                      	delRemote.delDate($scope.homeWorkObj.homeWorkId).then(function(response){
-                      		 $scope.initPage();
-                      	},function(){
-                      	});
-                      	$('#iosDialog1').fadeOut(200);
+                      	//$('#iosDialog1').fadeOut(200);
                       }
                 	//执行初始化方法
                 	$scope.initPage();
+                	$('#scroller').dropload({
+                        domUp: {
+                            domClass: 'dropload-up',
+                            domRefresh: '<div class="dropload-refresh">↓下拉刷新</div>',
+                            domUpdate: '<div class="dropload-update">↑释放更新</div>',
+                            domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                        },
+                        domDown: {
+                            domClass: 'dropload-down',
+                            domRefresh: '<div class="dropload-refresh">↑上拉加载更多</div>',
+                            domUpdate: '<div class="dropload-update">↓释放加载</div>',
+                            domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                        },
+                        scrollArea: window,
+                        loadUpFn: function (me) {
+                            $scope.initPage(me);
+                            console.log('down');
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                              	 loadScript("/dw/public/js/slideleft.js", function() {})
+                              }
+                        },
+                        loadDownFn: function (me) {
+                            $scope.nextPage(me);
+                            console.log('up');
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                              	 loadScript("/dw/public/js/slideleft.js", function() {})
+                              }
+                        }
+                    });
                 }]);
     </script>
 </head>
 
-<body ng-cloak ng-controller="MainController">
+<body ng-cloak ng-controller="MainController" style="background-color:white;">
 <div class="main">
-  <div class="row">
-    <h3 class="padded-b-10 border-b  padded-t-10 text-default">每周作业
-      <input ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" type="button" class="btn-blue btn fr margin-l-10" onClick="window.location='/mobile/W/homeworkAdd'" value="发布作业"/>
+  <div class="row"  style="width:98%">
+    <h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">每周作业
+      <input ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" type="button" class="btn-blue btn fr margin-l-10" onClick="window.location='/dw/mobile/W/homeworkAdd'" value="发布作业"/>
     </h3>
-    <div class="content">
-      <div class="clearfix posrel" ng-repeat="homeworkInfo in homeworkList"> 
-       <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">
-       【{{homeworkInfo.subjectTitle}}】{{homeworkInfo.homework.homeworkTitle}}
-       	<a id="showIOSDialog1"ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}"   href="javascript:;" ng-click="showFade('{{homeworkInfo.homework.homeworkId}}','{{homeworkInfo.homework.homeworkTitle}}')"  class="weui-btn weui-btn_mini weui-btn_warn">删除</a>
-       </h3>
-      <a href="/mobile/W/homeworkDetail?homeworkId={{homeworkInfo.homework.homeworkId}}">
-        <div class=" wid80">
-          <p class="margin-t-10 ">{{homeworkInfo.homework.homeworkContent}}</p>
-          <p class="margin-b-10 font-size-12 text-auxiliaryed">布置时间：{{homeworkInfo.homework.createTime}}</p>
-        </div>
-        <div class="right-btn wid3 homework_model" ng-show="{{homeworkInfo.modelCount>0}}">
-          <img src="/public/images/mobile/homework_model.png"/>
-        </div>
-        </a> 
-        <div class="hr"></div>
-        </div>
-      
-      
-      <div class="dropload-down">
-        <div class="dropload-refresh">上拉加载更多</div>
-      </div>
+    <div class="content" id="scroller">
+	     <!--  <div class="clearfix posrel" ng-repeat="homeworkInfo in homeworkList"> 
+		       <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">
+		       【{{homeworkInfo.subjectTitle}}】{{homeworkInfo.homework.homeworkTitle}}
+		       	<a id="showIOSDialog1"ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}"   href="javascript:;" ng-click="showFade('{{homeworkInfo.homework.homeworkId}}','{{homeworkInfo.homework.homeworkTitle}}')"  class="weui-btn weui-btn_mini weui-btn_warn">删除</a>
+		       </h3>
+		      <a href="/dw/mobile/W/homeworkDetail?homeworkId={{homeworkInfo.homework.homeworkId}}">
+		        <div class=" wid80">
+		          <p class="margin-t-10 ">{{homeworkInfo.homework.homeworkContent}}</p>
+		          <p class="margin-b-10 font-size-12 text-auxiliaryed" style="font-weight: bold">布置时间：{{homeworkInfo.homework.createTime}}</p>
+		        </div>
+		        <div class="right-btn wid3 homework_model" ng-show="{{homeworkInfo.modelCount>0}}">
+		          <img src="/dw/public/images/mobile/homework_model.png"/>
+		        </div>
+		        </a> 
+		        <div class="hr"></div>
+	        </div> -->
+	        <div class="weui_cells" ng-repeat="homeworkInfo in homeworkList">
+			    <ul class="list weui_cell slidelefts" >
+			        <li class="weui_cell_bd weui_cell_primary " >
+			          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">【{{homeworkInfo.subjectTitle}}】{{homeworkInfo.homework.homeworkTitle}}
+			         	 <span class="text-auxiliaryed fr font-size-13" ng-bind="notice.noticeDate">05-31</span>
+			          </h3>
+			            <a href="/dw/mobile/W/homeworkDetail?homeworkId={{homeworkInfo.homework.homeworkId}}"> 
+			                <p class="margin-t-10" style="width:86%">{{homeworkInfo.homework.homeworkContent}}</p>
+			                <p class="margin-b-10 font-size-12 text-auxiliaryed" style="font-weight: bold">布置时间：{{homeworkInfo.homework.createTime}}</p>
+			            	<div class="right-btn wid3 homework_model" ng-show="{{homeworkInfo.modelCount>0}}">
+					          <img src="/dw/public/images/mobile/homework_model.png"/>
+					        </div>
+			            </a>
+			        </li>
+			        <div class="slideleft">
+	                		<span class="bg-red f-white dels" style="width:100px;" ng-click="showFade('{{homeworkInfo.homework.homeworkId}}','{{homeworkInfo.homework.homeworkTitle}}')">删除</span>
+	                </div>
+			      </ul>
+		    </div>
+	      <div class="dropload-down">
+	        <div class="dropload-refresh">上拉加载更多</div>
+	      </div>
     </div>
   </div>
 </div>
@@ -140,4 +202,26 @@
         </div>
 </div>
 </body>
+<script type="text/javascript">
+function loadScript(url, callback) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    if (typeof(callback) != "undefined") {
+        if (script.readyState) {
+            script.onreadystatechange = function() {
+                if (script.readyState == "loaded" || script.readyState == "complete") {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+            };
+        } else {
+            script.onload = function() {
+                callback();
+            };
+        }
+    };
+    script.src = url;
+    document.body.appendChild(script);
+}
+</script>
 </html>

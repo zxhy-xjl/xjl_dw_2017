@@ -9,15 +9,19 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
-<script src="/public/widgets/layer.m/layer.m.js"></script>
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css" />
+ <link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+  <link rel="stylesheet" href="/dw/public/css/weui3.css"/>
+<script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
+ <script src="/dw/public/js/zepto.min.js"></script> 
 <style type="text/css">
 a,img{border:0;}
-#shadowpic{width:300px;height:auto;overflow:hidden;background:#fff;}
+#shadowpic{width:100%;height:auto;overflow:hidden;background:#fff;}
 #shadowpic ul{display:block;width:300px;height:120px;float:left;overflow:hidden;position:relative;list-style: none;margin:10%;}
 #shadowpic li{width:60px;height:60px;position:relative;float:left;z-index:0;border-bottom:1px solid #fff;border-right:1px solid #fff;margin-bottom:1px}
 #shadowpic li img{position:absolute;left:0;top:0;z-index:20;}
@@ -35,7 +39,7 @@ angular.module('app', ['ngTouch'])
 				getData:function(index,size,searchText){
 					return $http({
 						method:'GET',
-						url:'/mobile/ActivityService/queryAlbumList',
+						url:'/dw/mobile/ActivityService/queryAlbumList',
 						params:{
 							PAGE_INDEX: index || appValue.index,
                             PAGE_SIZE: size || appValue.size
@@ -45,8 +49,25 @@ angular.module('app', ['ngTouch'])
 				
 			}
 		}])
-		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue, agentRemote,$timeout){
+		 .factory('delRemote',['$http', 'appValue',function($http, appValue){
+                	return {
+                		delDate :function(albumId){
+                			return $http({
+                				method:'POST',
+                				url:'/dw/mobile/ActivityService/delAlbum',
+                				params:{
+                					albumId:albumId
+                				}
+                			});
+                		}
+                	}
+                }])
+		.controller('MainController',['$scope','appValue','agentRemote','delRemote','$timeout',function($scope, appValue, agentRemote,delRemote,$timeout){
 			 $scope.lists = [];
+			 $scope.albumObj = {
+             		albumId:'',
+             		albumTitle:''
+             };
 			 $scope.nextPage = function(me){
 				 agentRemote.getData(++appValue.index).then(function(response){
 					 $scope.lists = $scope.lists.concat(response.data.data.data);
@@ -62,7 +83,9 @@ angular.module('app', ['ngTouch'])
 		            agentRemote.getData(1).then(function (response) {
                         $scope.total = response.data.data.total;
                         $scope.lists = response.data.data.data;
-                        console.log($scope.lists);
+                        if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                          	 loadScript("/dw/public/js/slideleft.js", function() {})
+                          }
                         if (me && me.resetload)
                             me.resetload();
 
@@ -70,7 +93,25 @@ angular.module('app', ['ngTouch'])
                         //err
                     });
 			 };
+			 $scope.showFade = function(id,title){
+             	$scope.albumObj.albumId = id;
+             	$scope.albumObj.albumTitle = title;
+             	delRemote.delDate($scope.albumObj.albumId).then(function(response){
+            		 $scope.initPage();
+            	},function(){
+            		
+            	});
+             	//$("#dialog_title").html("确定删除<b>"+$scope.albumObj.albumTitle+"</b>吗？")
+                //$('#iosDialog1').fadeIn(200);
+             }
+             $scope.hideFade = function(){
+             	$('#iosDialog1').fadeOut(200);
+             }
+             $scope.del = function(me){
+             	//$('#iosDialog1').fadeOut(200);
+             }
 			 $scope.initPage();
+			 
 			 $('#scroller').dropload({
                  domUp: {
                      domClass: 'dropload-up',
@@ -88,62 +129,119 @@ angular.module('app', ['ngTouch'])
                  loadUpFn: function (me) {
                      $scope.initPage(me);
                      console.log('down');
+                     if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                       	 loadScript("/dw/public/js/slideleft.js", function() {})
+                       }
                  },
                  loadDownFn: function (me) {
-
                      $scope.nextPage(me);
                      console.log('up');
+                     if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                       	 loadScript("/dw/public/js/slideleft.js", function() {})
+                       }
                  }
              });
 		}])
 </script>
 </head>
-<body ng-cloak ng-controller="MainController">
+<body ng-cloak ng-controller="MainController" style="background-color:white;">
 <div class="main">
- <div class="row">
- 	<h3 class="padded-b-10 border-b  padded-t-10 text-default">相册列表
-         <a href="/mobile/A/albumAdd"  class="btn-blue btn fr padded-r-10 padded-l-10">发布相册</a>
+ <div class="row" style="width:98%">
+ 	<h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">相册列表
+         <a ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="/dw/mobile/A/albumAdd"  class="btn-blue btn fr padded-r-10 padded-l-10">发布相册</a>
     </h3>
-    <div class="content" id="scroller" ng-show="lists.length!=0" >
-			<div id="shadowpic" ng-repeat="album in lists">
-			    <a href="/mobile/A/albumImageList?albumId={{album.albumId}}"> 
-			    <h6 class="padded-b-10   padded-t-10 ">{{album.albumTitle}}</h6>
-				<ul>
-					<li>
+    <div  class="content" id="scroller" ng-show="lists.length!=0" >
+    <div id="shadowpic">
+    	<div  class="weui_cells" ng-repeat="album in lists">
+		    <div class="list weui_cell slidelefts"  >
+		        <div class="weui_cell_bd weui_cell_primary" style="height:200px;" >
+		          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{album.albumTitle}}
+		          </h3>
+		            <a href="/dw/mobile/A/albumImageList?albumId={{album.albumId}}"> 
+		                <ul>
+					<li >
 						<div ng-if="album.templateImageList[0]!=null">
-							<img src="{{album.templateImageList[0].fileUrl}}"  width="60" height="60" class="default" />
+							<img src="/dw{{album.templateImageList[0].fileUrl}}"  width="60" height="60" class="default" />
 						</div>
 						<div ng-if="album.templateImageList[0]==null">
-							<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+							<img src="/dw/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
 						</div>
 			        </li>
-			        <li>
+			        <li >
 			        	<div ng-if="album.templateImageList[1]!= null">
-			        		<img src="{{album.templateImageList[1].fileUrl}}" width="60" height="60" class="default" />
+			        		<img src="/dw{{album.templateImageList[1].fileUrl}}" width="60" height="60" class="default" />
 			        	</div>
 			        	<div ng-if="album.templateImageList[1]== null">
-			        		<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			        		<img src="/dw/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
 			        	</div>
 			        </li>
-			        <li>
+			        <li >
 			        	<div ng-if="album.templateImageList[2]!= null">
-			        		<img src="{{album.templateImageList[2].fileUrl}}" width="60" height="60" class="default" />
+			        		<img src="/dw{{album.templateImageList[2].fileUrl}}" width="60" height="60" class="default" />
 			        	</div>
 			        	<div ng-if="album.templateImageList[2]== null">
-			        		<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			        		<img src="/dw/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
 			        	</div>
 			        </li>
 			        <li>
 			        	<div ng-if="album.templateImageList[3]!= null">
-			        		<img src="{{album.templateImageList[3].fileUrl}}" width="60" height="60" class="default" />
+			        		<img src="/dw{{album.templateImageList[3].fileUrl}}" width="60" height="60" class="default" />
 			        	</div>
 			        	<div ng-if="album.templateImageList[3]== null">
-			        		<img src="/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			        		<img src="/dw/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			        	</div>
+			        </li>  
+				</ul>
+		            </a>
+		        </div>
+		        <div class="slideleft">
+                		<span class="bg-red f-white dels" style="width:100px;" ng-click="showFade('{{album.albumId}}','{{album.albumTitle}}')">删除</span>
+                </div>
+		      </div>
+	    </div>
+    </div>
+			<!-- <div id="shadowpic" ng-repeat="album in lists">
+				 <h6 class="padded-b-10   padded-t-10 ">
+				 {{album.albumTitle}}
+				 <a id="showIOSDialog1"  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="javascript:;" ng-click="showFade('{{album.albumId}}','{{album.albumTitle}}')"  class="weui-btn weui-btn_mini weui-btn_warn">删除</a>
+				 </h6>
+			    <a href="/dw/mobile/A/albumImageList?albumId={{album.albumId}}"> 
+				<ul>
+					<li>
+						<div ng-if="album.templateImageList[0]!=null">
+							<img src="/dw{{album.templateImageList[0].fileUrl}}"  width="60" height="60" class="default" />
+						</div>
+						<div ng-if="album.templateImageList[0]==null">
+							<img src="/dw/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+						</div>
+			        </li>
+			        <li>
+			        	<div ng-if="album.templateImageList[1]!= null">
+			        		<img src="/dw{{album.templateImageList[1].fileUrl}}" width="60" height="60" class="default" />
+			        	</div>
+			        	<div ng-if="album.templateImageList[1]== null">
+			        		<img src="/dw/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			        	</div>
+			        </li>
+			        <li>
+			        	<div ng-if="album.templateImageList[2]!= null">
+			        		<img src="/dw{{album.templateImageList[2].fileUrl}}" width="60" height="60" class="default" />
+			        	</div>
+			        	<div ng-if="album.templateImageList[2]== null">
+			        		<img src="/dw/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
+			        	</div>
+			        </li>
+			        <li>
+			        	<div ng-if="album.templateImageList[3]!= null">
+			        		<img src="/dw{{album.templateImageList[3].fileUrl}}" width="60" height="60" class="default" />
+			        	</div>
+			        	<div ng-if="album.templateImageList[3]== null">
+			        		<img src="/dw/public/images/mobile/noshow.jpeg" width="60" height="60" class="default" />
 			        	</div>
 			        </li>  
 				</ul>
 				</a>
-			</div>
+			</div> -->
 			
 			<div class="dropload-down">
 		      	<div class="dropload-refresh">
@@ -153,5 +251,41 @@ angular.module('app', ['ngTouch'])
     </div> 
  </div>
 </div>
+<div id="dialogs">
+       <!--BEGIN dialog1-->
+       <div class="js_dialog" id="iosDialog1" style="display: none;">
+           <div class="weui-mask"></div>
+           <div class="weui-dialog">
+               <div class="weui-dialog__hd"><strong class="weui-dialog__title">消息提示</strong></div>
+               <div class="weui-dialog__bd" id="dialog_title"></div>
+               <div class="weui-dialog__ft">
+                   <a href="javascript:;" ng-click="hideFade()" class="weui-dialog__btn weui-dialog__btn_default">取消</a>
+                   <a href="javascript:;" ng-click="del()"class="weui-dialog__btn weui-dialog__btn_primary">确定</a>
+               </div>
+           </div>
+       </div>
+</div>
 </body>
+<script type="text/javascript">
+function loadScript(url, callback) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    if (typeof(callback) != "undefined") {
+        if (script.readyState) {
+            script.onreadystatechange = function() {
+                if (script.readyState == "loaded" || script.readyState == "complete") {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+            };
+        } else {
+            script.onload = function() {
+                callback();
+            };
+        }
+    };
+    script.src = url;
+    document.body.appendChild(script);
+}
+</script>
 </html>

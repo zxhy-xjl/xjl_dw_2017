@@ -10,12 +10,15 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
-<link rel="stylesheet" href="/public/css/weui.css" />
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css" />
+ <link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+  <link rel="stylesheet" href="/dw/public/css/weui3.css"/>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
+ <script src="/dw/public/js/zepto.min.js"></script> 
  <script>
 
         angular.module('app', ['ngTouch'])
@@ -28,7 +31,7 @@
                         getData: function(index, size, searchText) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/ActivityService/queryArticleList',
+                                url: '/dw/mobile/ActivityService/queryArticleList',
                                 params: {
                                     PAGE_INDEX: index || appValue.index,
                                     PAGE_SIZE: size || appValue.size
@@ -42,7 +45,7 @@
                 		delDate :function(articleId){
                 			return $http({
                 				method:'POST',
-                				url:'/mobile/ActivityService/delArticleById',
+                				url:'/dw/mobile/ActivityService/delArticleById',
                 				params:{
                 					articleId:articleId
                 				}
@@ -55,7 +58,7 @@
                 		delDate :function(articleId){
                 			return $http({
                 				method:'POST',
-                				url:'/mobile/ActivityService/delArticleById',
+                				url:'/dw/mobile/ActivityService/delArticleById',
                 				params:{
                 					articleId:articleId
                 				}
@@ -91,7 +94,9 @@
                         agentRemote.getData(1).then(function (response) {
                             $scope.total = response.data.data.total;
                             $scope.notices = response.data.data.data;
-                            console.log($scope.notices);
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                           	 loadScript("/dw/public/js/slideleft.js", function() {})
+                           }
                             if (me && me.resetload)
                                 me.resetload();
 
@@ -134,19 +139,20 @@
                     $scope.showFade = function(id,title){
                     	$scope.noticesObj.articleId = id;
                     	$scope.noticesObj.articleTitle = title;
-                    	$("#dialog_title").html("确定删除<b>"+$scope.noticesObj.articleTitle+"</b>吗？")
-                        $('#iosDialog1').fadeIn(200);
+                    	delRemote.delDate($scope.noticesObj.articleId).then(function(response){
+                   		 $scope.initPage();
+		                   	},function(){
+		                   		
+		                   	});
+                    	//$("#dialog_title").html("确定删除<b>"+$scope.noticesObj.articleTitle+"</b>吗？")
+                        //$('#iosDialog1').fadeIn(200);
                     }
                     $scope.hideFade = function(){
                     	$('#iosDialog1').fadeOut(200);
                     }
                     $scope.del = function(me){
-                    	delRemote.delDate($scope.noticesObj.articleId).then(function(response){
-                    		 $scope.initPage();
-                    	},function(){
-                    		
-                    	});
-                    	$('#iosDialog1').fadeOut(200);
+                    	
+                    	//$('#iosDialog1').fadeOut(200);
                     }
                     //exec init
                     $scope.initPage();
@@ -170,11 +176,16 @@
                         loadUpFn: function (me) {
                             $scope.initPage(me);
                             console.log('down');
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                           	 loadScript("/dw/public/js/slideleft.js", function() {})
+                           }
                         },
                         loadDownFn: function (me) {
-
                             $scope.nextPage(me);
                             console.log('up');
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                           	 loadScript("/dw/public/js/slideleft.js", function() {})
+                           }
                         }
                     });
                 }]);
@@ -182,36 +193,40 @@
 </head>
 <body ng-cloak ng-controller="MainController">
 <div class="main">
-  <div class="row">
-    <h3 class="padded-b-10 border-b  padded-t-10 text-default">{{'${type}'=='list'?'美文列表':'美文审核'}} 
-        <input type="button" value="返回"   onclick="window.location='/mobile/A/articleList?type=list'"
+  <div class="row" style="width:98%">
+    <h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">{{'${type}'=='list'?'美文列表':'美文审核'}} 
+        <input type="button" value="返回"   onclick="window.location='/dw/mobile/A/articleList?type=list'"
                ng-show="'${type}'=='check'" class="btn-white btn fr padded-r-10 padded-l-10" />
-        <a href="/mobile/A/articleAdd"  class="btn-blue btn fr margin-l-10" ng-show="'${type}'=='list'">投稿</a>
+        <a href="/dw/mobile/A/articleAdd"  class="btn-blue btn fr margin-l-10" ng-show="'${type}'=='list'">投稿</a>
    	    <input type="button" class="btn-blue btn fr padded-r-10 padded-l-10" ng-show="false && ${wxUser.isCommittee}&&'${type}'=='list'"
-   	      onclick="window.location='/mobile/A/articleList?type=check'"  value="待审核（10）"/>
+   	      onclick="window.location='/dw/mobile/A/articleList?type=check'"  value="待审核（10）"/>
     </h3>
     <div class="content" id="scroller" ng-show="notices.length!=0">
-        <div class="border-b"  ng-repeat="notice in notices">
-        <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">
-			{{notice.articleTitle}}
-			<a id="showIOSDialog1"  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="javascript:;" ng-click="showFade('{{notice.articleId}}','{{notice.articleTitle}}')"  class="weui-btn weui-btn_mini weui-btn_warn">删除</a>
-         <a href="/mobile/A/articleDetail?articleId={{notice.articleId}}&type=${type}">
-	          <p class="padded-t-5">
-	          	<span class="text-auxiliaryed padded-r-10">作者：{{notice.articleAuthor}}</span>
-	            <span class="text-auxiliaryed font-size-13">{{notice.articlePublishDate}}</span>
-	          </p>
-	          <p class="padded-t-10" style="display:none;"><img src="../images/new_img.jpg"/></p>
-	          <p class="margin-t-10 margin-b-10">{{notice.articleContent}}</p>
-           </a>
-          <p class=" clearfix margin-b-10">
-          <a href="/mobile/A/articleAdd?articleId={{notice.articleId}}"
+        <div class="border-b weui_cells"  ng-repeat="notice in notices">
+        <ul class="list weui_cell slidelefts" >
+        	<li class="weui_cell_bd weui_cell_primary " >
+        		<h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">
+					{{notice.articleTitle}}
+				</h3>	
+	         	<a href="/dw/mobile/A/articleDetail?articleId={{notice.articleId}}&type=${type}">
+		          <p class="padded-t-5">
+		          	<span class="text-auxiliaryed padded-r-10">作者：{{notice.articleAuthor}}</span>
+		            <span class="text-auxiliaryed font-size-13">{{notice.articlePublishDate}}</span>
+		          </p>
+		          <p class="margin-t-10 margin-b-10">{{notice.articleContent}}</p>
+           		</a> 	
+        	</li>
+        	 <div class="slideleft">
+              		<span class="bg-red f-white dels" style="width:100px;" ng-click="showFade('{{notice.articleId}}','{{notice.articleTitle}}')">删除</span>
+               </div>
+        </ul>
+         <!--  <p class=" clearfix margin-b-10">
+          <a href="/dw/mobile/A/articleAdd?articleId={{notice.articleId}}"
           class="btn-blue btn fr wid4" ng-show="('${type}'=='check'&&notice.articleState==0)" >待审核</a>
          	 <span class="btn bg-success fr wid4" ng-show="('${type}'=='check'&&notice.articleState==1)">已发表</span>
          	 <span class="btn-white btn fr wid4"  ng-show="('${type}'=='check'&&notice.articleState==2)">已审核</span>
-          </p>
+          </p> -->
         </div>
-      
-       
       <div class="dropload-down">
 	      <div class="dropload-refresh">
              当前<span ng-bind="notices.length"></span>条记录 总共<span ng-bind="total"></span>条记录(滑动刷新)
@@ -237,4 +252,26 @@
        </div>
 </div>
 </body>
+<script type="text/javascript">
+function loadScript(url, callback) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    if (typeof(callback) != "undefined") {
+        if (script.readyState) {
+            script.onreadystatechange = function() {
+                if (script.readyState == "loaded" || script.readyState == "complete") {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+            };
+        } else {
+            script.onload = function() {
+                callback();
+            };
+        }
+    };
+    script.src = url;
+    document.body.appendChild(script);
+}
+</script>
 </html>

@@ -10,10 +10,10 @@
 	<meta content="yes" name="apple-touch-fullscreen" />
 	<meta content="telephone=no" name="format-detection" />
 	<meta content="black" name="apple-mobile-web-app-status-bar-style" />
-	<link rel="stylesheet" href="/public/css/style.css" />
-	<script src="/public/widgets/layer.m/layer.m.js"></script>
-	<script src="/public/widgets/angularjs/angular.min.js"></script>
-	<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+	<link rel="stylesheet" href="/dw/public/css/style.css" />
+	<script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+	<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+	<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 </head>
 
 <body class="userbg" ng-controller="MainController">
@@ -38,12 +38,12 @@
       <div class="arrow"></div>
     </div>
     <div ng-repeat="class in classList" class="border-b padded-t-15 padded-b-15 posrel clearfix">
-      <div class="wid2 fl line-height-2 studentadd"><img src="/public/images/mobile/student.png"/></div>
+      <div class="wid2 fl line-height-2 studentadd"><img src="/dw/public/images/mobile/student.png"/></div>
       <div class="wid80 fr line-height-2"> <span class="text-auxiliaryed padded-l-20 font-size-14">{{class.dwClass.className}}</span> </div>
       <div class="now"></div>
     </div>
     <div class=" padded-t-15 padded-b-15 posrel clearfix">
-      <div class="wid2 fl line-height-2 studentadd"><img src="/public/images/mobile/student_add.png"/></div>
+      <div class="wid2 fl line-height-2 studentadd"><img src="/dw/public/images/mobile/student_add.png"/></div>
       <div class="wid80 fr line-height-2"> <span class="text-info">添加班</span> </div>
     </div>
   </div>
@@ -55,12 +55,12 @@
       <div class="arrow"></div>
     </div>
     <div ng-repeat="student in studentList" class="border-b padded-t-15 padded-b-15 posrel clearfix" onClick="window.location='student_edit.html'">
-      <div class="wid2 fl line-height-2 studentadd"><img src="/public/images/mobile/student.png"/></div>
+      <div class="wid2 fl line-height-2 studentadd"><img src="/dw/public/images/mobile/student.png"/></div>
       <div class="wid80 fr line-height-2"> {{student.student.studentName}}<span class="text-auxiliaryed padded-l-20 font-size-14">{{student.dwClass.className}}</span> </div>
       <div class="now" ng-show="${student.isDefault}=='Y'"></div>
     </div>
     <div class=" padded-t-15 padded-b-15 posrel clearfix" onClick="window.location='student_add.html'">
-      <div class="wid2 fl line-height-2 studentadd"><img src="/public/images/mobile/student_add.png"/></div>
+      <div class="wid2 fl line-height-2 studentadd"><img src="/dw/public/images/mobile/student_add.png"/></div>
       <div class="wid80 fr line-height-2"> <span class="text-info">添加学生</span> </div>
     </div>
   </div>
@@ -76,21 +76,21 @@
                 	queryPersonInfo: function () {
                         return $http({
                             method: 'GET',
-                            url: '/mobile/MyService/queryPersonInfo',
+                            url: '/dw/mobile/MyService/queryPersonInfo',
                             params: ''
                         })
                     },
                     queryBindClass: function () {
                         return $http({
                             method: 'GET',
-                            url: '/mobile/MyService/queryBindClass',
+                            url: '/dw/mobile/MyService/queryBindClass',
                             params: ''
                         })
                     },
                     queryBindStudent: function () {
                         return $http({
                             method: 'GET',
-                            url: '/mobile/MyService/queryBindStudent',
+                            url: '/dw/mobile/MyService/queryBindStudent',
                             params: ''
                         })
                     }
@@ -115,7 +115,7 @@
             		$scope.classList = response.data.data.data
             	});
                 $scope.back= function () {
-                	location.href = "/mobile/M/manager";
+                	location.href = "/dw/mobile/M/manager";
                 };
             }]);
 </script>

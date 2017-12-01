@@ -10,12 +10,12 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
-<script src="/public/js/jquery-1.9.1.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/dw/public/js/jquery-1.9.1.min.js"></script>
 <script src="https://gw.alipayobjects.com/as/g/datavis/g2/2.3.13/index.js"></script>
 <script type="text/javascript">
 angular.module('app', ['ngTouch'])
@@ -24,7 +24,7 @@ angular.module('app', ['ngTouch'])
 			getData:function(flag){
 				return $http({
 					method: 'GET',
-                	url: '/mobile/WorkService/queryChart',
+                	url: '/dw/mobile/WorkService/queryChart',
                	  	params: {
                		  flag:flag
                	  	}
@@ -87,10 +87,10 @@ angular.module('app', ['ngTouch'])
 <body ng-cloak ng-controller="MainController">
 <div class="main">
 	<div class="row">
-		<h3 ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentClass.className}成绩曲线图
-			<input  ng-if="${wxUser.isCommittee}" type="button" class="btn-blue btn fr margin-l-10" ng-click="initPage(1)" value="展示关注学生"/>
+		<h3 ng-if="${wxUser.isTeacher}" class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentClass.className}成绩曲线图
+			<!-- <input  ng-if="${wxUser.isCommittee}" type="button" class="btn-blue btn fr margin-l-10" ng-click="initPage(1)" value="展示关注学生"/> -->
 		</h3>
-		<h3 ng-if="${wxUser.isParent} && ${wxUser.isCommittee == false}" class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentStudent.studentName}成绩曲线图
+		<h3 ng-if="${wxUser.isParent} || ${wxUser.isCommittee}" class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentStudent.studentName}成绩曲线图
 		</h3>
 		<div id="c1" style="width:100%;"></div>
 	</div>

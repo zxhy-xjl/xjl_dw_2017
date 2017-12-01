@@ -8,21 +8,37 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
-<link rel="stylesheet" href="/public/css/weui.css">
-<script src="/public/widgets/layer.m/layer.m.js"></script>
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css">
+<link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+<link rel="stylesheet" href="/dw/public/css/weui3.css"/>
+<script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<style type="text/css">
+.icon{
+  font-size: 24px;
+  line-height: 40px;
+  color:red;
+  position:fixed; 
+  display: none;
+}
+.icon:hover{
+  font-size: 32px;
+}
+</style>
 </head>
 <script type="text/javascript">
-var openId = 'oxh64jkHZeWtbUYc2AMqDc0HiJZg';
+var openId = '${wxUser.wxOpenId}';
 var vnoId = '1';
 var params = [];
+var ids="";
+var showFlag = 0;
 var url = window.location.href.split('#')[0];
-var ajaxReturn = $.ajax({url:"/Weixin/getWxSdkInfo", data: {url: url,openId:openId,vnoId:vnoId}});
+var ajaxReturn = $.ajax({url:"/dw/Weixin/getWxSdkInfo", data: {url: url,openId:openId,vnoId:vnoId}});
 ajaxReturn.done(function (data) {
 	var appId = data.appId,
     signature = data.signature,
@@ -47,7 +63,7 @@ angular.module('app', ['ngTouch'])
 			getData:function(index,size,searchText){
 				return $http({
 					method:'GET',
-					url:'/mobile/ActivityService/queryAlbumImageList',
+					url:'/dw/mobile/ActivityService/queryAlbumImageList',
 					params:{
 						PAGE_INDEX: index || appValue.index,
                          PAGE_SIZE: size || appValue.size,
@@ -63,7 +79,7 @@ angular.module('app', ['ngTouch'])
 		saveAlbumImage:function(obj){
 			return $http({
 				method:'POST',
-				url:'/mobile/ActivityService/saveAlbumImage',
+				url:'/dw/mobile/ActivityService/saveAlbumImage',
 				params:{
 					fileId:obj.fileId,
 					albumId:obj.albumId
@@ -72,7 +88,20 @@ angular.module('app', ['ngTouch'])
 		}
 	}
 }])
-.controller('MainController',['$scope','appValue','agentRemote','agentAlbumImage','$timeout',function($scope, appValue, agentRemote,agentAlbumImage,$timeout){
+.factory('remote',['$http','appValue',function($http, appValue){
+	return {
+		del:function(albumImageId){
+			return $http({
+				method:'POST',
+				url:'/dw/mobile/ActivityService/delAlbumImage',
+				params:{
+					albumImageId:albumImageId
+				}
+			})
+		}
+	}
+}])
+.controller('MainController',['$scope','appValue','agentRemote','agentAlbumImage','remote','$timeout',function($scope, appValue, agentRemote,agentAlbumImage,remote,$timeout){
 			 $scope.lists = [];
 			 $scope.urls = Array();
 			 $scope.albumImage = {
@@ -94,6 +123,9 @@ angular.module('app', ['ngTouch'])
 		            agentRemote.getData(1).then(function (response) {
                         $scope.total = response.data.data.total;
                         $scope.lists = response.data.data.data;
+                        for(var i=0;i<$scope.lists.length;i++){
+                        	ids+='#'+$scope.lists[i].albumImageId+",";
+                        }
                         if (me && me.resetload)
                             me.resetload();
 
@@ -107,19 +139,20 @@ angular.module('app', ['ngTouch'])
                         isShowProgressTips: 1,
                         success: function (res) {
                             var serverId = res.serverId; // 返回图片的服务器端ID
-                            $.ajax({url:'/mobile/A/uploadAlbum',data:{
+                            $.ajax({url:'/dw/mobile/A/uploadAlbum',data:{
                                 url:serverId,openId:openId
                             }}).done(function(res){
                                 if (res.ret=="0"&&res.data) {
                                    	 $scope.albumImage.fileId =res.data.fileId;
                                    	 agentAlbumImage.saveAlbumImage($scope.albumImage);
                                    	  // 插入到预览区  
-                                        var $preview = $('<li class="weui-uploader__file" style="background-image:url(' + res.data.fileUrl + ')"></li>');  
-                                   	  if($scope.lists.length > 0){
+                                        var $preview = $('<li class="weui-uploader__file" style="background-image:url(/dw' + res.data.fileUrl + ')"><span class="icon icon-72 icontype" ng-click="del('+res.data.albumImageId+')"></span></li>'); 
+                                   	  /* if($scope.lists.length > 0){
                                    		 $('#lightgallery').append($preview);  
                                    	 }else{
                                    		 $("#uploadnoUl").append($preview);
-                                   	 }
+                                   	 } */
+                                 	 $scope.initPage();
                                    	 idx++;
                                    	 if(idx < strs.length){
                                    		 $scope.uploadImage(strs);
@@ -165,27 +198,35 @@ angular.module('app', ['ngTouch'])
                  });
 			 };
 			 $scope.readImage = function(url){
-				 var http = window.location.href.split('.com');
-				 for(i = 0;i<$scope.lists.length;i++){
-					 $scope.urls.push(http[0]+'.com'+$scope.lists[i].fileUrl);
-                 }
-				 wx.previewImage({
-					    current:http[0]+'.com'+url, // 当前显示图片的http链接
-					    urls:$scope.urls // 需要预览的图片http链接列表
-					});
+				 if(0 == showFlag){
+					 var http = window.location.href.split('.com');
+					 for(i = 0;i<$scope.lists.length;i++){
+						 $scope.urls.push(http[0]+'.com/dw'+$scope.lists[i].fileUrl);
+	                 }
+					 wx.previewImage({
+						    current:http[0]+'.com'+url, // 当前显示图片的http链接
+						    urls:$scope.urls // 需要预览的图片http链接列表
+						});
+				 }
+			 }
+			 $scope.del = function(id){
+				  remote.del(id).then(function(response){
+					  $("#"+id).remove();
+					  //$scope.initPage();
+				  })
 			 }
 			 $scope.initPage();
 }])
 </script>
 <body ng-cloak ng-controller="MainController">
-<div class="page">
+<div id="text" class="page">
     <div class="page__bd">
         <div class="weui-gallery" id="gallery"> 
             <span class="weui-gallery__img" id="galleryImg"></span>
             <div class="weui-gallery__opr">
-                <!-- <a href="javascript:" class="weui-gallery__del">
+                 <a href="javascript:" class="weui-gallery__del">
                     <i class="weui-icon-delete weui-icon_gallery-delete"></i>
-                </a> -->
+                </a>
             </div>
         </div>
         <div class="weui-cells weui-cells_form">
@@ -194,10 +235,14 @@ angular.module('app', ['ngTouch'])
                     <div class="weui-uploader">
                         <div class="weui-uploader__bd" id="uploaderFiles"  ng-show="lists.length!=0">
                             <ul id="lightgallery" class="weui-uploader__files" class="uploadUl" >
-                                <li class="weui-uploader__file" style="background-image:url({{image.fileUrl}})" ng-click="readImage('{{image.fileUrl}}')"  ng-repeat="image in lists" ></li> 
+                                <li id="{{image.albumImageId}}"  class="weui-uploader__file litype" style="background-image:url(/dw{{image.fileUrl}})" ng-click="readImage('/dw{{image.fileUrl}}')"  ng-repeat="image in lists" >
+                                 <span class="icon icon-72 icontype" ng-click="del('{{image.albumImageId}}')"></span>
+                                </li> 
                             </ul>
                             <div class="weui-uploader__input-box">
                                 <input id="uploaderInput" class="weui-uploader__input" type="button" ng-click="chooseImage()" />
+                            </div>
+                            <div class="weui-uploader__input-box-edit" ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}"  onclick="showDel()">
                             </div>
                         </div>
                         <div class="weui-uploader__bd" id="uploaderFiles"  ng-show="lists.length==0">
@@ -205,6 +250,8 @@ angular.module('app', ['ngTouch'])
                             </ul>
                             <div class="weui-uploader__input-box">
                                 <input id="uploaderInput" class="weui-uploader__input" type="button" ng-click="chooseImage()" />
+                            </div>
+                            <div class="weui-uploader__input-box-edit" ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}"  onclick="showDel()">
                             </div>
                         </div>
                     </div>
@@ -230,6 +277,30 @@ function loadShow(){
 	  $gallery.on("click", function(){
 	      $gallery.fadeOut(100);
 	  });
+}
+
+$.fn.longPress = function(fn) {
+    var timeout = undefined;
+    var $this = this;
+    for(var i = 0;i<$this.length;i++){
+        $this[i].addEventListener('touchstart', function(event) {
+            timeout = setTimeout(fn(this), 800);  //长按时间超过800ms，则执行传入的方法
+            }, false);
+        $this[i].addEventListener('touchend', function(event) {
+            clearTimeout(timeout);  //长按时间少于800ms，不会执行传入的方法
+            }, false);
+    }
+}
+function showDel(){
+	var res = $('.icontype').css('display');
+	if('block' == res){
+		showFlag = 0;
+		$(".icontype").css("display",'none');
+	}else{
+		showFlag = 1;
+		$(".icontype").css("display",'block');
+	}
+	
 }
 </script>
 </html>

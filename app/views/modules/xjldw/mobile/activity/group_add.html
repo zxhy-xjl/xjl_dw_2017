@@ -11,7 +11,7 @@
 	<meta content="telephone=no" name="format-detection" />
 	<meta content="black" name="apple-mobile-web-app-status-bar-style" />
     <link rel="stylesheet" href="//g.alicdn.com/msui/sm/0.5.7/css/sm.min.css" />
-	<link rel="stylesheet" href="/public/css/main.css" />
+	<link rel="stylesheet" href="/dw/public/css/main.css" />
 </head>
 
 <body ng-controller="MainController">
@@ -50,9 +50,9 @@
 <script type='text/javascript' src='//g.alicdn.com/sj/lib/zepto/zepto.min.js' charset='utf-8'></script>
 <script type='text/javascript' src='//g.alicdn.com/msui/sm/0.5.7/js/sm.min.js' charset='utf-8'></script>
  <script src="//cdn.bootcss.com/moment.js/2.10.6/moment-with-locales.min.js"></script>
-<script src="/public/widgets/layer.m/layer.m.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script>
     angular.module('app', ['ngTouch'])
            .factory('valid', function () {
@@ -76,7 +76,7 @@
                 	saveGroupBuy: function (article) {
                         return $http({
                             method: 'GET',
-                            url: '/mobile/ActivityService/saveGropuBuy',
+                            url: '/dw/mobile/ActivityService/saveGropuBuy',
                             params: article
                         })
                     }
@@ -140,7 +140,7 @@
                                             end: function () {
                                             	$scope.article = res.data.data;
                                                 console.log($scope.article);
-                                                location.href = "/mobile/A/groupList";
+                                                location.href = "/dw/mobile/A/groupList";
                                             }
                                         });
                                     }
@@ -165,7 +165,7 @@
                 	if($scope.article.articleId!=""){
                 		type="check";
                 	}
-                	location.href = "/mobile/A/articleList?type="+type;
+                	location.href = "/dw/mobile/A/articleList?type="+type;
                 };
 
             }]);

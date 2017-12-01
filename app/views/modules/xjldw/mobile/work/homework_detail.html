@@ -10,19 +10,19 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/main.css" />
 
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script>
-var openId = 'oxh64jkHZeWtbUYc2AMqDc0HiJZg';
+var openId = '${wxUser.wxOpenId}';
 var vnoId = '1';
 var params = [];
 var url = window.location.href.split('#')[0];
-var ajaxReturn = $.ajax({url:"/Weixin/getWxSdkInfo", data: {url: url,openId:openId,vnoId:vnoId}});
+var ajaxReturn = $.ajax({url:"/dw/Weixin/getWxSdkInfo", data: {url: url,openId:openId,vnoId:vnoId}});
 ajaxReturn.done(function (data) {
 	var appId = data.appId,
     signature = data.signature,
@@ -47,7 +47,7 @@ ajaxReturn.done(function (data) {
                     	queryHomeworkRemarkList: function(homeworkId) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/WorkService/queryHomeworkRemarkList',
+                                url: '/dw/mobile/WorkService/queryHomeworkRemarkList',
                                 params: {
                                 	homeworkId:homeworkId
                                 }
@@ -77,7 +77,7 @@ ajaxReturn.done(function (data) {
                     $scope.readImage = function(url){
                     	var http = window.location.href.split('.com');
                     	for(i = 0;i<$scope.remarkList.length;i++){
-       					 $scope.urls.push(http[0]+'.com'+$scope.remarkList[i].modelContent);
+       					 $scope.urls.push(http[0]+'.com/dw'+$scope.remarkList[i].modelContent);
                         }
                     	 wx.previewImage({
      					    current:http[0]+'.com'+url, // 当前显示图片的http链接
@@ -93,23 +93,23 @@ ajaxReturn.done(function (data) {
   <div class="row">
     <div class="content padded-b-15">
       <h2 class="text-center margin-b-15 margin-t-15">${homework.homeworkTitle}</h2>
-      <h5 class="text-center padded-b-10"><span>科目: ${subjectTitle}</span><span class="padded-l-10">${homework.createTime}</span></h5>
+      <h5 class="text-center padded-b-10"><span>科目: ${subjectTitle}</span><span class="padded-l-10">${homework.time}</span></h5>
       <div class="border-b posrel margin-t-20 padded-t-20"><div class="homework_title">作业</div></div>
       <div class="padded-10">
       	<p class="padded-b-10 text-main">${homework.homeworkContent}</p>
       </div>
        <div class="border-b posrel margin-t-20 padded-t-20"><div class="homework_title">标榜</div></div>
       <div class="padded-10 padded-t-20">
-        <input  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}"  type="button" value="添加标榜" class="wid30 btn btn-blue" onClick="window.location='/mobile/W/homeworkAddRemark?homeworkId=${homework.homeworkId}'"/>
+        <input  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}"  type="button" value="添加标榜" class="wid30 btn btn-blue" onClick="window.location='/dw/mobile/W/homeworkAddRemark?homeworkId=${homework.homeworkId}'"/>
       </div>
       <div class="padded-10 border-b padded-t-20" ng-repeat="remark in remarkList">
         {{remark.modelTitle}}<br/>
-        <img src="{{remark.modelContent}}" ng-click="readImage('{{remark.modelContent}}')"  width="40%" height="10%">
+        <img src="/dw{{remark.modelContent}}" ng-click="readImage('/dw{{remark.modelContent}}')"  width="40%" height="10%">
       </div>
       	
     </div>
     <div class="margin-t-15 margin-b-15 text-right">
-    <input type="button" class="btn padded-l-20 padded-r-20 btn-white" onClick="window.location='/mobile/W/homeworkList'" value="返回"/>
+    <input type="button" class="btn padded-l-20 padded-r-20 btn-white" onClick="window.location='/dw/mobile/W/homeworkList'" value="返回"/>
     </div>
   </div>
 </div>

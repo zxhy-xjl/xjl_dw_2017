@@ -10,12 +10,15 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
-<link rel="stylesheet" href="/public/css/weui.css" />
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css" />
+ <link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+  <link rel="stylesheet" href="/dw/public/css/weui3.css"/>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
+ <script src="/dw/public/js/zepto.min.js"></script> 
 <script>
 
         angular.module('app', ['ngTouch'])
@@ -28,7 +31,7 @@
                     	queryExam: function(index, size, searchText) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/WorkService/queryExam',
+                                url: '/dw/mobile/WorkService/queryExam',
                                 params: {
                                     PAGE_INDEX: index || appValue.index,
                                     PAGE_SIZE: size || appValue.size
@@ -42,7 +45,7 @@
                 		delDate :function(examId){
                 			return $http({
                 				method:'POST',
-                				url:'/mobile/WorkService/delExam',
+                				url:'/dw/mobile/WorkService/delExam',
                 				params:{
                 					examId:examId
                 				}
@@ -58,6 +61,17 @@
                     		examId:'',
                     		examTitle:''
                     }
+                  //next page function
+                    $scope.nextPage = function (me) {
+                        agentRemote.queryExam(++appValue.index).then(function (response) {
+                        	 $scope.examList = $scope.examList.concat(response.data.data.data);
+                            if (me && me.resetload)
+                                me.resetload();
+
+                        }, function (response) {
+                            //err
+                        });
+                    };
                 	//init page function
                     $scope.initPage = function (me) {
                 		console.log("考试列表")
@@ -65,7 +79,9 @@
                         agentRemote.queryExam(1).then(function (response) {
                             $scope.examTotal = response.data.data.total;
                             $scope.examList = response.data.data.data;
-                            console.log($scope.examList);
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                           	 loadScript("/dw/public/js/slideleft.js", function() {})
+                           }
                             if (me && me.resetload)
                                 me.resetload();
 
@@ -76,45 +92,91 @@
                 	 $scope.showFade = function(id,title){
                        	$scope.examObj.examId = id;
                        	$scope.examObj.examTitle = title;
-                       	$("#dialog_title").html("确定删除,"+$scope.examObj.examTitle+"吗？")
-                           $('#iosDialog1').fadeIn(200);
+                       	delRemote.delDate($scope.examObj.examId).then(function(response){
+                      		 $scope.initPage();
+                      	},function(){
+                      	});
+                       	//$("#dialog_title").html("确定删除,"+$scope.examObj.examTitle+"吗？")
+                        //$('#iosDialog1').fadeIn(200);
                        }
                        $scope.hideFade = function(){
                        	$('#iosDialog1').fadeOut(200);
                        }
                        $scope.del = function(me){
-                       	delRemote.delDate($scope.examObj.examId).then(function(response){
-                       		 $scope.initPage();
-                       	},function(){
-                       	});
-                       	$('#iosDialog1').fadeOut(200);
+                       	//$('#iosDialog1').fadeOut(200);
                        }
                 	//执行初始化方法
                 	$scope.initPage();
+                	
+                	$('#scroller').dropload({
+                        domUp: {
+                            domClass: 'dropload-up',
+                            domRefresh: '<div class="dropload-refresh">↓下拉刷新</div>',
+                            domUpdate: '<div class="dropload-update">↑释放更新</div>',
+                            domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                        },
+                        domDown: {
+                            domClass: 'dropload-down',
+                            domRefresh: '<div class="dropload-refresh">↑上拉加载更多</div>',
+                            domUpdate: '<div class="dropload-update">↓释放加载</div>',
+                            domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                        },
+                        scrollArea: window,
+                        loadUpFn: function (me) {
+                            $scope.initPage(me);
+                            console.log('down');
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                              	 loadScript("/dw/public/js/slideleft.js", function() {})
+                              }
+                        },
+                        loadDownFn: function (me) {
+                            $scope.nextPage(me);
+                            console.log('up');
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                              	 loadScript("/dw/public/js/slideleft.js", function() {})
+                              }
+                        }
+                    });
                 }]);
     </script>
 </head>
 
-<body ng-cloak ng-controller="MainController">
+<body ng-cloak ng-controller="MainController" style="background-color:white;">
 <div class="main">
-  <div class="row">
-    <h3  class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentClass.className}成绩单
-      <input  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" type="button" class="btn-blue btn fr margin-l-10" onClick="window.location='/mobile/W/examAdd'" value="公布成绩单"/>
+  <div class="row" style="width:98%">
+    <h3  class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">${wxUser.currentClass.className}成绩单
+      <input  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" type="button" class="btn-blue btn fr margin-l-10" onClick="window.location='/dw/mobile/W/examAdd'" value="公布成绩单"/>
     </h3>
-    <div class="content">
-      <div class="clearfix posrel" ng-repeat="examInfo in examList"> 
+    <div class="content" id="scroller">
+      <!-- <div class="clearfix posrel" ng-repeat="examInfo in examList"> 
       <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">
       	<span>{{examInfo.exam.examTitle}}</span>
       	<a id="showIOSDialog1" ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="javascript:;" ng-click="showFade('{{examInfo.exam.examId}}','{{examInfo.exam.examTitle}}')"  class="weui-btn weui-btn_mini weui-btn_warn">删除</a>
       	</h3>
-        <a href="/mobile/W/examDetail?examId={{examInfo.exam.examId}}">
+        <a href="/dw/mobile/W/examDetail?examId={{examInfo.exam.examId}}">
 	        <div>
 	          <p class="margin-t-10 margin-b-10 font-size-13"><span class="padded-r-10">平均：{{examInfo.mma.avg}}分</span><span class="padded-r-10">最高：{{examInfo.mma.max}}分</span><span class="padded-r-10">最低：{{examInfo.mma.min}}分</span></p>
 	        </div>
         </a> 
         <div class="hr"></div>
       </div>
-      
+       -->
+       <div class="weui_cells" ng-repeat="examInfo in examList">
+	    <ul class="list weui_cell slidelefts" >
+			        <li class="weui_cell_bd weui_cell_primary " >
+			          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{examInfo.exam.examTitle}}
+			          </h3>
+			            <a href="/dw/mobile/W/examDetail?examId={{examInfo.exam.examId}}"> 
+			                <p class="margin-t-10 margin-b-10 font-size-13"><span class="padded-r-10">平均：{{examInfo.avg}}分</span><span class="padded-r-10">最高：{{examInfo.max}}分</span><span class="padded-r-10">最低：{{examInfo.min}}分</span></p>
+			            </a>
+			        </li>
+			        <div class="slideleft">
+	                		<span class="bg-red f-white dels" style="width: 100px;" ng-click="showFade('{{examInfo.exam.examId}}','{{examInfo.exam.examTitle}}')">删除</span>
+	                </div>
+	      </ul>
+    </div>
+       
+       
       <div class="dropload-down">
         <div class="dropload-refresh">上拉加载更多</div>
       </div>
@@ -136,4 +198,26 @@
         </div>
 </div>
 </body>
+<script type="text/javascript">
+function loadScript(url, callback) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    if (typeof(callback) != "undefined") {
+        if (script.readyState) {
+            script.onreadystatechange = function() {
+                if (script.readyState == "loaded" || script.readyState == "complete") {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+            };
+        } else {
+            script.onload = function() {
+                callback();
+            };
+        }
+    };
+    script.src = url;
+    document.body.appendChild(script);
+}
+</script>
 </html>

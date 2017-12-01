@@ -10,12 +10,12 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
-<link rel="stylesheet" href="/public/css/weui.css" />
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css" />
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script src="https://res.wx.qq.com/open/libs/weuijs/1.0.0/weui.min.js"></script>
 </head>
 <script>
@@ -30,7 +30,7 @@
                     	queryStudentList: function(index, size, searchText) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/WorkService/queryStudentList',
+                                url: '/dw/mobile/WorkService/queryStudentList',
                                 params: {
                                     PAGE_INDEX: index || appValue.index,
                                     PAGE_SIZE: size || appValue.size
@@ -40,7 +40,7 @@
                         querySubjectList:function(index, size, searchText) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/WorkService/querySubjectList',
+                                url: '/dw/mobile/WorkService/querySubjectList',
                                 params: {
                                     PAGE_INDEX: index || appValue.index,
                                     PAGE_SIZE: size || appValue.size
@@ -50,7 +50,7 @@
                         saveExamAndSubject: function(examTitle, subjectList) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/WorkService/saveExamSubject',
+                                url: '/dw/mobile/WorkService/saveExamSubject',
                                 params: {
                                 	examTitle: examTitle,
                                 	examSubjectList:subjectList
@@ -103,7 +103,7 @@
                     $scope.saveExamAndSubject = function(){
                     	agentRemote.saveExamAndSubject($scope.exam.examTitle,$scope.subjectList).then(function (response) {
                             console.log("response",response);
-                            window.location='/mobile/W/examDetail?examId='+response.data.data.examId;
+                            window.location='/dw/mobile/W/examDetail?examId='+response.data.data.examId;
                         }, function (response) {
                             //err
                         });
@@ -152,7 +152,7 @@
             </label>
         </div>
     <input type="button" class="fr btn bg-success wid4 margin-r-10" ng-click="saveExamAndSubject()" value="保存"/>
- 	<input type="button" class="btn btn-white fr" onClick="window.location='/mobile/W/examList'" value="返回"/>
+ 	<input type="button" class="btn btn-white fr" onClick="window.location='/dw/mobile/W/examList'" value="返回"/>
   </div>
 </div>
 </body>

@@ -10,30 +10,34 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/main.css" />
 
- <script src="/public/widgets/layer.m/layer.m.js"></script>
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+ <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script>
 var openId = 'oxh64jkHZeWtbUYc2AMqDc0HiJZg';
+var vnoId = '1';
 var params = [];
-//通过config接口注入权限验证配置
-wx.config({
-	    debug: false,
-	    appId: 'wx4ae50eb9b72cef71',
-	    timestamp:'${timestamp}',
-	    nonceStr: '${nonceStr}',
-	    signature: '${signature}',
-	    jsApiList: [
-	        'chooseImage',
-	        'getLocalImgData',
-	        'uploadImage'
-	    ]
-	});
+var url = window.location.href.split('#')[0];
+var ajaxReturn = $.ajax({url:"/dw/Weixin/getWxSdkInfo", data: {url: url,openId:openId,vnoId:vnoId}});
+ajaxReturn.done(function (data) {
+	var appId = data.appId,
+    signature = data.signature,
+    timestamp = data.timestamp,
+    nonce = data.nonce;
+	 wx.config({
+         debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+         appId: appId, // 必填，公众号的唯一标识
+         timestamp: timestamp, // 必填，生成签名的时间戳
+         nonceStr: nonce, // 必填，生成签名的随机串
+         signature: signature,// 必填，签名，见附录1
+         jsApiList: ['chooseImage', 'uploadImage', 'closeWindow', 'previewImage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+     });
+});
       angular.module('app', ['ngTouch'])
                 .value('appValue', {
                     index: 1,
@@ -55,7 +59,7 @@ wx.config({
                     		//上传照片得到对应id
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/WorkService/saveHomeworkRemark',
+                                url: '/dw/mobile/WorkService/saveHomeworkRemark',
                                 params: {
                                 	remark:remark
                                 }
@@ -99,7 +103,7 @@ wx.config({
                                  });
                     			 return;
                     		}
-                    		$scope.remark.url=params;
+                    		$scope.remark.image=params;
                     		agentRemote.saveRemark($scope.remark).then(function (res) {
                    			  if (res.data.ret == '-1') {
                                      layer.open({
@@ -112,7 +116,7 @@ wx.config({
                                        content: '发布成功',
                                        btn: ['确定'],
                                        end: function () {
-                                           location.href = "/mobile/W/homeworkDetail?homeworkId=${homeworkId}";
+                                           location.href = "/dw/mobile/W/homeworkDetail?homeworkId=${homeworkId}";
                                            params = [];
                                        }
                                    });
@@ -149,13 +153,13 @@ wx.config({
                                     isShowProgressTips: 1,
                                     success: function (res) {
                                         var serverId = res.serverId; // 返回图片的服务器端ID
-                                        $.ajax({url:'/mobile/A/uploadLogo',data:{
+                                        $.ajax({url:'/dw/mobile/A/uploadLogo',data:{
                                             url:serverId,openId:openId
                                         }}).done(function(res){
                                             if (res.ret=="0"&&res.data) {
                                             	//showPhoto.getPhoto(localIds[0]);//展示图片
                                                 params = res.data;
-                                                $("#imgs").attr("src",res.data);
+                                                $("#imgs").attr("src",'/dw'+res.data);
                                             }else{
                                             	//上传失败
                                             	layer.open({
@@ -202,7 +206,7 @@ wx.config({
     <div class="border padded-5 posrel"  ng-show="false"><span>选择学生</span><div class="tabbtn wid2 top0"><img src="../images/down.png" /></div>
     </div>
     <div class="margin-t-15 margin-b-15 btnbox">
-	    <input type="button" class="btn btn-white line-height-2" onClick="window.location='/mobile/W/homeworkDetail?homeworkId=${homeworkId}'" value="取消"/>
+	    <input type="button" class="btn btn-white line-height-2" onClick="window.location='/dw/mobile/W/homeworkDetail?homeworkId=${homeworkId}'" value="取消"/>
 	    <input type="button" class="btn btn-blue line-height-2 margin-l-15" ng-click="saveRemark()" value="发布标榜"/>
     </div>
   </div>

@@ -10,12 +10,12 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
- <script src="/public/widgets/layer.m/layer.m.js"></script>
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+ <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script type="text/javascript">
 angular.module('app', ['ngTouch'])
 	   .factory('valid',function(){
@@ -33,7 +33,7 @@ angular.module('app', ['ngTouch'])
 			   saveAlbum:function(album){
 				   return $http({
 					   method:'POST',
-					   url:'/mobile/ActivityService/saveAlbum',
+					   url:'/dw/mobile/ActivityService/saveAlbum',
 					   params: {
 						   albumTitle:album.albumTitle,
 						   albumTemplateId:album.albumTemplateId
@@ -62,7 +62,7 @@ angular.module('app', ['ngTouch'])
                                content: '发布成功',
                                btn: ['确定'],
                                end: function () {
-                                   location.href = "/mobile/A/albumList";
+                                   location.href = "/dw/mobile/A/albumList";
                                }
                            });
 					   }
@@ -86,7 +86,7 @@ angular.module('app', ['ngTouch'])
     </div>
   </div>
    <div class="margin-t-15 margin-b-15 btnbox">
-    <input type="button" class="btn btn-white line-height-2" onClick="window.location='/mobile/A/albumList'" value="取消"/>
+    <input type="button" class="btn btn-white line-height-2" onClick="window.location='/dw/mobile/A/albumList'" value="取消"/>
     <input type="button" class="btn btn-blue line-height-2 margin-l-15" ng-click="saveAlbum()" value="发布"/>
     </div>
 </div>

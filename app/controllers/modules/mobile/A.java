@@ -154,10 +154,12 @@ public class A extends MobileFilter {
 
         String url = params.get("url");
         String openId = params.get("openId");
+        Logger.info("uploadopenId:"+openId);
         Logger.info("上传图片url====" + url);
 
         Logger.info(url);
         String picUrl = downloadPhoto(url,openId, "A",null);
+        
         WxUser wxUser =  getWXUser();
         XjlDwFile xjlDwFile = XjlDwFileBo.saveImage(picUrl, wxUser.wxOpenId);
         if(picUrl.contains(".json;")&&picUrl.endsWith("encoding=utf-8")){

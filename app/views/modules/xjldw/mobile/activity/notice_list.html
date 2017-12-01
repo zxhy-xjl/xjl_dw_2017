@@ -10,13 +10,16 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
-<link rel="stylesheet" href="/public/css/weui.css" />
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css" />
+<link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+<link rel="stylesheet" href="/dw/public/css/weui3.css"/>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/dw/public/js/zepto.min.js"></script> 
  <script>
 
         angular.module('app', ['ngTouch'])
@@ -29,7 +32,7 @@
                         getData: function(index, size, searchText) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/ActivityService/queryNoticeList',
+                                url: '/dw/mobile/ActivityService/queryNoticeList',
                                 params: {
                                    // custManagerId: custManagerId,
                                     PAGE_INDEX: index || appValue.index,
@@ -45,7 +48,7 @@
                 		delDate :function(noticeId){
                 			return $http({
                 				method:'POST',
-                				url:'/mobile/ActivityService/delNoticeById',
+                				url:'/dw/mobile/ActivityService/delNoticeById',
                 				params:{
                 					noticeId:noticeId
                 				}
@@ -76,7 +79,9 @@
                         agentRemote.getData(1).then(function (response) {
                             $scope.total = response.data.data.total;
                             $scope.notices = response.data.data.data;
-                            console.log($scope.notices);
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                           	 loadScript("/dw/public/js/slideleft.js", function() {})
+                           }
                             if (me && me.resetload)
                                 me.resetload();
 
@@ -119,8 +124,13 @@
                     $scope.showFade = function(id,title){
                     	$scope.noticesObj.noticesId = id;
                     	$scope.noticesObj.noticesTitle = title;
-                    	$("#dialog_title").html("确定删除,"+$scope.noticesObj.noticesTitle+"吗？")
-                        $('#iosDialog1').fadeIn(200);
+                    	delRemote.delDate($scope.noticesObj.noticesId).then(function(response){
+                        	$scope.initPage();
+                        	},function(){
+                        		
+                        	});
+                    	//$("#dialog_title").html("确定删除,"+$scope.noticesObj.noticesTitle+"吗？")
+                        //$('#iosDialog1').fadeIn(200);
                     }
                     $scope.hideFade = function(){
                     	$('#iosDialog1').fadeOut(200);
@@ -131,7 +141,7 @@
                     	},function(){
                     		
                     	});
-                    	$('#iosDialog1').fadeOut(200);
+                    	//$('#iosDialog1').fadeOut(200);
                     }
                     //exec init
                     $scope.initPage();
@@ -155,37 +165,56 @@
                         loadUpFn: function (me) {
                             $scope.initPage(me);
                             console.log('down');
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                              	 loadScript("/dw/public/js/slideleft.js", function() {})
+                              }
                         },
                         loadDownFn: function (me) {
-
                             $scope.nextPage(me);
                             console.log('up');
+                            if(${wxUser.isTeacher} || ${wxUser.isCommittee}){
+                              	 loadScript("/dw/public/js/slideleft.js", function() {})
+                              }
                         }
                     });
                 }]);
     </script>
 </head>
 
-<body ng-cloak ng-controller="MainController">
+<body ng-cloak ng-controller="MainController" style="background-color:white;">
 <div class="main">
-  <div class="row">
-    <h3 class="padded-b-10 border-b  padded-t-10 text-default">通知公告
-         <a  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="/mobile/A/noticeAdd"  class="btn-blue btn fr padded-r-10 padded-l-10">发布新通知</a>
+  <div class="row" style="width:98%">
+    <h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">通知公告
+         <a  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="/dw/mobile/A/noticeAdd"  class="btn-blue btn fr padded-r-10 padded-l-10">发布新通知</a>
     </h3>
     <div class="content" id="scroller" ng-show="notices.length!=0">
-      <ul class="list">
-		        <li class="border-b" ng-repeat="notice in notices">
-		          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{notice.noticeTitle}}
-		         	 <span class="text-auxiliaryed fr font-size-13" ng-bind="notice.noticeDate">05-31</span>
-		         	  <a ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" id="showIOSDialog1" href="javascript:;" ng-click="showFade('{{notice.noticeId}}','{{notice.noticeTitle}}')"  class="weui-btn weui-btn_mini weui-btn_warn">删除</a>
-		          </h3>
-		            <a href="/mobile/A/noticeDetail?noticeId={{notice.noticeId}}"> 
-		                <p class="margin-t-10 margin-b-10">{{notice.noticeContent}}</p>
-		            </a>
-		        </li>
+     <!--  <ul class="list">
+        <li class="border-b" ng-repeat="notice in notices">
+          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{notice.noticeTitle}}
+         	 <span class="text-auxiliaryed fr font-size-13" ng-bind="notice.noticeDate">05-31</span>
+         	  <a ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" id="showIOSDialog1" href="javascript:;" ng-click="showFade('{{notice.noticeId}}','{{notice.noticeTitle}}')"  class="weui-btn weui-btn_mini weui-btn_warn">删除</a>
+          </h3>
+            <a href="/dw/mobile/A/noticeDetail?noticeId={{notice.noticeId}}"> 
+                <p class="margin-t-10 margin-b-10">{{notice.noticeContent}}</p>
+            </a>
+        </li>
        
-      </ul>
-
+      </ul> -->
+	<div class="weui_cells" ng-repeat="notice in notices">
+	    <ul class="list weui_cell slidelefts" >
+			        <li class="weui_cell_bd weui_cell_primary " >
+			          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{notice.noticeTitle}}
+			         	 <span class="text-auxiliaryed fr font-size-13" ng-bind="notice.noticeDate">05-31</span>
+			          </h3>
+			            <a href="/dw/mobile/A/noticeDetail?noticeId={{notice.noticeId}}"> 
+			                <p class="margin-t-10 margin-b-10">{{notice.noticeContent}}</p>
+			            </a>
+			        </li>
+			        <div class="slideleft">
+	                		<span class="bg-red f-white dels" style="width:100px;" ng-click="showFade('{{notice.noticeId}}','{{notice.noticeTitle}}')">删除</span>
+	                </div>
+	      </ul>
+    </div>
       <div class="dropload-down">
 	      <div class="dropload-refresh">
                      当前<span ng-bind="notices.length"></span>条记录 总共<span ng-bind="total"></span>条记录(滑动刷新)
@@ -211,4 +240,26 @@
        </div>
 </div>
 </body>
+<script type="text/javascript">
+function loadScript(url, callback) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    if (typeof(callback) != "undefined") {
+        if (script.readyState) {
+            script.onreadystatechange = function() {
+                if (script.readyState == "loaded" || script.readyState == "complete") {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+            };
+        } else {
+            script.onload = function() {
+                callback();
+            };
+        }
+    };
+    script.src = url;
+    document.body.appendChild(script);
+}
+</script>
 </html>

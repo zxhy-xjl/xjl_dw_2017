@@ -10,7 +10,7 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/main.css" />
 </head>
 
 <body  ng-controller="MainController" class="userbg">
@@ -62,9 +62,9 @@
        <input type="button" class="btn btn-blue line-height-2" ng-click="save()" value="提交"/>
   </div>
 </div>
- <script src="/public/widgets/layer.m/layer.m.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+ <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script>
     angular.module('app', ['ngTouch'])
            .factory('valid', function () {
@@ -86,7 +86,7 @@
                  getClassInfo: function(schoolId) {
                           return $http({
                               method: 'GET',
-                              url: '/mobile/MyService/queryClassBySchoolId',
+                              url: '/dw/mobile/MyService/queryClassBySchoolId',
                               params: {
                               	schoolId:schoolId
                               }
@@ -95,7 +95,7 @@
                     getStudentInfo: function(classId) {
                         return $http({
                             method: 'GET',
-                            url: '/mobile/MyService/queryStudentByClassId',
+                            url: '/dw/mobile/MyService/queryStudentByClassId',
                             params: {
                             	classId:classId
                             }
@@ -104,7 +104,7 @@
                     save: function (student) {
                         return $http({
                             method: 'GET',
-                            url: '/mobile/MyService/bindStudent',
+                            url: '/dw/mobile/MyService/bindStudent',
                             params: student
                         })
                     }//end
@@ -164,7 +164,7 @@
                                             content: '添加成功',
                                             btn: ['确定'],
                                             end: function () {
-                                                location.href = "/mobile/m/studentList";
+                                                location.href = "/dw/mobile/m/studentList";
                                             }
                                         });
                                     }
@@ -185,7 +185,7 @@
                     }
                 };
                 $scope.back= function () {
-                	location.href = "/mobile/M/manager";
+                	location.href = "/dw/mobile/M/manager";
                 };
                 
                 $scope.getClassInfo();

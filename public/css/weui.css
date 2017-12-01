@@ -1072,6 +1072,31 @@ button.weui-vcode-btn {
 .weui-uploader__file-content .weui-icon-warn {
   display: inline-block;
 }
+.weui-uploader__input-box-edit {
+  float: left;
+  position: relative;
+  margin-right: 9px;
+  margin-bottom: 9px;
+  width: 77px;
+  height: 77px;
+  border: 1px solid #D9D9D9;
+}
+.weui-uploader__input-box-edit:before,
+.weui-uploader__input-box-edit:after {
+  content: " ";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  background-color: #D9D9D9;
+}
+.weui-uploader__input-box-edit:before {
+}
+.weui-uploader__input-box-edit:after {
+  width: 39.5px;
+  height: 2px;
+}
 .weui-uploader__input-box {
   float: left;
   position: relative;

@@ -9,13 +9,13 @@
 <meta content="yes" name="apple-touch-fullscreen" />
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-<link rel="stylesheet" href="/public/css/main.css" />
-<link rel="stylesheet" href="/public/css/weui.css" />
- <script src="/public/widgets/layer.m/layer.m.js"></script>
-<script src="/public/widgets/zeptojs/zepto.min.js"></script>
-<script src="/public/widgets/dropload/dropload.min.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css" />
+ <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script src="https://res.wx.qq.com/open/libs/weuijs/1.0.0/weui.min.js"></script>
 <title>团购</title>
 <script>
@@ -29,7 +29,7 @@
                         getData: function(index, size, searchText) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/ActivityService/queryGroupBuyList',
+                                url: '/dw/mobile/ActivityService/queryGroupBuyList',
                                 params: {
                                     PAGE_INDEX: index || appValue.index,
                                     PAGE_SIZE: size || appValue.size
@@ -39,7 +39,7 @@
                         getGroupItemData: function(groupBuyId) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/ActivityService/queryGroupItemList',
+                                url: '/dw/mobile/ActivityService/queryGroupItemList',
                                 params: {
                                 	groupBuyId: groupBuyId
                                 }
@@ -48,7 +48,7 @@
                         saveGroupBuyOrder: function(groupItems) {
                             return $http({
                                 method: 'GET',
-                                url: '/mobile/ActivityService/saveGroupBuyOrder',
+                                url: '/dw/mobile/ActivityService/saveGroupBuyOrder',
                                 params: {
                                 	groupItems: groupItems
                                 }
@@ -238,13 +238,13 @@
 <div class="main">
   <div class="row">
     <h3  class="padded-b-10 border-b  padded-t-10 text-default">团购
-      <input ng-if="${wxUser.isCommittee}" ng-show="true || ${wxUser.isCommittee}==true" type="button" class="btn-blue btn fr" onClick="window.location='/mobile/a/groupAdd'" value="发布新团购"/>
+      <input ng-if="${wxUser.isCommittee}" ng-show="true || ${wxUser.isCommittee}==true" type="button" class="btn-blue btn fr" onClick="window.location='/dw/mobile/a/groupAdd'" value="发布新团购"/>
     </h3>
     <div class="content">
       <ul>
         <li class="border-b posrel"  ng-repeat="item in lists">
           <div class="wid80">
-            <a href="/mobile/A/groupDetail?groupBuyId={{item.groupBuyInfo.groupBuyId}}">
+            <a href="/dw/mobile/A/groupDetail?groupBuyId={{item.groupBuyInfo.groupBuyId}}">
             	<h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{item.groupBuyInfo.groupBuyTitle}}</h3>
             </a>
             <p class="margin-t-10 margin-b-10">

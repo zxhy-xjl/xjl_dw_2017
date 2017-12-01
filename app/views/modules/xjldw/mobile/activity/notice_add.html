@@ -10,7 +10,7 @@
 	<meta content="yes" name="apple-touch-fullscreen" />
 	<meta content="telephone=no" name="format-detection" />
 	<meta content="black" name="apple-mobile-web-app-status-bar-style" />
-	<link rel="stylesheet" href="/public/css/main.css" />
+	<link rel="stylesheet" href="/dw/public/css/main.css" />
 </head>
 
 <body ng-controller="MainController">
@@ -30,9 +30,9 @@
     </div>
   </div>
 </div>
- <script src="/public/widgets/layer.m/layer.m.js"></script>
-<script src="/public/widgets/angularjs/angular.min.js"></script>
-<script src="/public/widgets/angularjs/angular-touch.min.js"></script>
+ <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/angularjs/angular.min.js"></script>
+<script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script>
     angular.module('app', ['ngTouch'])
            .factory('valid', function () {
@@ -53,7 +53,7 @@
                     saveNotice: function (notice) {
                         return $http({
                             method: 'GET',
-                            url: '/mobile/ActivityService/saveNotice',
+                            url: '/dw/mobile/ActivityService/saveNotice',
                             params: notice
                         })
                     }
@@ -88,7 +88,7 @@
                                             content: '发布成功',
                                             btn: ['确定'],
                                             end: function () {
-                                                location.href = "/mobile/A/noticeList";
+                                                location.href = "/dw/mobile/A/noticeList";
                                             }
                                         });
                                     }
@@ -109,7 +109,7 @@
                     }
                 };
                 $scope.back= function () {
-                	location.href = "/mobile/A/noticeList";
+                	location.href = "/dw/mobile/A/noticeList";
                 };
 
             }]);
