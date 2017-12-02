@@ -240,8 +240,19 @@ public class MobileFilter extends BaseController{
 		}
 		//检查有没有绑定学生，如果没有绑定学生需要跳转到绑定学生页面
 		//wxUser = getWXUser();
-		if (!wxUser.isTeacher&&wxUser.currentStudent == null&&("testPC".equals(deviceFlag)||isMobile(userAgent))){ //本地调试手机版页面使用
-			render("modules/xjldw/mobile/my/student_none.html");
+		//不是老师，也不是家长，需要做老师或者家长的绑定
+		if (!wxUser.isTeacher&&!wxUser.isParent){
+			//由于会出现重新绑定的问题，这里先简单的处理下，从数据库中重新获取下
+			Logger.info("当前用户没有绑定老师或者学生：opendid=", wxUser.wxOpenId);
+			Logger.info("从数据库中重新获取用户信息，并放入session，更新当前用户用户对象");
+			WxUser dbWxUser = WxUser.getFindByOpenId(wxUser.wxOpenId);
+			sessionInfo.setWxUser(dbWxUser);
+    		setSessionInfo(sessionInfo);
+    		wxUser = dbWxUser;
+    		if (!wxUser.isTeacher&&!wxUser.isParent){
+    			Logger.info("从数据库重新获取用户之后依然不是老师和家长，进行绑定");
+    			render("modules/xjldw/mobile/my/student_none.html");
+    		}
 		} else {
 			if(!"PC".equals(sessionInfo.getDeviceFlag())){
 				log.debug("当前登录设备不是pc，是:" + sessionInfo.getDeviceFlag());
