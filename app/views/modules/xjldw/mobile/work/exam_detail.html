@@ -116,13 +116,15 @@
                     		agentRemote.saveStatExamGrade($scope.gradeInfo,$scope.studentInfoStat).then(function(response){
                     			if (me && me.resetload)
                                     me.resetload();
-                    			$scope.initPage();
+                    			//$scope.initPage();
+                    			window.location ='/dw/mobile/W/examDetail?examId=${exam.examId}';
                     		})
                     	}else{
                     		agentRemote.saveStudentExamGrade(${exam.examId},$scope.currentStudentInfo.student.studentId,$scope.currentStudentInfo.grade).then(function(response){
                     			if (me && me.resetload)
                                     me.resetload();
-                    			$scope.initPage();
+                    			//$scope.initPage();
+                    			window.location ='/dw/mobile/W/examDetail?examId=${exam.examId}';
                     		})
                     	}
                     	$scope.showTeacherExamGrade = false;

@@ -26,6 +26,7 @@ import models.modules.mobile.XjlDwGroupBuy;
 import models.modules.mobile.XjlDwGroupBuyItem;
 import models.modules.mobile.XjlDwGroupBuyOrder;
 import models.modules.mobile.XjlDwNotice;
+import models.modules.mobile.XjlDwNoticeFile;
 import models.modules.mobile.XjlDwStudent;
 import models.modules.mobile.XjlDwWxClass;
 import models.modules.mobile.XjlDwWxStudent;
@@ -42,6 +43,7 @@ import controllers.modules.mobile.bo.XjlDwGroupBuyOrderBo;
 import controllers.modules.mobile.bo.XjlDwWxClassBo;
 import controllers.modules.mobile.filter.MobileFilter;
 import controllers.modules.mobile.bo.XjlDwNoticeBo;
+import controllers.modules.mobile.bo.XjlDwNoticeFileBo;
 import utils.DateUtil;
 import utils.StringUtil;
 
@@ -66,6 +68,7 @@ public class ActivityService extends MobileFilter {
 	public static void delNoticeById(){
 		Long noticeId = Long.parseLong(params.get("noticeId"));
 		int ret = XjlDwNotice.delNoticeByNoticeId(noticeId);
+		XjlDwNoticeFile.delNoticeFileByNoticeId(noticeId);
 		ok(ret);
 	}
 	private static void filterNoticeData(Map ret){
@@ -106,7 +109,21 @@ public class ActivityService extends MobileFilter {
         if (params.get("noticeContent") != null) {
         	xjlDwNotice.noticeContent = replaceBlank(params.get("noticeContent"));
         }
-        ok(XjlDwNoticeBo.save(xjlDwNotice));
+        XjlDwNotice _xjlDwNotice = XjlDwNoticeBo.save(xjlDwNotice);
+        XjlDwNoticeFile xjlDwNoticeFile = null;
+        String fileids = params.get("noticeFileIds");
+        String [] arrayFile = fileids.split(",");
+        if(fileids.length()>0){
+        	  for (String str : arrayFile) {
+            	  Logger.info("str:"+str);
+            	  xjlDwNoticeFile = new XjlDwNoticeFile();
+            	  xjlDwNoticeFile.noticeId = _xjlDwNotice.noticeId;
+            	  xjlDwNoticeFile.wxOpenid = wxUser.wxOpenId;
+            	  xjlDwNoticeFile.fileId =Long.valueOf(str);
+            	  XjlDwNoticeFileBo.save(xjlDwNoticeFile);
+    		}
+        }
+        ok(_xjlDwNotice);
 
     }
 	 public static String replaceBlank(String str) {

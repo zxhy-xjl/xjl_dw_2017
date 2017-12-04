@@ -23,6 +23,7 @@ import models.modules.mobile.XjlDwExamSubject;
 import models.modules.mobile.XjlDwGroupBuy;
 import models.modules.mobile.XjlDwGroupBuyItem;
 import models.modules.mobile.XjlDwHomework;
+import models.modules.mobile.XjlDwHomeworkFile;
 import models.modules.mobile.XjlDwHomeworkModel;
 import models.modules.mobile.XjlDwNotice;
 import models.modules.mobile.XjlDwWxClass;
@@ -41,6 +42,7 @@ import controllers.modules.mobile.bo.XjlDwExamSubjectBo;
 import controllers.modules.mobile.bo.XjlDwGroupBuyBo;
 import controllers.modules.mobile.bo.XjlDwGroupBuyItemBo;
 import controllers.modules.mobile.bo.XjlDwHomeworkBo;
+import controllers.modules.mobile.bo.XjlDwHomeworkFileBo;
 import controllers.modules.mobile.bo.XjlDwHomeworkModelBo;
 import controllers.modules.mobile.bo.XjlDwWxStudentBo;
 import controllers.modules.mobile.filter.MobileFilter;
@@ -370,7 +372,7 @@ public class WorkService extends MobileFilter {
 					grade = XjlDwExamGrade.queryGrade(xjlDwExam.examId, xjlDwExamSubject.subjectId,studentId);
 					Logger.info("科目:"+xjlDwSubjectList.get(0).subjectTitle+" 分数:"+grade);
 					chart.type = xjlDwSubjectList.get(0).subjectTitle;
-					chart.temperature = xjlDwExamSubject.avg;//Double.parseDouble(df.format(grade/studentList.size()));
+					chart.temperature = xjlDwExamSubject.avg;
 					dataChart.add(chart);
 				}
 			}
@@ -425,7 +427,7 @@ public class WorkService extends MobileFilter {
 	}
 	public static void delHomeWork(){
 		Long homeWorkId = Long.parseLong(params.get("homeWorkId"));
-		System.out.println(homeWorkId);
+		XjlDwHomeworkFile.delHomeworkFileModelByhomeworkId(homeWorkId);
 		int ret = XjlDwHomeworkModel.delHomeworkModelByhomeworkId(homeWorkId);
 		ret = XjlDwHomework.delHomeworkByhomeworkId(homeWorkId);
 		ok(ret);
@@ -442,7 +444,20 @@ public class WorkService extends MobileFilter {
         homework.homeworkContent = homeworkJson.getString("homeworkContent");
         homework.homeworkTitle = homeworkJson.getString("homeworkTitle");
         homework.subjectId = homeworkJson.getJSONObject("subject").getLong("subjectId");
-        XjlDwHomeworkBo.save(homework);
+        XjlDwHomework xjlDwHomework  = XjlDwHomeworkBo.save(homework);
+        
+        XjlDwHomeworkFile _xjlDwHomework = null;
+        String fileids = homeworkJson.getString("homeworkFileIds");
+        String [] arrayFile = fileids.split(",");
+        if(fileids.length() > 0){
+        	for (String str : arrayFile) {
+            	_xjlDwHomework = new XjlDwHomeworkFile();
+            	_xjlDwHomework.homeworkId = xjlDwHomework.homeworkId;
+            	_xjlDwHomework.fileId = Long.valueOf(str);
+            	_xjlDwHomework.wxOpenId = wxUser.wxOpenId;
+            	XjlDwHomeworkFileBo.save(_xjlDwHomework);
+            }
+        }
         ok();
 	}
 	/**

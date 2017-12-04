@@ -51,7 +51,10 @@ public class XjlDwHomework extends GenericModel{
 	public Date createTime;
 	@Transient
 	public String time;
-
+	@Transient
+	public String subjectTitle;
+	@Transient
+	public List<XjlDwHomeworkFile> fileList;
 	public static Map queryXjlDwHomeworkListByPage(Map<String, String> condition,
 		int pageIndex, int pageSize) {
 		String sql = "select * ";

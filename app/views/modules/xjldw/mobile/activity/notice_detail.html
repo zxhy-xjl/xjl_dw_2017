@@ -19,6 +19,9 @@
       <h2 class="text-center margin-b-15 margin-t-15">{{notice.noticeTitle}}</h2>
       <h5 class="text-center"><span>{{notice.noticeDate}}</span><!-- <span class="padded-l-10">来源: 李老师</span> --></h5>
       <div class="padded-10">
+      	<div  ng-repeat="notice in notice.fileList">
+      	<img src="/dw{{notice.fileUrl}}"  width="100%" ng-click="readImage('/dw{{notice.fileUrl}}')"/>
+      	</div> 
       	{{notice.noticeContent}}{{notice.wxOPenId}}
       </div>
       	
@@ -29,17 +32,41 @@
     </div>
   </div>
 </div>
+<script src="/dw/public/js/jquery-1.9.1.min.js"></script>
 <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
 <script src="/dw/public/widgets/angularjs/angular.min.js"></script>
 <script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script>
+var openId = '${wxUser.wxOpenId}';
+var vnoId = '1';
+var params = [];
+var ids="";
+var showFlag = 0;
+var count = 0;
+var url = window.location.href.split('#')[0];
+var ajaxReturn = $.ajax({url:"/dw/Weixin/getWxSdkInfo", data: {url: url,openId:openId,vnoId:vnoId}});
+ajaxReturn.done(function (data) {
+	var appId = data.appId,
+    signature = data.signature,
+    timestamp = data.timestamp,
+    nonce = data.nonce;
+	 wx.config({
+         debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+         appId: appId, // 必填，公众号的唯一标识
+         timestamp: timestamp, // 必填，生成签名的时间戳
+         nonceStr: nonce, // 必填，生成签名的随机串
+         signature: signature,// 必填，签名，见附录1
+         jsApiList: ['chooseImage', 'uploadImage', 'closeWindow', 'previewImage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+     });
+});
     angular.module('app', ['ngTouch'])
             .factory('remote', ['$http', function ($http) {
                 return {
                     resetPassword: function (userId) {
                         return $http({
                             method: 'GET',
-                            url: '/dw/zzb/AgentService/ResetPWD',
+                            url: '/dw/dwb/AgentService/ResetPWD',
                             params: {
                                 userId: userId
                             }
@@ -51,16 +78,28 @@
                             url: '/dw/mobile/ActivityService/queryNoticeList',
                             params: notice
                         })
+                    },
+                    getDate:function(id){
+                    	 return $http({
+                    		 method: 'GET',
+                             url: '/dw/mobile/A/queryNotice',
+                             params:{
+                            	 noticeId:id
+                             }
+                    	 });
                     }
                 };
             }])
             .controller('MainController', ['$scope', 'remote', function ($scope, remote) {
-                $scope.notice = {
-                		noticeId: '${notice.noticeId}',
-                		noticeTitle: '${notice.noticeTitle}',
-                		noticeContent: '${notice.noticeContent}',
-                		noticeDate:'${notice.noticeDate}'
-                };
+                $scope.notice ="";
+                $scope.noticePic =[];
+                $scope.urls = []
+                $scope.init = function(me){
+                	remote.getDate('${noticeId}').then(function(response){
+                		 $scope.notice = response.data.data;
+                		 console.log($scope.notice);
+                	})
+                }
                 $scope.resetPassword = function () {
                     layer.open({
                         content: '确认重置该用户密码？',
@@ -128,9 +167,20 @@
 
 
                 }
+	           	 $scope.readImage = function(url){
+					 var http = window.location.href.split('.com');
+					 for(i = 0;i<$scope.notice.fileList.length;i++){
+						 $scope.urls.push(http[0]+'.com/dw'+$scope.notice.fileList[i].fileUrl);
+	                 }
+					 wx.previewImage({
+						    current:http[0]+'.com'+url, // 当前显示图片的http链接
+						    urls:$scope.urls // 需要预览的图片http链接列表
+						});
+				 }
                 $scope.back= function () {
                 	location.href = "/dw/mobile/A/noticeList";
                 };
+                $scope.init();
             }]);
 </script>
 </body>

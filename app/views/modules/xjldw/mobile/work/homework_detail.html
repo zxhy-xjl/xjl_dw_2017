@@ -11,7 +11,7 @@
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
 <link rel="stylesheet" href="/dw/public/css/main.css" />
-
+<script src="/dw/public/js/jquery-1.9.1.min.js"></script>
 <script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/dw/public/widgets/dropload/dropload.min.js"></script>
 <script src="/dw/public/widgets/angularjs/angular.min.js"></script>
@@ -52,6 +52,15 @@ ajaxReturn.done(function (data) {
                                 	homeworkId:homeworkId
                                 }
                             })
+                        },
+                        getDate:function(id){
+                        	return $http({
+                        		 method: 'GET',
+                                 url: '/dw/mobile/W/queryHomeWorkDetail',
+                                 params: {
+                                 	homeworkId:id
+                                 }
+                        	})
                         }
                         
                     }
@@ -60,10 +69,14 @@ ajaxReturn.done(function (data) {
                 	//init page function
                 	$scope.remarkList = 0;
                 	$scope.remarkList = [];
+                	$scope.homework=[];
                 	$scope.urls = Array();
                     $scope.initPage = function (me) {
-                		console.log("初始化标榜列表");
-                		agentRemote.queryHomeworkRemarkList(${homework.homeworkId}).then(function (response) {
+                    	agentRemote.getDate(${homeworkId}).then(function(response){
+                    		$scope.homework = response.data.data;
+                    	})
+                    	console.log("初始化标榜列表");
+                		agentRemote.queryHomeworkRemarkList(${homeworkId}).then(function (response) {
                             $scope.remarkTotal = response.data.data.total;
                             $scope.remarkList = response.data.data.data;
                             console.log($scope.remarkList);
@@ -84,6 +97,16 @@ ajaxReturn.done(function (data) {
      					    urls:$scope.urls // 需要预览的图片http链接列表
      					});
                     }
+                    $scope.readImage2 = function(url){
+                    	var http = window.location.href.split('.com');
+                    	for(i = 0;i<$scope.homework.fileList.length;i++){
+       					 $scope.urls.push(http[0]+'.com/dw'+$scope.homework.fileList[i].fileUrl);
+                        }
+                    	 wx.previewImage({
+     					    current:http[0]+'.com'+url, // 当前显示图片的http链接
+     					    urls:$scope.urls // 需要预览的图片http链接列表
+     					});
+                    }
                     $scope.initPage();
                 }]);
     </script>
@@ -92,15 +115,18 @@ ajaxReturn.done(function (data) {
 <div class="main">
   <div class="row">
     <div class="content padded-b-15">
-      <h2 class="text-center margin-b-15 margin-t-15">${homework.homeworkTitle}</h2>
-      <h5 class="text-center padded-b-10"><span>科目: ${subjectTitle}</span><span class="padded-l-10">${homework.time}</span></h5>
+      <h2 class="text-center margin-b-15 margin-t-15">{{homework.homeworkTitle}}</h2>
+      <h5 class="text-center padded-b-10"><span>科目: {{homework.subjectTitle}}</span><span class="padded-l-10">{{homework.time}}</span></h5>
       <div class="border-b posrel margin-t-20 padded-t-20"><div class="homework_title">作业</div></div>
       <div class="padded-10">
-      	<p class="padded-b-10 text-main">${homework.homeworkContent}</p>
+      	<div  ng-repeat="homework in homework.fileList">
+      		<img src="/dw{{homework.fileUrl}}"  width="100%" ng-click="readImage2('/dw{{homework.fileUrl}}')"/>
+      	</div> 
+      	<p class="padded-b-10 text-main">{{homework.homeworkContent}}</p>
       </div>
        <div class="border-b posrel margin-t-20 padded-t-20"><div class="homework_title">标榜</div></div>
       <div class="padded-10 padded-t-20">
-        <input  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}"  type="button" value="添加标榜" class="wid30 btn btn-blue" onClick="window.location='/dw/mobile/W/homeworkAddRemark?homeworkId=${homework.homeworkId}'"/>
+        <input  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}"  type="button" value="添加标榜" class="wid30 btn btn-blue" onClick="window.location='/dw/mobile/W/homeworkAddRemark?homeworkId=${homeworkId}'"/>
       </div>
       <div class="padded-10 border-b padded-t-20" ng-repeat="remark in remarkList">
         {{remark.modelTitle}}<br/>

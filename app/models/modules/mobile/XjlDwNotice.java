@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import play.db.jpa.GenericModel;
 import play.db.jpa.JPA;
@@ -45,6 +46,9 @@ public class XjlDwNotice extends GenericModel{
 	@Column(name = "CREATE_TIME")
 	public Date createTime;
 
+	@Transient
+	public List<XjlDwNoticeFile> fileList;
+	
 	public static Map queryNoticeListByPage(Map<String, String> condition,
 		int pageIndex, int pageSize) {
 		String sql = "select * ";

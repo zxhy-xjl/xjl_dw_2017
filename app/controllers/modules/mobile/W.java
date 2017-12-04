@@ -6,6 +6,7 @@ import models.modules.mobile.XjlDwExamGrade;
 import models.modules.mobile.XjlDwExamSubject;
 import models.modules.mobile.XjlDwGroupBuy;
 import models.modules.mobile.XjlDwHomework;
+import models.modules.mobile.XjlDwHomeworkFile;
 import models.modules.mobile.XjlDwNotice;
 import models.modules.mobile.XjlDwSchool;
 import models.modules.mobile.XjlDwStudent;
@@ -15,6 +16,7 @@ import net.sf.json.JSONObject;
 import play.Logger;
 import play.cache.Cache;
 import play.i18n.Messages;
+import utils.StringUtil;
 import utils.SysParamUtil;
 
 import java.io.InputStream;
@@ -100,17 +102,34 @@ public class W extends MobileFilter {
 	 public static void homeworkDetail() throws ParseException {
 		WxUser wxUser =  getWXUser();
 		renderArgs.put("wxUser",wxUser);
-		XjlDwHomework homework = XjlDwHomework.findById(Long.parseLong(params.get("homeworkId")));
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		if(null != homework){
-			Logger.info("工作时间："+sdf.format(homework.createTime));
-			String time = sdf.format(homework.createTime);
-			homework.time = time;
-		}
-		XjlDwSubject subject = XjlDwSubject.findById(homework.subjectId);
-		renderArgs.put("subjectTitle", subject == null ? "" : subject.subjectTitle);
-		renderArgs.put("homework", homework);
+//		XjlDwHomework homework = XjlDwHomework.findById(Long.parseLong(params.get("homeworkId")));
+//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//		if(null != homework){
+//			Logger.info("工作时间："+sdf.format(homework.createTime));
+//			String time = sdf.format(homework.createTime);
+//			homework.time = time;
+//		}
+//		XjlDwSubject subject = XjlDwSubject.findById(homework.subjectId);
+//		renderArgs.put("subjectTitle", subject == null ? "" : subject.subjectTitle);
+ 		renderArgs.put("homeworkId", params.get("homeworkId"));
 	    render("modules/xjldw/mobile/work/homework_detail.html");
+	 }
+	 public static void queryHomeWorkDetail(){
+		 XjlDwHomework homework = XjlDwHomework.findById(Long.parseLong(params.get("homeworkId")));
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			if(null != homework){
+				Logger.info("工作时间："+sdf.format(homework.createTime));
+				String time = sdf.format(homework.createTime);
+				homework.time = time;
+			}
+			XjlDwSubject subject = XjlDwSubject.findById(homework.subjectId);
+			int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+			int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+			List<XjlDwHomeworkFile> data = (List<XjlDwHomeworkFile>) XjlDwHomeworkFile.queryHomeworkFile(homework.homeworkId, pageIndex, pageSize).get("data");
+			homework.subjectTitle = subject == null ? "" : subject.subjectTitle;
+			homework.fileList = data;
+			renderArgs.put("homework", homework);
+			ok(homework);
 	 }
 	//作业发布标榜
 	 public static void homeworkAddRemark() {

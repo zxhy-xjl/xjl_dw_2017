@@ -4,16 +4,21 @@ import models.modules.mobile.XjlDwArticle;
 import models.modules.mobile.XjlDwFile;
 import models.modules.mobile.XjlDwGroupBuy;
 import models.modules.mobile.XjlDwNotice;
+import models.modules.mobile.XjlDwNoticeFile;
 import models.modules.mobile.XjlDwWxClass;
+import net.sf.json.JSONArray;
 import play.Logger;
 import play.cache.Cache;
 import play.i18n.Messages;
+import utils.StringUtil;
 import utils.SysParamUtil;
 import utils.WxRegister;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 
 import controllers.comm.BaseController;
 import controllers.comm.SessionInfo;
@@ -28,12 +33,25 @@ public class A extends MobileFilter {
 		   render("modules/xjldw/mobile/main.html");
 	 } 
     public static void noticeDetail() {
-      
-    	XjlDwNotice notice = XjlDwNotice.findById(params.get("noticeId", Long.class));
-        renderArgs.put("notice", notice);
+    	WxUser wxUser =  getWXUser();
+		renderArgs.put("wxUser",wxUser);
+		renderArgs.put("noticeId",params.get("noticeId"));
         render("modules/xjldw/mobile/activity/notice_detail.html");
     }
+    
+    public static void queryNotice(){
+    	int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+    	XjlDwNotice notice = XjlDwNotice.findById(params.get("noticeId", Long.class));
+    	List<XjlDwNoticeFile> list = (List<XjlDwNoticeFile>) XjlDwNoticeFile.queryNoticeFile(notice.noticeId, pageIndex, pageSize).get("data");
+    	notice.fileList = list;
+    	Logger.info("输出通知通告内容："+notice.noticeContent);
+        renderArgs.put("notice", notice);
+        ok(notice);
+    }
     public static void noticeAdd() {
+    	WxUser wxUser =  getWXUser();
+		renderArgs.put("wxUser",wxUser);
         render("modules/xjldw/mobile/activity/notice_add.html");
     }
     public static void noticeList() {
