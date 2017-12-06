@@ -107,7 +107,7 @@ public class ActivityService extends MobileFilter {
         	xjlDwNotice.noticeTitle = params.get("noticeTitle");
         }
         if (params.get("noticeContent") != null) {
-        	xjlDwNotice.noticeContent = replaceBlank(params.get("noticeContent"));
+        	xjlDwNotice.noticeContent =params.get("noticeContent");
         }
         XjlDwNotice _xjlDwNotice = XjlDwNoticeBo.save(xjlDwNotice);
         XjlDwNoticeFile xjlDwNoticeFile = null;

@@ -118,7 +118,7 @@ ajaxReturn.done(function (data) {
       <h2 class="text-center margin-b-15 margin-t-15">{{homework.homeworkTitle}}</h2>
       <h5 class="text-center padded-b-10"><span>科目: {{homework.subjectTitle}}</span><span class="padded-l-10">{{homework.time}}</span></h5>
       <div class="border-b posrel margin-t-20 padded-t-20"><div class="homework_title">作业</div></div>
-      <div class="padded-10">
+      <div class="padded-10" style="white-space:pre-line;">
       	<div  ng-repeat="homework in homework.fileList">
       		<img src="/dw{{homework.fileUrl}}"  width="100%" ng-click="readImage2('/dw{{homework.fileUrl}}')"/>
       	</div> 
