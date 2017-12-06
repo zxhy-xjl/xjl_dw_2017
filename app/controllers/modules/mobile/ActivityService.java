@@ -126,15 +126,6 @@ public class ActivityService extends MobileFilter {
         ok(_xjlDwNotice);
 
     }
-	 public static String replaceBlank(String str) {
-	        String dest = "";
-	        if (str!=null) {
-	            Pattern p = Pattern.compile("\\s*|\t|\r|\n");
-	            Matcher m = p.matcher(str);
-	            dest = m.replaceAll("");
-	        }
-	        return dest;
-	    }
 	/**
 	 * 获取美文列表
 	 */
@@ -186,7 +177,7 @@ public class ActivityService extends MobileFilter {
         	xjlDwArticle.articleTitle = params.get("articleTitle");
         }
         if (params.get("articleContent") != null) {
-        	xjlDwArticle.articleContent = replaceBlank(params.get("articleContent"));
+        	xjlDwArticle.articleContent = params.get("articleContent");
         }
         if (params.get("articleAuthor") != null) {
         	xjlDwArticle.articleAuthor = params.get("articleAuthor");

@@ -19,7 +19,7 @@
     <div class="content padded-b-15">
       <h2 class="text-center margin-b-15 margin-t-15">{{detail.articleTitle}}</h2>
       <h5 class="text-center padded-b-10"><span>作者: {{detail.articleAuthor}}</span></h5>
-      <div class="padded-10">
+      <div class="padded-10"  style="white-space:pre-line;">
                {{detail.articleContent}}
       </div>
       	
@@ -43,19 +43,36 @@
                             url: '/dw/mobile/ActivityService/queryNoticeList',
                             params: notice
                         })
+                    },
+                    getDate:function(){
+                    	return $http({
+                            method: 'GET',
+                            url: '/dw/mobile/A/queryArticleDetail',
+                            params:{
+                            	articleId:'${articleId}'
+                            }
+                            
+                        })
                     }
                 };
             }])
             .controller('MainController', ['$scope', 'remote', function ($scope, remote) {
                 $scope.detail = {
-                		articleId: '${detail.articleId}',
-                		articleTitle: '${detail.articleTitle}',
-                		articleAuthor: '${detail.articleAuthor}',
-                		articleContent: '${detail.articleContent}'
+                		articleId: '',
+                		articleTitle: '',
+                		articleAuthor: '',
+                		articleContent: ''
                 };
+                $scope.initDetail = function(me){
+                	remote.getDate().then(function(response){
+                		$scope.detail  = response.data.data;
+                		console.log(response.data.data);
+                	});
+                }
                 $scope.back= function () {
                 	location.href = "/dw/mobile/A/articleList";
                 };
+                $scope.initDetail();
             }]);
 </script>
 </body>

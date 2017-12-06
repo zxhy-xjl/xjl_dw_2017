@@ -69,9 +69,14 @@ public class A extends MobileFilter {
 		}
         render("modules/xjldw/mobile/activity/article_list.html");
     }
+    public static void queryArticleDetail(){
+    	XjlDwArticle article = XjlDwArticle.findById(Long.parseLong(params.get("articleId")));
+    	ok(article);
+    }
     public static void articleDetail() {
     	XjlDwArticle article = XjlDwArticle.findById(params.get("articleId", Long.class));
         renderArgs.put("detail", article);
+        renderArgs.put("articleId",params.get("articleId", Long.class));
         renderArgs.put("type",params.get("type"));
         render("modules/xjldw/mobile/activity/article_detail.html");
     }
