@@ -1,19 +1,21 @@
 <!DOCTYPE HTML>
 <html ng-app="app">
 <head>
-   	<title>美文投稿</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="viewport"
-	          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
-	
-	<meta content="yes" name="apple-mobile-web-app-capable" />
-	<meta content="yes" name="apple-touch-fullscreen" />
-	<meta content="telephone=no" name="format-detection" />
-	<meta content="black" name="apple-mobile-web-app-status-bar-style" />
-	<link rel="stylesheet" href="/dw/public/css/main.css" />
+  	<title>美文投稿</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css">
+<link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+<link rel="stylesheet" href="/dw/public/css/weui3.css"/>
 </head>
 
-<body ng-controller="MainController">
+<body ng-controller="MainController" style="background-color:white;">
 <div class="main">
   <div class="row">
     <h3 class="padded-b-10 padded-t-20">标题<span class="text-pink padded-l-5">*</span></h3>
@@ -24,6 +26,28 @@
     <div class="border padded-5">
           <textarea class="height10" placeholder="请输入投稿内容"  ng-model="article.articleContent"></textarea>
     </div>
+    <div class="border padded-5">
+     	<div class="weui-cells weui-cells_form">
+	            <div class="">
+	                <div class="weui-cell__bd">
+	                    <div class="weui-uploader">
+	                        <div class="weui-uploader__bd" id="uploaderFiles" >
+	                            <ul id="lightgallery" class="weui-uploader__files" class="uploadUl" >
+	                               <!--  <li class="weui-uploader__file litype" style="background-image:url(/dw/public/images/mobile/student_add.png);width:60px;height:60px;">
+	                                 <span class="icon icon-72 icontype"  ></span>
+	                                </li>  -->
+	                            </ul>
+	                            <div id="add" class="weui-uploader__input-box" style="width:60px;height:60px;" >
+	                                <input id="uploaderInput" class="weui-uploader__input" type="button" ng-click="chooseImage()" />
+	                            </div>
+	                            <div class="weui-uploader__input-box-edit" style="width:60px;height:60px;" onclick="showDel()" >
+	                            </div>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	    </div>
+     </div>
     <h3 class="padded-b-10 padded-t-20">作者<span class="text-pink padded-l-5">*</span></h3>
     <div class="border padded-5" ng-class="{bgdefault:article.articleId!=''}">
       <input type="text" placeholder="请昵称" ng-model="article.articleAuthor" ng-disabled="article.articleId!=''" />
@@ -40,10 +64,34 @@
     </div>
   </div>
 </div>
- <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/js/jquery-1.9.1.min.js"></script>
+<script src="/dw/public/widgets/layer.m/layer.m.js"></script>
 <script src="/dw/public/widgets/angularjs/angular.min.js"></script>
 <script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script>
+var openId = '${wxUser.wxOpenId}';
+var vnoId = '1';
+var params = [];
+var ids="";
+var showFlag = 0;
+var count = 0;
+var url = window.location.href.split('#')[0];
+var ajaxReturn = $.ajax({url:"/dw/Weixin/getWxSdkInfo", data: {url: url,openId:openId,vnoId:vnoId}});
+ajaxReturn.done(function (data) {
+	var appId = data.appId,
+    signature = data.signature,
+    timestamp = data.timestamp,
+    nonce = data.nonce;
+	 wx.config({
+         debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+         appId: appId, // 必填，公众号的唯一标识
+         timestamp: timestamp, // 必填，生成签名的时间戳
+         nonceStr: nonce, // 必填，生成签名的随机串
+         signature: signature,// 必填，签名，见附录1
+         jsApiList: ['chooseImage', 'uploadImage', 'closeWindow', 'previewImage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+     });
+});
     angular.module('app', ['ngTouch'])
            .factory('valid', function () {
                 return {
@@ -78,9 +126,11 @@
                 		articleTitle: '${article.articleTitle}',
                 		articleContent: '${article.articleContent}',
                 		articleAuthor:'${article.articleAuthor}',
-                		articleState:'${article.articleState}'
+                		articleState:'${article.articleState}',
+                		articleFiles:''
                 };
                 $scope.save= function (state) {
+                	 $scope.article.articleFiles = ids;
                     var validRes = valid.articleInfo($scope.article);
                     if (validRes.flag) {
                         var index = layer.open({
@@ -147,8 +197,90 @@
                 	}
                 	location.href = "/dw/mobile/A/articleList?type="+type;
                 };
-
+                //图片操作
+                var idx = 0;
+                $scope.chooseImage = function(){
+	   				// 选择张片
+	                    wx.chooseImage({
+	                        count: 9, // 默认9
+	                        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+	                        sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+	                        success: function(res) {
+	                        	idx = 0;
+	                            var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+	                            var str = localIds.toString();
+	                            var index = str.indexOf(',');
+	                            var strs = str.split(',');
+	                            var flag = true;
+	                            $scope.uploadImage(strs);
+	                        }
+	                    });
+	   			 };
+	   			$scope.uploadImage = function(strs){
+				    wx.uploadImage({
+                        localId: strs[idx],
+                        isShowProgressTips: 1,
+                        success: function (res) {
+                            var serverId = res.serverId; // 返回图片的服务器端ID
+                            $.ajax({url:'/dw/mobile/A/uploadAlbum',data:{
+                                url:serverId,openId:openId
+                            }}).done(function(res){
+                                if (res.ret=="0"&&res.data) {
+                                	 ids +=res.data.fileId+',';
+                                   	 var lis = '<li id='+res.data.fileId+' class="weui-uploader__file litype" style="background-image:url(/dw'+res.data.fileUrl+');width:60px;height:60px;"><span class="icon icon-72 icontype"   onclick="del('+res.data.fileId+')" style="color:red;display:none;" ></span></li>';
+                                   	  // 插入到预览区  
+                                   	 $('#lightgallery').append(lis);  
+                                   	 idx++;
+                                   	 count ++;
+                                   	 if(idx < strs.length){
+                                   		 $scope.uploadImage(strs);
+                                   	 }
+                                   	 if(count >= 9){
+                                   		 $("#add").css("display","none");
+                                   	 }else{
+                                   		 $("#add").css("display","block");
+                                   	 }
+                                }else{
+                                	//上传失败
+                                	layer.open({
+                                        content: res.desc,
+                                        btn: ['知道了']
+                                    });
+                                }
+                            }).fail(function(){
+                                layer.open({
+                                    content: '上传失败,请稍后再试',
+                                    btn: ['知道了']
+                                });
+                            })
+                        },
+                        error: function () {
+                            layer.open({
+                                content: '上传失败,请稍后再试',
+                                btn: ['知道了']
+                            });
+                        }
+                    });
+			 }
             }]);
+    function showDel(){
+    	var res = $('.icontype').css('display');
+    	if('block' == res){
+    		showFlag = 0;
+    		$(".icontype").css("display",'none');
+    	}else{
+    		showFlag = 1;
+    		$(".icontype").css("display",'block');
+    	}
+    }
+    function del(id){
+	    $("#"+id).remove();
+	    ids = ids.replace(id+',','');
+	    count -- ;
+	    if(count < 9){
+	    	$("#add").css("display","block");
+	    }
+	}
 </script>
 </body>
 </html>

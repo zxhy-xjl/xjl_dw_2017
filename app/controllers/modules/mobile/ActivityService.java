@@ -21,6 +21,7 @@ import models.modules.mobile.XjlDwAlbum;
 import models.modules.mobile.XjlDwAlbumImage;
 import models.modules.mobile.XjlDwAlbumTemplate;
 import models.modules.mobile.XjlDwArticle;
+import models.modules.mobile.XjlDwArticleFile;
 import models.modules.mobile.XjlDwFile;
 import models.modules.mobile.XjlDwGroupBuy;
 import models.modules.mobile.XjlDwGroupBuyItem;
@@ -36,6 +37,7 @@ import play.i18n.Messages;
 import controllers.modules.mobile.bo.WxUserBo;
 import controllers.modules.mobile.bo.XjlDwAlbumBo;
 import controllers.modules.mobile.bo.XjlDwAlbumImageBo;
+import controllers.modules.mobile.bo.XjlDwAriticelFIleBo;
 import controllers.modules.mobile.bo.XjlDwArticleBo;
 import controllers.modules.mobile.bo.XjlDwGroupBuyBo;
 import controllers.modules.mobile.bo.XjlDwGroupBuyItemBo;
@@ -185,7 +187,23 @@ public class ActivityService extends MobileFilter {
         if (params.get("articleState") != null) {
         	xjlDwArticle.articleState = params.get("articleState");
         }
-        ok(XjlDwArticleBo.save(xjlDwArticle));
+        XjlDwArticle _xjlDwArticle = XjlDwArticleBo.save(xjlDwArticle);
+		XjlDwArticleFile xjlDwArticleFile = null;
+        String articelFilds = params.get("articleFiles");
+        String[] articelArray = articelFilds.split(",");
+        Logger.info("arrayFile:"+articelArray.length);
+        Logger.info("arrayFile:"+articelFilds);
+        if(articelFilds.length()>0){
+        	 for (String str : articelArray) {
+	           	  Logger.info("str:"+str);
+	           	 xjlDwArticleFile = new XjlDwArticleFile();
+	           	 xjlDwArticleFile.ariticleId = _xjlDwArticle.articleId;
+	           	 xjlDwArticleFile.wxOpenId = wxUser.wxOpenId;
+	           	 xjlDwArticleFile.fileId =Long.valueOf(str);
+	           	 XjlDwAriticelFIleBo.save(xjlDwArticleFile);
+        	 }
+        }
+        ok(_xjlDwArticle);
 	}
 	/**
 	 * 查询团购条目列表

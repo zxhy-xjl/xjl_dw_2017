@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import play.db.jpa.GenericModel;
 import play.db.jpa.JPA;
@@ -50,6 +51,9 @@ public class XjlDwArticle extends GenericModel{
 	
 	@Column(name = "CLASS_ID")
 	public Long classId;
+	
+	@Transient
+	public List<XjlDwArticleFile> fileList;
 	
 	public static Map queryXjlDwArticleListByPage(Map<String, String> condition,
 		int pageIndex, int pageSize) {
