@@ -87,8 +87,8 @@ public class XjlDwAlbumImage extends GenericModel{
 		return ModelUtils.executeDelete(condition, sql);
 	}
 
-	public static int delAlbumImageByAlbumImageId(Long albumImageId){
-		String sql = "update xjl_dw_album_image set status='0XX' where ALBUM_IMAGE_ID='"+albumImageId+"'";
+	public static int delAlbumImageByAlbumImageId(Long fileId){
+		String sql = "update xjl_dw_album_image set status='0XX' where FILE_ID='"+fileId+"'";
 		Map<String, String> condition = new HashMap<String, String>();
 		return ModelUtils.executeDelete(condition, sql);
 	}

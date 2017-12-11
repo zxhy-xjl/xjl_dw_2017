@@ -145,14 +145,10 @@ angular.module('app', ['ngTouch'])
                                 if (res.ret=="0"&&res.data) {
                                    	 $scope.albumImage.fileId =res.data.fileId;
                                    	 agentAlbumImage.saveAlbumImage($scope.albumImage);
+                                   	 // 插入到预览区  
+                                     var lis = '<li id='+res.data.fileId+' class="weui-uploader__file litype" style="background-image:url(/dw'+res.data.fileUrl+');"><div class="icon_sp_area icontype" style="display: none;" ng-click="del('+res.data.fileId+')"> <i class="weui-icon-cancel" ></i> </div></li>';
                                    	  // 插入到预览区  
-                                        var $preview = $('<li class="weui-uploader__file" style="background-image:url(/dw' + res.data.fileUrl + ')"><span class="icon icon-72 icontype" ng-click="del('+res.data.albumImageId+')"></span></li>'); 
-                                   	  /* if($scope.lists.length > 0){
-                                   		 $('#lightgallery').append($preview);  
-                                   	 }else{
-                                   		 $("#uploadnoUl").append($preview);
-                                   	 } */
-                                 	 $scope.initPage();
+                                   	 $('#lightgallery').append(lis);  
                                    	 idx++;
                                    	 if(idx < strs.length){
                                    		 $scope.uploadImage(strs);
@@ -188,6 +184,7 @@ angular.module('app', ['ngTouch'])
                      sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
                      sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
                      success: function(res) {
+                    	 idx = 0;
                          var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
                          var str = localIds.toString();
                          var index = str.indexOf(',');
@@ -235,8 +232,11 @@ angular.module('app', ['ngTouch'])
                     <div class="weui-uploader">
                         <div class="weui-uploader__bd" id="uploaderFiles"  ng-show="lists.length!=0">
                             <ul id="lightgallery" class="weui-uploader__files" class="uploadUl" >
-                                <li id="{{image.albumImageId}}"  class="weui-uploader__file litype" style="background-image:url(/dw{{image.fileUrl}})" ng-click="readImage('/dw{{image.fileUrl}}')"  ng-repeat="image in lists" >
-                                 <span class="icon icon-72 icontype" ng-click="del('{{image.albumImageId}}')"></span>
+                                <li id="{{image.fileId}}"  class="weui-uploader__file litype" style="background-image:url(/dw{{image.fileUrl}})" ng-click="readImage('/dw{{image.fileUrl}}')"  ng-repeat="image in lists" >
+                                 <!-- <span class="icon icon-72 icontype" ng-click="del('{{image.albumImageId}}')"></span> -->
+                                 <div class="icon_sp_area icontype" style="display: none;" ng-click="del({{image.fileId}})">
+                                  	 <i class="weui-icon-cancel" ></i>
+                                  </div>
                                 </li> 
                             </ul>
                             <div class="weui-uploader__input-box">

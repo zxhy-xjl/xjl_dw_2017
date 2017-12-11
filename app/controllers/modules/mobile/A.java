@@ -1,5 +1,6 @@
 package controllers.modules.mobile;
 import models.modules.mobile.WxUser;
+import models.modules.mobile.XjlDwAlbumImage;
 import models.modules.mobile.XjlDwArticle;
 import models.modules.mobile.XjlDwArticleFile;
 import models.modules.mobile.XjlDwFile;
@@ -15,6 +16,9 @@ import utils.StringUtil;
 import utils.SysParamUtil;
 import utils.WxRegister;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +32,7 @@ import controllers.modules.mobile.bo.XjlDwFileBo;
 import controllers.modules.mobile.bo.XjlDwWxClassBo;
 import controllers.modules.mobile.filter.MobileFilter;
 import controllers.modules.mobile.bo.WxUserBo;
+import controllers.modules.mobile.bo.XjlDwAlbumImageBo;
 
 public class A extends MobileFilter {
 	 public static void manager() {
@@ -78,6 +83,43 @@ public class A extends MobileFilter {
     	article.fileList = file;
     	ok(article);
     }
+    public static void save(){
+   	 WxUser wxUser = getWXUser();
+   	 String realpath="/Users/Arthur/Desktop/10";
+   	 String names = readfile(realpath);
+   	 String [] arrayName = names.split(",");
+   	 for (int i = 0; i < arrayName.length; i++) {
+   		 String url="/_web_/images/2017/12/10/"+arrayName[i];
+   		 Logger.info("url:"+url);
+   		 XjlDwFile xjlDwFile = XjlDwFileBo.saveImage(url, wxUser.wxOpenId);
+       	 XjlDwAlbumImage albumImage = new XjlDwAlbumImage();
+       	 albumImage.albumId = Long.parseLong("17");
+       	 albumImage.fileId = xjlDwFile.fileId;
+       	 albumImage.imageTitle = "Wxphoto";
+   		 albumImage.imageOrder = Long.parseLong("1");
+   		 albumImage.wxOpenId = wxUser.wxOpenId;
+       	 XjlDwAlbumImageBo.save(albumImage);
+		}
+   }
+   public static String readfile(String filepath){
+   	String names = "";
+       try {
+   		File file = new File(filepath);
+           System.out.println("文件夹");
+           String[] filelist = file.list();
+           System.out.println(filelist.length);
+           for (int i = 0; i < filelist.length; i++) {
+                   File readfile = new File(filepath + "/" + filelist[i]);
+                   if (!readfile.isDirectory()) {
+                           System.out.println("name=" + readfile.getName());
+                           names+=readfile.getName()+",";
+                   }
+           }
+       } catch (Exception e) {
+               System.out.println("readfile()   Exception:" + e.getMessage());
+       }
+       return names;
+}
     public static void articleDetail() {
     	XjlDwArticle article = XjlDwArticle.findById(params.get("articleId", Long.class));
     	WxUser wxUser =  getWXUser();
@@ -190,7 +232,6 @@ public class A extends MobileFilter {
 
         Logger.info(url);
         String picUrl = downloadPhoto(url,openId, "A",null);
-        
         WxUser wxUser =  getWXUser();
         XjlDwFile xjlDwFile = XjlDwFileBo.saveImage(picUrl, wxUser.wxOpenId);
         if(picUrl.contains(".json;")&&picUrl.endsWith("encoding=utf-8")){

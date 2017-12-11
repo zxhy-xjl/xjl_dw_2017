@@ -504,7 +504,7 @@ public class ActivityService extends MobileFilter {
 	}
 	public static void queryAlbumImageList(){
 		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
-		int pageSize = 120;
+		int pageSize = 99999;
 		Logger.info("pageSize:"+pageSize);
 		Map condition = params.allSimple();
 		condition.put("albumId",String.valueOf(params.get("albumId")));
