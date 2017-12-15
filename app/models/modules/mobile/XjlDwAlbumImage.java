@@ -57,7 +57,7 @@ public class XjlDwAlbumImage extends GenericModel{
 			if(null !=condition&&null!=condition.get("albumId")){
 				sql +=" and ALBUM_ID = "+condition.get("albumId");
 			}
-			sql+=" order by IMAGE_ORDER";
+			sql+="ORDER BY CREATE_TIME DESC";
 			SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 			Logger.info("retsql:"+ret.getSql());
 			List<XjlDwAlbumImage> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwAlbumImage.class);

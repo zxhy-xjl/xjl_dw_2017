@@ -85,7 +85,7 @@ public class XjlDwAlbum extends GenericModel{
 					//添加相册模板
 					xjlDwAlbum.template = template;
 					//添加相册封面上的图片列表
-					xjlDwAlbum.templateImageList = (List<XjlDwAlbumImage>)XjlDwAlbumImage.queryXjlDwAlbumImageListByPage(condition, 1, template.albumTemplateImgNum.intValue()).get("data");
+					xjlDwAlbum.templateImageList = (List<XjlDwAlbumImage>)XjlDwAlbumImage.queryXjlDwAlbumImageListByPage(condition, 1,4).get("data");
 				}
 			}
 		}
