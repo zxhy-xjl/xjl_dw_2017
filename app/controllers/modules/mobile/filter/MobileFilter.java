@@ -32,6 +32,7 @@ import controllers.modules.mobile.bo.WxUserBo;
  */
 public class MobileFilter extends BaseController{
 	private static org.slf4j.Logger log = LoggerFactory.getLogger(MobileFilter.class);
+	private static int REQ_TIME = 0;
 	@Before(unless = { "Application.index","LoginService.index", "LoginService.mIndex","LoginService.login",
 			"LoginService.logout","LoginService.mlogout" })
 	static void checkLogin() {
@@ -52,19 +53,25 @@ public class MobileFilter extends BaseController{
 			log.debug("当前用户:" + wxUser);
 			if(CommonValidateUtil.isMobile(userAgent)){ //手机端获取微信用户信息
 				log.debug("当前访问是通过手机访问");
-				if(wxUser!=null&&(DateUtil.getNowDate().compareTo(DateUtil.getDateTimeNowFun(wxUser.upOpenidTime,"d",1))<=0)){
-					//还在有效期内
-					log.debug("还在有效期内");
-					Logger.info("filterDate："+DateUtil.getDateTimeNowFun(wxUser.upOpenidTime,"d",1));
-					isNeedInterface = false;
-					 wxUser = WxUser.getFindByOpenId(wxUser.wxOpenId);
-					 Logger.info("toStudent:"+wxUser.isTeacher);
-					 sessionInfo.setWxUser(wxUser);
-			 		 Cache.add(MobileFilter.getSessionKey(), sessionInfo);
-				}else{
-					log.debug("已经过期，需要重新获取");
-					//已经是三天前的数据，过期重新获取
-					isNeedInterface = true;
+				if(wxUser!=null){
+					if((DateUtil.getNowDate().compareTo(DateUtil.getDateTimeNowFun(wxUser.upOpenidTime,"d",1))<=0)){
+						//还在有效期内
+						log.debug("还在有效期内");
+						Logger.info("filterDate："+DateUtil.getDateTimeNowFun(wxUser.upOpenidTime,"d",1));
+						isNeedInterface = false;
+						 wxUser = WxUser.getFindByOpenId(wxUser.wxOpenId);
+						 Logger.info("toStudent:"+wxUser.isTeacher);
+						 sessionInfo.setWxUser(wxUser);
+				 		 Cache.add(MobileFilter.getSessionKey(), sessionInfo);
+					}else{
+						log.debug("已经过期，需要重新获取");
+						//已经是三天前的数据，过期重新获取
+						isNeedInterface = false;
+						wxUser = WxUser.getFindByOpenId(wxUser.wxOpenId);
+						 Logger.info("toStudent:"+wxUser.isTeacher);
+						 sessionInfo.setWxUser(wxUser);
+				 		 Cache.add(MobileFilter.getSessionKey(), sessionInfo);
+					}
 				}
 			}
 		}else{
@@ -140,13 +147,14 @@ public class MobileFilter extends BaseController{
 			//String url=URLEncoder.encode("http://xjldw.airclub.xin/mobile/m/noticeAdd");
 			Logger.info("----------------url:"+url);
 			if (code == null) {
-				Logger.info("===========redirectURL=========== " + code);
+				Logger.info("===========code=========== " + code);
 				String redirectURL = "https://open.weixin.qq.com/connect/oauth2/authorize?appid="
 						+ appId
 						+ "&redirect_uri="
 						+ url
 						+ "&response_type=code&scope="+scope+"&state=1"
 						+ "#wechat_redirect";
+				Logger.info("===========redirectURL=========== " + redirectURL);
 				redirect(redirectURL);
 			} else {
 				Logger.info("===========code=========== " + code);
