@@ -65,7 +65,7 @@ public class MsgPush {
 			Logger.info("msgPush access_token:"+access_token);
 			String URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+ access_token;
 			Logger.info("msgPush URL:"+access_token);
-			//组装收信人标记
+			//组装收信人标记 
 			Map<String, Object> map = new HashMap<String, Object>();
 			WxUser wxUser = new WxUser();
 			List<WxUser> dataUser =(List<WxUser>) wxUser.queryWxUserListByPage(condition, pageIndex, pageSize).get("data");
