@@ -48,6 +48,7 @@ import controllers.modules.mobile.bo.XjlDwWxStudentBo;
 import controllers.modules.mobile.filter.MobileFilter;
 import controllers.modules.mobile.bo.XjlDwNoticeBo;
 import utils.DateUtil;
+import utils.MsgPush;
 import utils.StringUtil;
 
 /**
@@ -125,6 +126,27 @@ public class WorkService extends MobileFilter {
         	}
         }
         //WorkService.initExamGrad(exam.examId,subjectList);
+      //考试成绩推送消息
+        String jumpUrl = "http://dw201709.com/zz/mobile/W/examList";
+        String templateId = "Z1DAi3c8w84yNi50EKSoK-qjTR4_rK3avS-16NJXVac";
+        Map<String, Object> mapData = new HashMap<String, Object>();
+		Map<String, Object> mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", "有考试消息提醒");
+		mapData.put("first", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",exam.examTitle);
+		mapData.put("keyword1", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",wxUser.currentClass.className);
+		mapData.put("keyword2", mapDataSon);
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",df.format(exam.examDate)+"发布");
+		mapData.put("keyword3", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", "有新的考试,赶紧录入孩子的成绩吧！");
+		mapData.put("remark", mapDataSon);
+		MsgPush.wxMsgPusheTmplate(templateId,jumpUrl,mapData);
         ok(exam);
 	}
 //	public static void initExamGrad(Long examId, List<JSONObject> subjectList){
@@ -458,7 +480,29 @@ public class WorkService extends MobileFilter {
             	XjlDwHomeworkFileBo.save(_xjlDwHomework);
             }
         }
-        ok();
+        List<XjlDwSubject> data  = (List<XjlDwSubject>) XjlDwSubject.queryXjlDwBySubjectId(xjlDwHomework.subjectId).get("data");
+        //家庭作业消息推送
+        String jumpUrl = "http://dw201709.com/zz/mobile/W/homeworkList";
+        String templateId = "RloIJEpxZbWT-9VBN1mWv8KdDIHdtaHg5xlIQdac-Tk";
+        Map<String, Object> mapData = new HashMap<String, Object>();
+		Map<String, Object> mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", "有新作业消息提醒");
+		mapData.put("first", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",wxUser.currentStudent.studentName);
+		mapData.put("name", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",data.get(0).subjectTitle);
+		mapData.put("subject", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",xjlDwHomework.homeworkContent);
+		mapData.put("content", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", "有孩子的作业,赶紧来监督孩子完成作业吧！");
+		mapData.put("remark", mapDataSon);
+		Logger.info("参数："+mapData);
+		MsgPush.wxMsgPusheTmplate(templateId, jumpUrl, mapData);
+        ok(xjlDwHomework);
 	}
 	/**
 	 * 保存标榜

@@ -119,7 +119,7 @@ public class Auth extends Controller {
                 				wxUser = new WxUser();
                 				wxUser.wxOpenId = fromUsername;
                 				wxUser.schoolId = schoolId;
-                				accessToken = Sign.getAccessToken(appId,appSecret);
+                				accessToken = Sign.getAccessToken(appId,appSecret,false);
                 				requestUrl = "https://api.weixin.qq.com/cgi-bin/user/info?access_token="+accessToken+"&openid="+fromUsername+"&lang=zh_CN";
                 				returnJson = HttpClientUtil.invoke(requestUrl, "POST", null);
     					    	if(returnJson!=null&&returnJson.containsKey("openid")&&returnJson.containsKey("nickname")){

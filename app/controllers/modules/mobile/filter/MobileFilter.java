@@ -211,7 +211,7 @@ public class MobileFilter extends BaseController{
 				        	}
 						}else if("snsapi_base".equals(scope)){
 					    	Logger.info("通过****获取用户基本信息接口****获取用户信息");
-					    	accessToken = Sign.getAccessToken(appId,secret);
+					    	accessToken = Sign.getAccessToken(appId,secret,false);
 					    	url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token="+accessToken+"&openid="+openId+"&lang=zh_CN";
 					    	json = HttpClientUtil.invoke(url, "POST", null);
 					    	Logger.info("snsapi_base json = " + json);

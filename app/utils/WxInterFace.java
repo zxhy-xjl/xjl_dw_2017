@@ -23,7 +23,7 @@ public class WxInterFace {
 		// 南京德诺
 		String appId = "wx5f29a981bf8c03c2";
 		String appSecret = "706c26dab5d53f81517c4414cbfff565";
-		String access_token = Sign.getAccessToken(appId, appSecret);
+		String access_token = Sign.getAccessToken(appId, appSecret,false);
 		System.out.println("access_token:" + access_token);
 		String URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+ access_token;
 		System.out.println("URL:" + URL);

@@ -136,7 +136,7 @@ public class W extends MobileFilter {
 		WxUser wxUser =  getWXUser();
 		renderArgs.put("wxUser",wxUser);
 		renderArgs.put("homeworkId", params.get("homeworkId"));
-		String accessToken = Sign.getAccessToken("wx4ae50eb9b72cef71","2f66a0dd662948bc9b2b8aa26ebd0a4f");
+		String accessToken = Sign.getAccessToken("wx4ae50eb9b72cef71","2f66a0dd662948bc9b2b8aa26ebd0a4f",false);
 		String noceStr = UUID.randomUUID().toString();
 		String timestamp = Long.toString(System.currentTimeMillis() / 1000);
 		String str = "jsapi_ticket="+getTicket(accessToken)+"&noncestr="+noceStr+"&timestamp="+timestamp+"&url=http://dw201709.com/mobile/W/homeworkAddRemark?homeworkId="+params.get("homeworkId");

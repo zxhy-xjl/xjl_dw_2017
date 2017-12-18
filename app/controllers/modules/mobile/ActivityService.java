@@ -47,6 +47,7 @@ import controllers.modules.mobile.filter.MobileFilter;
 import controllers.modules.mobile.bo.XjlDwNoticeBo;
 import controllers.modules.mobile.bo.XjlDwNoticeFileBo;
 import utils.DateUtil;
+import utils.MsgPush;
 import utils.StringUtil;
 
 /**
@@ -125,8 +126,31 @@ public class ActivityService extends MobileFilter {
             	  XjlDwNoticeFileBo.save(xjlDwNoticeFile);
     		}
         }
+        //通知通告消息模版
+        String jumpUrl = "http://dw201709.com/zz/mobile/A/noticeList";
+        String templateId = "X2kBVgSdei8m8-jbcWQVi9bRnnWGu66dAIhZWwRQu28";
+        Map<String, Object> mapData = new HashMap<String, Object>();
+		Map<String, Object> mapDataSon = new HashMap<String, Object>();
+        mapDataSon.put("value", "有新通知通告消息推送");
+		mapData.put("first", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value","通告消息推送");
+		mapData.put("keyword1", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value","发送成功");
+		mapData.put("keyword2", mapDataSon);
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",df.format(new Date()));
+		mapData.put("keyword3", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",wxUser.nickName);
+		mapData.put("keyword4", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", "有新的通知赶紧来看看吧!");
+		mapData.put("remark", mapDataSon);
+		MsgPush.wxMsgPusheTmplate(templateId,jumpUrl,mapData);
         ok(_xjlDwNotice);
-
     }
 	/**
 	 * 获取美文列表
@@ -382,7 +406,24 @@ public class ActivityService extends MobileFilter {
         	}
 	
         }
-
+        //团购新增消息推送
+        String jumpUrl = "http://dw201709.com/zz/mobile/A/groupList";
+        String templateId = "k5jpj4exq5Kucqtlks-EHWEVGLAV35uGDj3423TTMUU";
+        Map<String, Object> mapData = new HashMap<String, Object>();
+		Map<String, Object> mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", "有新团购消息提醒");
+		mapData.put("first", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",xjlDwGroupBuy.groupBuyTitle);
+		mapData.put("Pingou_ProductName", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",wxUser.currentClass.className+"的团购信息");
+		mapData.put("Weixin_ID", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", "有新的团购,赶紧来抢购吧！");
+		mapData.put("remark", mapDataSon);
+		MsgPush.wxMsgPusheTmplate(templateId, jumpUrl, mapData);
+        ok(xjlDwGroupBuy);
         ok(xjlDwGroupBuy);
 	}
 	/**
@@ -535,7 +576,26 @@ public class ActivityService extends MobileFilter {
         if (params.get("albumTitle") != null) {
         	album.albumTitle = params.get("albumTitle");
         }
-        ok(XjlDwAlbumBo.save(album));
+        XjlDwAlbum xjlAlbum = XjlDwAlbumBo.save(album);
+        //创建相册增加消息推送
+        String jumpUrl = "http://dw201709.com/zz/mobile/A/albumList";
+        String templateId = "PPe-Nsdyf-z0v7qSdWODYkxWLOx-aG1ySuDE61jEWlE";
+        Map<String, Object> mapData = new HashMap<String, Object>();
+		Map<String, Object> mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", "有新的相册消息提醒哦");
+		mapData.put("first", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", xjlAlbum.albumTitle);
+		mapData.put("keyword1", mapDataSon);
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",df.format(xjlAlbum.createTime));
+		mapData.put("keyword2", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value", "赶紧来看看孩子的照片吧！");
+		mapData.put("remark", mapDataSon);
+		MsgPush.wxMsgPusheTmplate(templateId,jumpUrl,mapData);
+        ok(xjlAlbum);
 	}
 	 public static void saveAlbumImage(){
 		   WxUser wxUser = getWXUser();

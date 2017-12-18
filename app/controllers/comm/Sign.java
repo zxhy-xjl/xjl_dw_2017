@@ -34,7 +34,7 @@ public class Sign {
 	 * @param secret
 	 * @return
 	 */
-	public static String getAccessToken(String appid,String secret) {
+	public static String getAccessToken(String appid,String secret,boolean flag) {
 		//请求Jsapi_Ticket的时间
 		Date requestDate = null;
 		
@@ -50,7 +50,7 @@ public class Sign {
 		}
 		Logger.info("accesstoeknrequestDate = " + requestDate);
 		Logger.info("accesstoeknsecond = " + second);
-		if (requestDate==null||second>7000) {
+		if (requestDate==null||second>7000 || flag) {
 			try {
 				requestDate = new Date();
 				String return_josn="";
