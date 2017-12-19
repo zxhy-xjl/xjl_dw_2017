@@ -259,6 +259,57 @@ public class ActivityService extends MobileFilter {
 		ok(ret);
 	}
 	
+	public static void queryChart(){
+		WxUser wxUser = getWXUser();
+		Long groupBuyId=0l;
+	    if(StringUtil.isNotEmpty(params.get("groupBuyId"))) {
+	    	groupBuyId = StringUtil.getLong(params.get("groupBuyId"));
+        }else{
+        	nok("groupBuyId丢失!");
+        }
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map condition = params.allSimple();
+		condition.put("groupBuyId", groupBuyId);
+		Map ret = XjlDwGroupBuyItem.queryXjlDwGroupBuyItemListByPage(condition, pageIndex, pageSize);
+		Logger.info("得到团购列表："+new Date());
+		Map hm=new HashMap();
+		XjlDwGroupBuy groupBuy = XjlDwGroupBuy.findById(groupBuyId);
+		XjlDwGroupBuyBo.checkState(groupBuy);
+		hm.put("title", groupBuy.groupBuyTitle);
+		hm.put("endTime", DateFormatUtils.format(groupBuy.groupBuyEndTime,"yyyy-MM-dd HH:mm"));
+		hm.put("state", groupBuy.groupBuyState);
+		hm.put("totalBuyer", XjlDwGroupBuyOrder.totalBuyer(groupBuyId));
+		hm.put("totalAmount", XjlDwGroupBuyOrder.totalAmount(groupBuyId));
+		//我有没有参与这个团购的标识
+		boolean isMyOrder = XjlDwGroupBuyOrder.hasOrder(groupBuyId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
+		hm.put("isMyOrder", isMyOrder);
+		//下面开始处理团购明细，包括每个明细的购买人数量和我是不是也购买了这个商品
+		List<Map> list=new ArrayList<Map>();
+		List<XjlDwGroupBuyItem> listGroupBuyItem = (List<XjlDwGroupBuyItem>)ret.get("data");
+		Map<String, String> _itemInfo = null;
+		for(XjlDwGroupBuyItem groupBuyItem : listGroupBuyItem){
+			_itemInfo = new HashMap<String, String>();
+			//商品标题
+			_itemInfo.put("title", groupBuyItem.groupItemTitle);
+			//商品价格
+			_itemInfo.put("price", String.valueOf(groupBuyItem.groupItemPrice));
+			//购买者数量
+			String itemBuyerCount = XjlDwGroupBuyOrder.totalItemBuyer(groupBuyId, groupBuyItem.groupItemId);
+			_itemInfo.put("buyerCount", itemBuyerCount);
+			//我有没有购买这个商品的标识
+			boolean isMyItem = false;
+			if (isMyOrder){
+				isMyItem = XjlDwGroupBuyOrder.hasOrderItem(groupBuyId, groupBuyItem.groupItemId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
+			}
+			_itemInfo.put("isMyItem", String.valueOf(isMyItem));
+			list.add(_itemInfo);
+			
+		}
+		hm.put("itemInfoList", list);
+		Logger.info("--------------------------------------------"+hm.get("itemInfoList"));
+		ok(hm);
+	}
 	/**
 	 * 查询团购统计 购买数量统计
 	 */

@@ -15,9 +15,9 @@
 
 <body  ng-controller="MainController">
 <div class="main">
-  <div class="row posrel" ng-show="showSummary==false">
+  <div class="row posrel" ng-show="showSummary==true">
     <div class="tabbtn">
-      <input type="button" value="切换汇总" class="btn btn-blue" ng-click="switchSummary(true)"/>
+      <input type="button" value="切换汇总" class="btn btn-blue" ng-click="switchSummary(false)"/>
     </div>
     <div class="padded-t-10">人数：<span class="font-size-16 font-weight-b">{{totalBuyer}}&nbsp;</span>
          <span>金额：{{totalAmount}}元</span>&nbsp;&nbsp;<span>数量：{{totalCount}}</span>
@@ -37,15 +37,15 @@
       <input ng-show="state=='2'" type="button" class="btn fr wid45 line-height-2 bg-warning" value="已结束"/>
     </div>
   </div>
-  <div class="row posrel" ng-show="showSummary==true">
+  <div class="row posrel" ng-show="showSummary==false">
     <div class="tabbtn">
-      <input type="button" value="切换明细" class="btn btn-blue" ng-click="switchSummary(false)"/>
+      <input type="button" value="切换明细" class="btn btn-blue" ng-click="switchSummary(true)"/>
     </div>
     <div class="padded-t-10">人数：<span class="font-size-16 font-weight-b">{{totalBuyer}}&nbsp;</span>
          <span>金额：{{totalAmount}}元</span>&nbsp;&nbsp;<span>数量：{{totalCount}}</span>
     </div>
     <div class="padded-t-10 padded-b-10 hide">购买数量统计：</div>
-    <div class="padded-t-10" id="groupEcharts" style="width: 100%;height:400px;"> 
+    <div class="padded-t-10" id="groupEcharts" style="height:400px;"> 
     </div>
     <div class="margin-t-15 margin-b-15 clearfix">
       <span>截止:{{endTime}}</span>
@@ -55,6 +55,7 @@
     </div>
   </div>
 </div>
+<script src="/zz/public/js/jquery-1.9.1.min.js"></script>
 <script src="/dw/public/widgets/echarts/echarts.js"></script>
 <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
 <script src="/dw/public/widgets/angularjs/angular.min.js"></script>
@@ -70,6 +71,15 @@
                         return $http({
                             method: 'GET',
                             url: '/dw/mobile/ActivityService/queryGroupStatistics',
+                            params: {
+                            	groupBuyId:groupBuyId
+                            }
+                        })
+                    },
+                    queryChart:function(groupBuyId){
+                    	return $http({
+                            method: 'GET',
+                            url: '/zz/mobile/ActivityService/queryChart',
                             params: {
                             	groupBuyId:groupBuyId
                             }
@@ -97,6 +107,7 @@
              	$scope.closeFlag;//团购结束标识
             	$scope.itemInfoList=[];//团购明细
              	$scope.studentInfoList=[];//学生信息列表
+             	$("#groupEcharts").width($(window).width());
                 $scope.initPage = function (me) {
                     remote.queryGroupStatistics('${groupBuyId}').then(function (response) {
                         $scope.title = response.data.data.title;
@@ -133,7 +144,7 @@
                                     textStyle:{
                                     	color:"#222"
                                     }
-                                },
+                                } ,
                                 data: chartTitleList
                             },
                             yAxis: {},
