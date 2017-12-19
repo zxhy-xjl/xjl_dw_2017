@@ -127,7 +127,7 @@ public class WorkService extends MobileFilter {
         }
         //WorkService.initExamGrad(exam.examId,subjectList);
       //考试成绩推送消息
-        String jumpUrl = "http://dw201709.com/zz/mobile/W/examList";
+        String jumpUrl = "http://dw201709.com/dw/mobile/W/examList";
         String templateId = "Z1DAi3c8w84yNi50EKSoK-qjTR4_rK3avS-16NJXVac";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
@@ -482,7 +482,7 @@ public class WorkService extends MobileFilter {
         }
         List<XjlDwSubject> data  = (List<XjlDwSubject>) XjlDwSubject.queryXjlDwBySubjectId(xjlDwHomework.subjectId).get("data");
         //家庭作业消息推送
-        String jumpUrl = "http://dw201709.com/zz/mobile/W/homeworkList";
+        String jumpUrl = "http://dw201709.com/dw/mobile/W/homeworkList";
         String templateId = "RloIJEpxZbWT-9VBN1mWv8KdDIHdtaHg5xlIQdac-Tk";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();

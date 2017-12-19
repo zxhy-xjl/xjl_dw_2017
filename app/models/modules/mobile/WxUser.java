@@ -171,11 +171,14 @@ public class WxUser extends GenericModel{
 		int pageIndex, int pageSize) {
 		String sql = "select * ";
 		sql += "from wx_user a ";
-		sql += "where 1=1 ";
+		sql += "where 1=1 and status='0AA' ";
 		if(StringUtil.isNotEmpty(condition.get("wxOpenId"))){
 			String searchKeyWord = condition.get("wxOpenId");
 			sql += "and a.wx_open_id='"+searchKeyWord+"' ";
 	    }
+		if(StringUtil.isNotEmpty(condition.get("patriarch"))){
+			sql +=" and TEACHER_ID is null";
+		}
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<WxUser> data = ModelUtils.queryData(pageIndex, pageSize, ret, WxUser.class);
 		return ModelUtils.createResultMap(ret, data);

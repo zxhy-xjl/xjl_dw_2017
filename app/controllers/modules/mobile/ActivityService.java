@@ -127,7 +127,7 @@ public class ActivityService extends MobileFilter {
     		}
         }
         //通知通告消息模版
-        String jumpUrl = "http://dw201709.com/zz/mobile/A/noticeList";
+        String jumpUrl = "http://dw201709.com/dw/mobile/A/noticeList";
         String templateId = "X2kBVgSdei8m8-jbcWQVi9bRnnWGu66dAIhZWwRQu28";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
@@ -458,7 +458,7 @@ public class ActivityService extends MobileFilter {
 	
         }
         //团购新增消息推送
-        String jumpUrl = "http://dw201709.com/zz/mobile/A/groupList";
+        String jumpUrl = "http://dw201709.com/dw/mobile/A/groupList";
         String templateId = "k5jpj4exq5Kucqtlks-EHWEVGLAV35uGDj3423TTMUU";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
@@ -629,7 +629,7 @@ public class ActivityService extends MobileFilter {
         }
         XjlDwAlbum xjlAlbum = XjlDwAlbumBo.save(album);
         //创建相册增加消息推送
-        String jumpUrl = "http://dw201709.com/zz/mobile/A/albumList";
+        String jumpUrl = "http://dw201709.com/dw/mobile/A/albumList";
         String templateId = "PPe-Nsdyf-z0v7qSdWODYkxWLOx-aG1ySuDE61jEWlE";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
@@ -700,8 +700,6 @@ public class ActivityService extends MobileFilter {
 		WxUser zzbUser = WxUserBo.qryRoleMenu(openId);
 		ok(zzbUser);
 	}
-	
-
 	//解决logo缓存问题
 	public static void getLogo() {
 		Long id = params.get("fileId", Long.class);
