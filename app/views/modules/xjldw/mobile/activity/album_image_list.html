@@ -194,14 +194,28 @@ angular.module('app', ['ngTouch'])
                      }
                  });
 			 };
-			 $scope.readImage = function(url){
+			 $scope.readImage = function(url,type){
 				 if(0 == showFlag){
 					 var http = window.location.href.split('.com');
-					 for(i = 0;i<$scope.lists.length;i++){
-						 $scope.urls.push(http[0]+'.com/dw'+$scope.lists[i].fileUrl);
-	                 }
+					 var onlyUrl = '';
+					 //判断是否展示原图
+					 if('importJ' == type){
+						 onlyUrl = http[0]+'.com/dw/_web_/images/artwork'+url.substring(url.lastIndexOf("/"),url.length);
+						 var url='';
+						 for(i = 0;i<$scope.lists.length;i++){
+							 if(''!=$scope.lists[i].fileUrl){
+								 url = $scope.lists[i].fileUrl;
+								 $scope.urls.push(http[0]+'.com/dw/_web_/images/artwork'+url.substring(url.lastIndexOf("/"),url.length));
+							 }
+		                 }
+					 }else{
+						 onlyUrl = http[0]+'.com'+url;
+						 for(i = 0;i<$scope.lists.length;i++){
+							 $scope.urls.push(http[0]+'.com/dw'+$scope.lists[i].fileUrl);
+		                 }
+					 }
 					 wx.previewImage({
-						    current:http[0]+'.com'+url, // 当前显示图片的http链接
+						    current:onlyUrl, // 当前显示图片的http链接
 						    urls:$scope.urls // 需要预览的图片http链接列表
 						});
 				 }
@@ -232,7 +246,7 @@ angular.module('app', ['ngTouch'])
                     <div class="weui-uploader">
                         <div class="weui-uploader__bd" id="uploaderFiles"  ng-show="lists.length!=0">
                             <ul id="lightgallery" class="weui-uploader__files" class="uploadUl" >
-                                <li id="{{image.fileId}}"  class="weui-uploader__file litype" style="background-image:url(/dw{{image.fileUrl}})" ng-click="readImage('/dw{{image.fileUrl}}')"  ng-repeat="image in lists" >
+                                <li id="{{image.fileId}}"  class="weui-uploader__file litype" style="background-image:url(/dw{{image.fileUrl}})" ng-click="readImage('/dw{{image.fileUrl}}','{{image.imageTitle}}')"  ng-repeat="image in lists" >
                                  <!-- <span class="icon icon-72 icontype" ng-click="del('{{image.albumImageId}}')"></span> -->
                                  <div class="icon_sp_area icontype" style="display: none;" ng-click="del({{image.fileId}})">
                                   	 <i class="weui-icon-cancel" ></i>

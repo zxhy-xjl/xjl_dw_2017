@@ -104,9 +104,17 @@ ajaxReturn.done(function (data) {
                 return {
                     saveNotice: function (notice) {
                         return $http({
-                            method: 'GET',
+                            method: 'POST',
                             url: '/dw/mobile/ActivityService/saveNotice',
-                            params: notice
+                            data: notice,
+                            headers : { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            transformRequest:function(obj){
+                            	 var str = [];    
+                                 for (var p in obj) {    
+                                     str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));    
+                                 }    
+                                 return str.join("&"); 
+                            }
                         })
                     }
                 };
