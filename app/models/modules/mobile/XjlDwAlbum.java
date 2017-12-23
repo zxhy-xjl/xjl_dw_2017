@@ -65,7 +65,7 @@ public class XjlDwAlbum extends GenericModel{
 		if(null !=condition&&null!=condition.get("wxopenId")){
 			sql+=" and wx_open_id = '"+condition.get("wxopenId")+"'";
 		}
-		sql += " order by create_time asc";
+		sql += " order by create_time desc";
 		System.out.println("conditionsql:"+sql);
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlDwAlbum> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlDwAlbum.class);

@@ -29,6 +29,7 @@ import play.mvc.Controller;
 import utils.FileUploadPathUtil;
 import utils.HttpClientUtil;
 import utils.StringUtil;
+import utils.imageUtils;
 import controllers.modules.weixin.utils.AccessTokenHolder;
 
 public class BaseController extends Controller {
@@ -676,14 +677,19 @@ public class BaseController extends Controller {
             http.disconnect();
 
         }
-
+        String firstPath = fullFilePathName;
         Logger.info("++upload pic fullFilePathName = " + fullFilePathName);
         fullFilePathName = File.separator
                 + fullFilePathName.substring(fullFilePathName
                 .indexOf(FileUploadPathUtil.UPLOAD_ROOT_DIR));
 
         Logger.info("++after upload pic fullFilePathName = " + fullFilePathName);
-
+        //略缩图
+        String _suffix = firstPath.substring(firstPath.lastIndexOf(".")+1,firstPath.length());
+        String fileName = firstPath.substring(firstPath.lastIndexOf("/"), firstPath.length());
+        String small_path = Play.roots.get(0).child("_web_").child("images").getRealFile().getAbsolutePath()+"/small"+fileName;
+        Logger.info("略缩图后缀名："+_suffix);
+        imageUtils.compress(firstPath, small_path,0.2f,1f, _suffix);
         return fullFilePathName;
     }
 

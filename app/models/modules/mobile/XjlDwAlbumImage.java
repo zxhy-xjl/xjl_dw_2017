@@ -49,6 +49,10 @@ public class XjlDwAlbumImage extends GenericModel{
 	//文件对一个的url地址
 	@Transient
 	public String fileUrl;
+	@Transient
+	public String smallUrl;
+	@Transient
+	public String bigUrl;
 	
 	public static Map queryXjlDwAlbumImageListByPage(Map<String, String> condition,
 		int pageIndex, int pageSize) {
@@ -66,6 +70,8 @@ public class XjlDwAlbumImage extends GenericModel{
 				XjlDwFile file = XjlDwFile.queryXjlDwFileById(xjlDwAlbumImage.fileId);
 				if (file != null){
 					xjlDwAlbumImage.fileUrl = file.fileUrl;
+					xjlDwAlbumImage.smallUrl = file.fileUrl.substring(file.fileUrl.lastIndexOf("/"),file.fileUrl.length());
+					xjlDwAlbumImage.bigUrl = file.fileUrl;
 				}
 			}
 			return ModelUtils.createResultMap(ret, data);
