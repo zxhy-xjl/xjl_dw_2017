@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html ng-app="app">
 <head>
-<title>通知公告</title>
+<title>通知</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="viewport"
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
@@ -184,7 +184,7 @@
 <body ng-cloak ng-controller="MainController" style="background-color:white;">
 <div class="main">
   <div class="row" style="width:98%">
-    <h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">通知公告
+    <h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">通知
          <a  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="/dw/mobile/A/noticeAdd"  class="btn-blue btn fr padded-r-10 padded-l-10">发布新通知</a>
     </h3>
     <div class="content" id="scroller" ng-show="notices.length!=0">
