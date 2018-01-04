@@ -1,5 +1,8 @@
 package controllers.modules.mobile;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,6 +50,9 @@ import controllers.modules.mobile.filter.MobileFilter;
 import controllers.modules.mobile.bo.XjlDwNoticeBo;
 import controllers.modules.mobile.bo.XjlDwNoticeFileBo;
 import utils.DateUtil;
+import utils.ExcelEntityUtils;
+import utils.ExcelUtil;
+import utils.FileUploadPathUtil;
 import utils.MsgPush;
 import utils.StringUtil;
 
@@ -131,7 +137,7 @@ public class ActivityService extends MobileFilter {
         String templateId = "X2kBVgSdei8m8-jbcWQVi9bRnnWGu66dAIhZWwRQu28";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
-        mapDataSon.put("value", "有新通知通告消息推送");
+        mapDataSon.put("value","【"+xjlDwNotice.noticeTitle+"】");
 		mapData.put("first", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
 		mapDataSon.put("value","通告消息推送");
@@ -144,10 +150,10 @@ public class ActivityService extends MobileFilter {
 		mapDataSon.put("value",df.format(new Date()));
 		mapData.put("keyword3", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value",wxUser.nickName);
+		mapDataSon.put("value","全班");
 		mapData.put("keyword4", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value", "有新的通知赶紧来看看吧!");
+		mapDataSon.put("value",_xjlDwNotice.noticeContent.substring(0, 20));
 		mapData.put("remark", mapDataSon);
 		MsgPush.wxMsgPusheTmplate(templateId,jumpUrl,mapData);
         ok(_xjlDwNotice);
@@ -288,10 +294,14 @@ public class ActivityService extends MobileFilter {
 		List<Map> list=new ArrayList<Map>();
 		List<XjlDwGroupBuyItem> listGroupBuyItem = (List<XjlDwGroupBuyItem>)ret.get("data");
 		Map<String, String> _itemInfo = null;
+		String title_split="";
+		int title_split_count = 0;
 		for(XjlDwGroupBuyItem groupBuyItem : listGroupBuyItem){
 			_itemInfo = new HashMap<String, String>();
 			//商品标题
 			_itemInfo.put("title", groupBuyItem.groupItemTitle);
+			title_split+= groupBuyItem.groupItemTitle+",";
+			title_split_count = groupBuyItem.groupItemTitle.length();
 			//商品价格
 			_itemInfo.put("price", String.valueOf(groupBuyItem.groupItemPrice));
 			//购买者数量
@@ -306,7 +316,36 @@ public class ActivityService extends MobileFilter {
 			list.add(_itemInfo);
 			
 		}
+		//过滤字符串
+		String result_str="";
+		if(!"".equals(title_split)){
+			 Logger.info("title_split："+title_split);
+			 String [] titleSp = title_split.split(",");
+			 for (int i = 0; i <titleSp.length; i++) {
+				 String gy = "";
+				 String encode1 = StringUtil.convert(titleSp[i]);
+				 if(titleSp.length>i+1){
+					 String encode2 = StringUtil.convert(titleSp[i+1]);
+	 		 	     String[] split = encode1.replace("\\", "-").split("-");
+		 		 	   for (int j = 0; j < split.length; j++) {
+				            String s = split[j];
+				            if (s != null && !"".equals(s)) {
+				                if (encode2.indexOf("\\" + split[j]) != -1) {
+				                    gy += "\\" + split[j];
+				                }
+				            }
+				        }
+				 }
+				 Logger.info("gy："+ StringUtil.decodeUnicode(gy));
+				 result_str += StringUtil.decodeUnicode(gy)+",";
+			 }
+		}
+		result_str = result_str.substring(0,result_str.length()-1);
+		Logger.info("标题长度"+title_split_count);
+		Logger.info("标题"+result_str.substring(0, result_str.indexOf(",")));
 		hm.put("itemInfoList", list);
+		hm.put("titleSplit", result_str.substring(0, result_str.indexOf(",")));
+		hm.put("titleSplitCount", title_split_count);
 		Logger.info("--------------------------------------------"+hm.get("itemInfoList"));
 		ok(hm);
 	}
@@ -336,31 +375,31 @@ public class ActivityService extends MobileFilter {
 		hm.put("totalBuyer", XjlDwGroupBuyOrder.totalBuyer(groupBuyId));
 		hm.put("totalAmount", XjlDwGroupBuyOrder.totalAmount(groupBuyId));
 		//我有没有参与这个团购的标识
-		boolean isMyOrder = XjlDwGroupBuyOrder.hasOrder(groupBuyId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
-		hm.put("isMyOrder", isMyOrder);
+		//boolean isMyOrder = XjlDwGroupBuyOrder.hasOrder(groupBuyId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
+		//hm.put("isMyOrder", isMyOrder);
 		//下面开始处理团购明细，包括每个明细的购买人数量和我是不是也购买了这个商品
-		List<Map> list=new ArrayList<Map>();
+		//List<Map> list=new ArrayList<Map>();
 		List<XjlDwGroupBuyItem> listGroupBuyItem = (List<XjlDwGroupBuyItem>)ret.get("data");
-		for(XjlDwGroupBuyItem groupBuyItem : listGroupBuyItem){
-			Map<String, String> itemInfo = new HashMap<String, String>();
-			//商品标题
-			itemInfo.put("title", groupBuyItem.groupItemTitle);
-			//商品价格
-			itemInfo.put("price", String.valueOf(groupBuyItem.groupItemPrice));
-			//购买者数量
-			String itemBuyerCount = XjlDwGroupBuyOrder.totalItemBuyer(groupBuyId, groupBuyItem.groupItemId);
-			itemInfo.put("buyerCount", itemBuyerCount);
-			//我有没有购买这个商品的标识
-			boolean isMyItem = false;
-			if (isMyOrder){
-				isMyItem = XjlDwGroupBuyOrder.hasOrderItem(groupBuyId, groupBuyItem.groupItemId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
-			}
-			itemInfo.put("isMyItem", String.valueOf(isMyItem));
-			list.add(itemInfo);
-			
-		}
-		
-		hm.put("itemInfoList", list);
+//		for(XjlDwGroupBuyItem groupBuyItem : listGroupBuyItem){
+//			Map<String, String> itemInfo = new HashMap<String, String>();
+//			//商品标题
+//			itemInfo.put("title", groupBuyItem.groupItemTitle);
+//			//商品价格
+//			itemInfo.put("price", String.valueOf(groupBuyItem.groupItemPrice));
+//			//购买者数量
+//			String itemBuyerCount = XjlDwGroupBuyOrder.totalItemBuyer(groupBuyId, groupBuyItem.groupItemId);
+//			itemInfo.put("buyerCount", itemBuyerCount);
+//			//我有没有购买这个商品的标识
+//			boolean isMyItem = false;
+//			if (isMyOrder){
+//				isMyItem = XjlDwGroupBuyOrder.hasOrderItem(groupBuyId, groupBuyItem.groupItemId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
+//			}
+//			itemInfo.put("isMyItem", String.valueOf(isMyItem));
+//			list.add(itemInfo);
+//			
+//		}
+//		
+//		hm.put("itemInfoList", list);
 		//下面处理每个学生的购买清单
 		List<Map> studentInfoList = new ArrayList<Map>();
 		List<XjlDwStudent> studentList = (List)XjlDwStudent.queryByClassId(wxUser.currentClass.classId).get("data");
@@ -709,6 +748,88 @@ public class ActivityService extends MobileFilter {
 		} else {
 			nok("该文件不存在");
 		}
+	}
+	
+	public static void printExcel() throws IOException{
+		WxUser wxUser = getWXUser();
+		Long groupBuyId = Long.parseLong(params.get("groupBuyId"));
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 1000);
+		Map condition = params.allSimple();
+		condition.put("groupBuyId", groupBuyId);
+		//设置excel头部
+		//String[] headers = {"姓名","团购项","合计(元)"};
+		String[] headers = {"姓名","七年级下册语文书","七年级下册数学书","七年级下册英语书","合计(元)"};
+		List<ExcelEntityUtils> dataset = null;
+		//根据团购编号获取团购信息
+		List<XjlDwGroupBuyItem> data = (List<XjlDwGroupBuyItem>) XjlDwGroupBuyItem.queryXjlDwGroupBuyItemListByPage(condition, pageIndex, pageSize).get("data");
+		if(null != data && !data.isEmpty()){
+//			headers[0]="姓名";
+//			for (int i = 0;i<data.size();i++) {
+//				headers[i+1] = data.get(i).groupItemTitle;
+//			}
+			condition = params.allSimple();
+			condition.put("patriarch","patriarch");
+			List<WxUser> userData = (List<WxUser>) WxUser.queryWxUserListByPage(condition,pageIndex,pageSize).get("data");
+			
+			Logger.info("进入循环获取数据:"+userData.size());
+			if(null != userData && !userData.isEmpty()){
+				dataset = new ArrayList<ExcelEntityUtils>();
+				XjlDwWxStudent wxStudent = null;
+				boolean isMyOrder = false;
+				boolean isMyItem = false;
+				ExcelEntityUtils entity  = null;
+				double price = 0;
+				for (int i = 0; i < userData.size(); i++) {
+					price = 0;
+					Logger.info("得到关注微信："+userData.get(i).wxOpenId);
+					//所关注学生
+					wxStudent = XjlDwWxStudent.queryDefaultByOpenId(userData.get(i).wxOpenId);
+					if(null != wxStudent){
+						Logger.info("得到关注学生:"+wxStudent.student.studentName);
+						//是否参与购团标示
+						isMyOrder = XjlDwGroupBuyOrder.hasOrder(groupBuyId,userData.get(i).wxOpenId,wxStudent.studentId);
+						Logger.info("是否参与团购:"+isMyOrder);
+						if(isMyOrder){
+							String itemTitle = "";
+							//参与团购哪一类商品
+							for (int j = 0; j < data.size(); j++) {
+								isMyItem = XjlDwGroupBuyOrder.hasOrderItem(groupBuyId, data.get(j).groupItemId, userData.get(i).wxOpenId,wxStudent.studentId);
+								Logger.info("参与哪一项团购:"+data.get(j).groupItemTitle+"=result:"+isMyItem);
+								if(isMyItem){
+									itemTitle +=data.get(j).groupItemTitle+","; 
+									price +=data.get(j).groupItemPrice;
+								}
+							}
+							if(!itemTitle.equals("")){
+								String[] itemArray = itemTitle.split(",");
+								for (int j = 0; j < itemArray.length; j++) {
+									entity = new ExcelEntityUtils(wxStudent.student.studentName,"七年级下册语文书".equals(itemArray[j])?"☑️":"","七年级下册数学书".equals(itemArray[j])?"☑️":"","七年级下册英语书".equals(itemArray[j])?"☑️":"",price);
+									Logger.info("结果:"+entity);
+									dataset.add(entity);
+								}
+							}
+						}else{
+							//没有参与设置为0
+							entity = new ExcelEntityUtils(wxStudent.student.studentName,"","","",price);
+							Logger.info("结果:"+entity);
+							dataset.add(entity);
+						}
+					}
+				}
+			}
+		}
+		
+		String title = "团购导出";
+		String savePath = FileUploadPathUtil.getUploadPath(wxUser.wxOpenId);
+		Logger.info("excelpath:"+savePath);
+		System.out.println(savePath);
+		OutputStream out = new FileOutputStream("/home/lls/xjl_dw/_web_/text/"+wxUser.wxOpenId+".xls");
+		Logger.info(""+dataset.size());
+		ExcelUtil<ExcelEntityUtils> ex = new ExcelUtil<ExcelEntityUtils>();
+		ex.exportExcel(title,headers,dataset,out,"yyyy-MM-dd");
+		out.close();  
+		ok(true);
 	}
 	
 }

@@ -248,14 +248,116 @@ public class StringUtil {
 	public static boolean isNotNumeric(String src) {
 		return !isNumeric(src);
 	}
+	 public static String convert(String str) {
+	        str = (str == null ? "" : str);
+	        String tmp;
+	        StringBuffer sb = new StringBuffer(1000);
+	        char c;
+	        int i, j;
+	        sb.setLength(0);
+	        for (i = 0; i < str.length(); i++) {
+	            c = str.charAt(i);
+	            sb.append("\\u");
+	            j = (c >>> 8); // 取出高8位
+	            tmp = Integer.toHexString(j);
+	            if (tmp.length() == 1)
+	                sb.append("0");
+	            sb.append(tmp);
+	            j = (c & 0xFF); // 取出低8位
+	            tmp = Integer.toHexString(j);
+	            if (tmp.length() == 1)
+	                sb.append("0");
+	            sb.append(tmp);
 
+	        }
+	        return (new String(sb));
+	    }
+
+	    public static String decodeUnicode(String theString) {
+	        char aChar;
+	        int len = theString.length();
+	        StringBuffer outBuffer = new StringBuffer(len);
+	        for (int x = 0; x < len;) {
+	            aChar = theString.charAt(x++);
+	            if (aChar == '\\') {
+	                aChar = theString.charAt(x++);
+	                if (aChar == 'u') {
+	                    // Read the xxxx
+	                    int value = 0;
+	                    for (int i = 0; i < 4; i++) {
+	                        aChar = theString.charAt(x++);
+	                        switch (aChar) {
+	                        case '0':
+	                        case '1':
+	                        case '2':
+	                        case '3':
+	                        case '4':
+	                        case '5':
+	                        case '6':
+	                        case '7':
+	                        case '8':
+	                        case '9':
+	                            value = (value << 4) + aChar - '0';
+	                            break;
+	                        case 'a':
+	                        case 'b':
+	                        case 'c':
+	                        case 'd':
+	                        case 'e':
+	                        case 'f':
+	                            value = (value << 4) + 10 + aChar - 'a';
+	                            break;
+	                        case 'A':
+	                        case 'B':
+	                        case 'C':
+	                        case 'D':
+	                        case 'E':
+	                        case 'F':
+	                            value = (value << 4) + 10 + aChar - 'A';
+	                            break;
+	                        default:
+	                            throw new IllegalArgumentException(
+	                                    "Malformed   \\uxxxx   encoding.");
+	                        }
+	                    }
+	                    outBuffer.append((char) value);
+	                } else {
+	                    if (aChar == 't')
+	                        aChar = '\t';
+	                    else if (aChar == 'r')
+	                        aChar = '\r';
+	                    else if (aChar == 'n')
+	                        aChar = '\n';
+	                    else if (aChar == 'f')
+	                        aChar = '\f';
+	                    outBuffer.append(aChar);
+	                }
+	            } else
+	                outBuffer.append(aChar);
+	        }
+	        return outBuffer.toString();
+	    }
 	public static void main(String[] args) {
-		System.out.println(StringUtil.doFilter("洗"));
-		System.out.println(getSubStrBySep("aa.png", "."));
-
-		System.out.println(StringUtil.underlineToCamel2("PROJECT_ID"));
-
-		System.out.println(StringUtil.camelToUnderline("projectId"));
+		    String str = "今天气很好我叫小王,今天天气很好我叫大吴,今天天气很好我叫周";
+		    args = str.split(",");
+	        for (int i = 0; i <args.length; i++) {
+	        	String gy = "";
+	 	        String encode1 = convert(args[i]);
+	 	        if(args.length>i+1){
+	 	        	 String encode2 = convert(args[i+1]);
+	 		 	       String[] split = encode1.replace("\\", "-").split("-");
+	 		 	      for (int j = 0; j < split.length; j++) {
+	 			            String s = split[j];
+	 			            if (s != null && !"".equals(s)) {
+	 			                if (encode2.indexOf("\\" + split[j]) != -1) {
+	 			                    gy += "\\" + split[j];
+	 			                }
+	 			            }
+	 			        }	
+	 	        }
+	 	     System.out.println("公约字符串-----" + gy);
+		        System.out.println(decodeUnicode(gy));
+	        }
 
 	}
 }

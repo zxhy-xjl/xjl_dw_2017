@@ -16,13 +16,13 @@
 <body  ng-controller="MainController">
 <div class="main">
   <div class="row posrel" ng-show="showSummary==true">
-    <div class="tabbtn">
+   <div class="tabbtn">
       <input type="button" value="切换汇总" class="btn btn-blue" ng-click="switchSummary(false)"/>
     </div>
     <div class="padded-t-10">人数：<span class="font-size-16 font-weight-b">{{totalBuyer}}&nbsp;</span>
          <span>金额：{{totalAmount}}元</span>&nbsp;&nbsp;<span>数量：{{totalCount}}</span>
     </div>
-    <div class="padded-t-10 padded-b-10">购买数量统计：</div>
+    <div class="padded-t-10 padded-b-10">购买数量统计：<!-- <input type="button" value="导出" class="btn btn-blue" ng-click="print()"/> --></div>
     <div class="padded-t-10 border-b" ng-repeat="studentInfo in studentInfoList">
       <p class="padded-10"><span class="padded-r-10">{{studentInfo.name}}</span>
       <span ng-repeat="item in studentInfo.itemInfo">
@@ -37,7 +37,7 @@
       <input ng-show="state=='2'" type="button" class="btn fr wid45 line-height-2 bg-warning" value="已结束"/>
     </div>
   </div>
-  <div class="row posrel" ng-show="showSummary==false">
+<div class="row posrel" ng-show="showSummary==false">
     <div class="tabbtn">
       <input type="button" value="切换明细" class="btn btn-blue" ng-click="switchSummary(true)"/>
     </div>
@@ -53,9 +53,9 @@
       <input ng-show="${wxUser.isCommittee}==false && state=='1'" type="button" class="btn fr wid45 line-height-2 bg-warning" value="进行中"/>
       <input ng-show="state=='2'" type="button" class="btn fr wid45 line-height-2 bg-warning" value="已结束"/>
     </div>
-  </div>
+  </div> 
 </div>
-<script src="/zz/public/js/jquery-1.9.1.min.js"></script>
+<script src="/dw/public/js/jquery-1.9.1.min.js"></script>
 <script src="/dw/public/widgets/echarts/echarts.js"></script>
 <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
 <script src="/dw/public/widgets/angularjs/angular.min.js"></script>
@@ -79,7 +79,25 @@
                     queryChart:function(groupBuyId){
                     	return $http({
                             method: 'GET',
-                            url: '/zz/mobile/ActivityService/queryChart',
+                            url: '/dw/mobile/ActivityService/queryChart',
+                            params: {
+                            	groupBuyId:groupBuyId
+                            }
+                        })
+                    },
+                    queryChart:function(groupBuyId){
+                    	return $http({
+                            method: 'GET',
+                            url: '/dw/mobile/ActivityService/queryChart',
+                            params: {
+                            	groupBuyId:groupBuyId
+                            }
+                        })
+                    },
+                    printExcel:function(groupBuyId){
+                    	return $http({
+                            method: 'GET',
+                            url: '/dw/mobile/ActivityService/printExcel',
                             params: {
                             	groupBuyId:groupBuyId
                             }
@@ -99,6 +117,8 @@
             .controller('MainController', ['$scope', 'remote', function ($scope, remote) {
             	$scope.showSummary=true;
             	$scope.title;//标题
+            	$scope.titleSplit;//检测标题内容
+            	$scope.titleSplitCount;//检测标题长度
             	$scope.state;//状态，1进行中，2结束
             	$scope.totalBuyer=0;//团购人数
              	$scope.totalAmount=0;//团购金额
@@ -108,6 +128,59 @@
             	$scope.itemInfoList=[];//团购明细
              	$scope.studentInfoList=[];//学生信息列表
              	$("#groupEcharts").width($(window).width());
+             	$scope.initChart = function(me){
+            		 remote.queryChart('${groupBuyId}').then(function (response) {
+            			var itemInfoList = response.data.data.itemInfoList;
+            			$scope.titleSplit = response.data.data.titleSplit;
+            			$scope.titleSplitCount = response.data.data.titleSplitCount;
+            			 console.log('titleSplit:'+$scope.titleSplit);
+                         console.log('titleSplitCount:'+response.data.data.titleSplitCount);
+            			var myChart = echarts.init(document.getElementById('groupEcharts'));
+                       var chartTitleList = [];
+                       var chartDataList = [];
+   					for (var i = 0; i < itemInfoList.length; i++){
+   						if($scope.titleSplitCount > 5 && $scope.titleSplit !=""){
+   							var title =itemInfoList[i].title;
+							chartTitleList[i]=title.replace(new RegExp($scope.titleSplit,"gm"),"");
+						}else{
+							chartTitleList[i]=itemInfoList[i].title;
+						}
+   						chartDataList[i]=itemInfoList[i].buyerCount;
+   						$scope.totalCount+=parseInt(itemInfoList[i].buyerCount);
+   					}
+                       // 指定图表的配置项和数据
+                       var option = {
+                           title: {
+                               text: '购买数量统计:'
+                           },
+                           tooltip: {},
+                           legend: {
+                               data:['销量']
+                           },
+                           xAxis: {
+                           	axisLabel :{  
+                                   interval:0 ,
+                                   rotate:45,
+                                   margin:2,
+                                   textStyle:{
+                                   	color:"#222"
+                                   }
+                               } ,
+                               data: chartTitleList
+                           },
+                           yAxis: {},
+                           series: [{
+                               name: '销量',
+                               type: 'bar',
+                               data:chartDataList
+                           }]
+                       };
+                       // 使用刚指定的配置项和数据显示图表。
+                       myChart.setOption(option);
+                       if (me && me.resetload)
+                           me.resetload();
+            		 });
+            	}
                 $scope.initPage = function (me) {
                     remote.queryGroupStatistics('${groupBuyId}').then(function (response) {
                         $scope.title = response.data.data.title;
@@ -116,55 +189,33 @@
                         $scope.totalAmount = response.data.data.totalAmount;
                         $scope.endTime = response.data.data.endTime;
                         $scope.closeFlag = response.data.data.closeFlag;
-                        $scope.itemInfoList = response.data.data.itemInfoList;
                         $scope.studentInfoList = response.data.data.studentInfoList;
-                        console.log($scope.lists);
-                        var myChart = echarts.init(document.getElementById('groupEcharts'));
-                        var chartTitleList = [];
-                        var chartDataList = [];
-						for (var i = 0; i < $scope.itemInfoList.length; i++){
-							chartTitleList[i]=$scope.itemInfoList[i].title;
-							chartDataList[i]=$scope.itemInfoList[i].buyerCount;
-							$scope.totalCount+=parseInt($scope.itemInfoList[i].buyerCount);
-						}
-                        // 指定图表的配置项和数据
-                        var option = {
-                            title: {
-                                text: '购买数量统计:'
-                            },
-                            tooltip: {},
-                            legend: {
-                                data:['销量']
-                            },
-                            xAxis: {
-                            	axisLabel :{  
-                                    interval:0 ,
-                                    rotate:45,
-                                    margin:2,
-                                    textStyle:{
-                                    	color:"#222"
-                                    }
-                                } ,
-                                data: chartTitleList
-                            },
-                            yAxis: {},
-                            series: [{
-                                name: '销量',
-                                type: 'bar',
-                                data:chartDataList
-                            }]
-                        };
-
-                        // 使用刚指定的配置项和数据显示图表。
-                        myChart.setOption(option);
+                        $scope.initChart();
                         if (me && me.resetload)
                             me.resetload();
-
                     }, function (response) {
                         //err
                     });
                 };
                 $scope.initPage();
+                //手动导出
+                $scope.print = function(){
+                	var $loadingToast = $('#loadingToast');
+                	if ($loadingToast.css('display') != 'none') return;
+                    $loadingToast.fadeIn(100);
+                	remote.printExcel('${groupBuyId}').then(function(res){
+                		if(res.data.data){
+                			 setTimeout(function () {
+                		         $loadingToast.fadeOut(100);
+                		     }, 2000);
+                			  layer.open({
+                                  content: '导出成功',
+                                  btn: ['知道了']
+                              });
+                			//var url="/zz/_web_/text/${wxUser.wxOpenId}.xls";
+                		}
+                	});
+                }
                 // 基于准备好的dom，初始化echarts实例
                 //手动关闭团购
                 $scope.closeGroupBuy=function(){
@@ -204,5 +255,13 @@
                 }
             }]);
 </script>
+<!-- loading toast -->
+    <div id="loadingToast" style="display:none;">
+        <div class="weui-mask_transparent"></div>
+        <div class="weui-toast">
+            <i class="weui-loading weui-icon_toast"></i>
+            <p class="weui-toast__content">数据加载中</p>
+        </div>
+    </div>
 </body>
 </html>
