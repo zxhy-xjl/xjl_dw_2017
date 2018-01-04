@@ -570,6 +570,16 @@ public class ActivityService extends MobileFilter {
 		filterGroupBuyData(ret);
 		ok(ret);
 	}
+	public static void modifyGroup(){
+		Object obj = params.getAll("gradeItem");
+		JSONArray gradeList = JSONArray.fromObject(obj); 
+		Logger.info("团购长度："+gradeList.size());
+		for (int i = 0; i < gradeList.size(); i++) {
+			JSONObject gradeJson = gradeList.getJSONObject(i);
+			XjlDwGroupBuyItem.modifyPrice(gradeJson.getDouble("groupItemPrice"), gradeJson.getLong("groupItemId"));
+		}
+		ok();
+	}
 	/**
 	 * 保存团购订单，新建和修改都使用这个方法
 	 * 1、删除该用户在该团购中的原有订单

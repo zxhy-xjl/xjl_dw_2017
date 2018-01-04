@@ -64,7 +64,7 @@ public class XjlDwGroupBuy extends GenericModel{
 	
 	public static Map queryXjlDwGroupBuyListByPage(Map<String, String> condition,
 			int pageIndex, int pageSize) {
-			String sql = "select a.group_buy_id,a.group_buy_title,a.group_buy_begin_time,a.group_buy_end_time,a.group_buy_state ";
+			String sql = "select a.group_buy_id,a.group_buy_title,a.group_buy_begin_time,a.group_buy_end_time,a.group_buy_state,a.wx_open_id  ";
 			sql += "from xjl_dw_group_buy a ";
 			sql +="where a.status='0AA' ";
 			//如果有classid，增加classid查询条件
@@ -92,6 +92,8 @@ public class XjlDwGroupBuy extends GenericModel{
 					xjlDwGroupBuy.groupBuyEndTime = DateUtil.parseDate(m[3]);
 				if(m[4]!=null)
 					xjlDwGroupBuy.groupBuyState = m[4].toString();
+				if(m[5]!=null)
+					xjlDwGroupBuy.wxOpenId = m[5].toString();
 				if(xjlDwGroupBuy.groupBuyBeginTime!=null&&xjlDwGroupBuy.groupBuyEndTime!=null){	
 					xjlDwGroupBuy.groupBuyTime=DateUtil.date2String(xjlDwGroupBuy.groupBuyBeginTime,"MM.dd")+"-"+DateUtil.date2String(xjlDwGroupBuy.groupBuyEndTime,"MM.dd");
 				}

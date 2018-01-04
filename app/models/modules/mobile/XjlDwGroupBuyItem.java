@@ -58,4 +58,9 @@ public class XjlDwGroupBuyItem extends GenericModel{
 		List<XjlDwGroupBuyItem> data = ModelUtils.queryData(pageIndex, pageSize, ret, XjlDwGroupBuyItem.class);
 		return ModelUtils.createResultMap(ret, data);
 	}
+	public static int modifyPrice(Double price,Long groupItemId){
+		String sql=" update xjl_dw_group_buy_item set  group_item_price='"+price+"' where group_item_id='"+groupItemId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
 }
