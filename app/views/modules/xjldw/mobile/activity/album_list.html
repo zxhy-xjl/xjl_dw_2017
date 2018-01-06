@@ -154,11 +154,20 @@ angular.module('app', ['ngTouch'])
     <div id="shadowpic">
     	<div  class="weui_cells" ng-repeat="album in lists">
 		    <div class="list weui_cell slidelefts"  >
-		        <div class="weui_cell_bd weui_cell_primary" style="height:200px;" >
+		        <div class="weui_cell_bd weui_cell_primary" style="height:380px;" >
 		          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{album.albumTitle}}
 		          </h3>
 		            <a href="/dw/mobile/A/albumImageList?albumId={{album.albumId}}"> 
-		                <ul>
+		             <div style="padding: 1.9rem !important;">
+			          	<!-- <img src="/zz/public/images/mobile/noshow.jpeg" width="240" height="200" class="default" /> -->
+			          	<div ng-if="album.templateImageList[0]!=null">
+							<img src="/dw{{album.templateImageList[0].bigUrl}}"  width="230" height="200" class="default" />
+						</div>
+						<div ng-if="album.templateImageList[0]==null">
+							<img src="/dw/public/images/mobile/noshow.jpeg" width="230" height="200" class="default" />
+						</div>
+			          </div> 
+		                <ul style="margin-top:-20px;">
 					<li >
 						<div ng-if="album.templateImageList[0]!=null">
 							<img src="/dw/_web_/images/small{{album.templateImageList[0].smallUrl}}"  width="60" height="60" class="default" />
