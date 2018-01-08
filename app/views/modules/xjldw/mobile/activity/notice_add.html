@@ -116,7 +116,17 @@ ajaxReturn.done(function (data) {
                                  return str.join("&"); 
                             }
                         })
-                    }
+                    },
+                    msgpush:function(notice){
+                   	 return $http({
+                            method: 'GET',
+                            url: '/dw/mobile/ActivityService/noticePushMsg',
+                            params: {
+                           	 noticeTitle:notice.noticeTitle,
+                           	 noticeContent:notice.noticeContent
+                            }
+                        })
+                   }
                 };
             }])
             .controller('MainController', ['$scope','valid', 'remote','$http', function ($scope,valid,remote,$http) {
@@ -144,8 +154,12 @@ ajaxReturn.done(function (data) {
                                         });
                                     }
                                     else {
-                                        $scope.notice = res.data.data;
+                                    	$scope.notice = res.data.data;
                                         console.log($scope.notice);
+                                        if($scope.notice.noticeContent.length>20){
+                                        	$scope.notice.noticeContent = $scope.notice.noticeContent.substring(0,20);
+                                        }
+                                        remote.msgpush($scope.notice);
                                         layer.open({
                                             content: '发布成功',
                                             btn: ['确定'],

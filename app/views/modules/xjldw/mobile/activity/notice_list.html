@@ -183,10 +183,14 @@
 
 <body ng-cloak ng-controller="MainController" style="background-color:white;">
 <div class="main">
+ <div style="width:100%;position:relative;">
+  	<img  src="/dw/public/images/tongzhi.png">
+  	<a ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="/zz/mobile/A/noticeAdd"   class="weui-btn  weui-btn_default" style="position:absolute; top:70%;  left:35%;width:35%;">发布新通知</a>
+ </div>
   <div class="row" style="width:98%">
-    <h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">通知
+   <!--  <h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">通知
          <a  ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="/dw/mobile/A/noticeAdd"  class="btn-blue btn fr padded-r-10 padded-l-10">发布新通知</a>
-    </h3>
+    </h3> -->
     <div class="content" id="scroller" ng-show="notices.length!=0">
      <!--  <ul class="list">
         <li class="border-b" ng-repeat="notice in notices">
@@ -204,9 +208,11 @@
 	    <ul class="list weui_cell slidelefts" >
 			        <li class="weui_cell_bd weui_cell_primary " >
 			          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{notice.noticeTitle}}
-			         	 <span class="text-auxiliaryed fr font-size-13" ng-bind="notice.noticeDate">05-31</span>
 			          </h3>
 			            <a href="/dw/mobile/A/noticeDetail?noticeId={{notice.noticeId}}"> 
+			              <p class="padded-t-5">
+			            		<span class="text-auxiliaryed font-size-13">{{notice.createTime}}</span>
+			        	  	</p>
 			                <p class="margin-t-10 margin-b-10">{{notice.noticeContent}}</p>
 			            </a>
 			        </li>
