@@ -147,7 +147,7 @@ angular.module('app', ['ngTouch'])
 <body ng-cloak ng-controller="MainController" style="background-color:white;">
 <div class="main">
  <div class="row" style="width:98%">
- 	<h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">相册列表
+ 	<h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;height:42px;" >
          <a ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee}" href="/dw/mobile/A/albumAdd"  class="btn-blue btn fr padded-r-10 padded-l-10">发布相册</a>
     </h3>
     <div  class="content" id="scroller" ng-show="lists.length!=0" >

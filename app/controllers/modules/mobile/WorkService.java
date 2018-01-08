@@ -126,28 +126,28 @@ public class WorkService extends MobileFilter {
         	}
         }
         //WorkService.initExamGrad(exam.examId,subjectList);
-      //考试成绩推送消息
-        String jumpUrl = "http://dw201709.com/dw/mobile/W/examList";
-        String templateId = "Z1DAi3c8w84yNi50EKSoK-qjTR4_rK3avS-16NJXVac";
-        Map<String, Object> mapData = new HashMap<String, Object>();
+        ok(exam);
+	}
+	public static void examPushMsg(){
+		 //考试成绩推送消息
+       String jumpUrl = "http://dw201709.com/dw/mobile/W/examList";
+       String templateId = "b2b8NUw1rE7EQL8Gpz4gBaWlweK-FhMgfkxPcSt710A";
+       Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value", "有考试消息提醒");
+		mapDataSon.put("value", "【"+params.get("examTitle")+"】");
+		mapDataSon.put("color", "#68A8C3");
 		mapData.put("first", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value",exam.examTitle);
+		mapDataSon.put("value",params.get("examTitle"));
 		mapData.put("keyword1", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value",wxUser.currentClass.className);
+		mapDataSon.put("value",params.get("examType"));
 		mapData.put("keyword2", mapDataSon);
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
-		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value",df.format(exam.examDate)+"发布");
-		mapData.put("keyword3", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
 		mapDataSon.put("value", "有新的考试,赶紧录入孩子的成绩吧！");
+		mapDataSon.put("color","#808080");
 		mapData.put("remark", mapDataSon);
 		MsgPush.wxMsgPusheTmplate(templateId,jumpUrl,mapData);
-        ok(exam);
 	}
 //	public static void initExamGrad(Long examId, List<JSONObject> subjectList){
 //		WxUser wxUser = getWXUser();
@@ -242,6 +242,7 @@ public class WorkService extends MobileFilter {
 		List<Map> studentInfoList = new ArrayList<Map>();
 		List<XjlDwExamGrade> studentGradeList = null;
 		List<Map> gradeList = null;
+		List<Map> classList = null;
 		//通过班级得到所有学生
 		Map map = XjlDwStudent.queryByClassId(wxUser.currentClass.classId);
 		Logger.info("入口："+wxUser.isTeacher+":"+wxUser.isCommittee);
@@ -303,7 +304,9 @@ public class WorkService extends MobileFilter {
 		else{
 			Map studentInfo = new HashMap();
 			Map gradeInfo = null;
+			Map classInfo = null;
 			gradeList = new ArrayList();
+			classList = new ArrayList<>();
 			studentInfo.put("student", wxUser.currentStudent);
 			Logger.info("家长入口："+wxUser.currentStudent.studentName);
 			//通过考试编号与学生编号得到成绩
@@ -312,6 +315,7 @@ public class WorkService extends MobileFilter {
 			//遍历所有考试成绩
 			for (XjlDwExamSubject xjlDwExamSubject : examSubjectList) {
 				gradeInfo = new HashMap();
+				classInfo = new HashMap<>();
 				gradeInfo.put("subjectId", xjlDwExamSubject.subjectId);
 				//遍历所有科目
 				for (XjlDwSubject xjlDwSubject : subjectList) {
@@ -321,6 +325,9 @@ public class WorkService extends MobileFilter {
 						gradeInfo.put("subjectTitle", xjlDwSubject.subjectTitle);
 						gradeInfo.put("gradeId", 0);
 						gradeInfo.put("gradeValue",0);
+						classInfo.put("statSubjectTitle", xjlDwSubject.subjectTitle);
+						classInfo.put("statMax",xjlDwExamSubject.max == null ?0:xjlDwExamSubject.max);
+						classInfo.put("statAvg", xjlDwExamSubject.avg == null?0:xjlDwExamSubject.avg);
 						break;
 					}
 				}
@@ -339,8 +346,10 @@ public class WorkService extends MobileFilter {
 				gradeInfo.put("avg",xjlDwExamSubject.avg == null?0:xjlDwExamSubject.avg);
 				gradeInfo.put("examSubjectId", xjlDwExamSubject.examSubjectId);
 				gradeList.add(gradeInfo);
+				classList.add(classInfo);
 			}
 			studentInfo.put("grade", gradeList);
+			studentInfo.put("class", classList);
 			double total = 0;
 			for (XjlDwExamGrade grade : studentGradeList) {
 				Logger.info("遍历成绩计算总分："+total);
@@ -362,7 +371,7 @@ public class WorkService extends MobileFilter {
 		Map condition = params.allSimple();
 		condition.put("classId", wxUser.currentClass.classId);
 		//通过班级Id得到关联的所有考试
-		Map ret = XjlDwExam.query(condition, pageIndex, pageSize);
+		Map ret = XjlDwExam.querya(condition, pageIndex, pageSize);
 		List<XjlDwExam> list = (List<XjlDwExam>)ret.get("data");
 		List<XjlDWGradeChart> dataChart = new ArrayList<>();
 		XjlDWGradeChart chart = null;
@@ -374,17 +383,19 @@ public class WorkService extends MobileFilter {
 		Logger.info("用户类型家委会："+wxUser.isCommittee);
 		Logger.info("用户类型家长："+wxUser.isTeacher);
 		String flag = params.get("flag");
+		String examType = params.get("examType");
 		//通过班级得到所有学生
 		Map map = XjlDwStudent.queryByClassId(wxUser.currentClass.classId);
 		List<XjlDwStudent> studentList = (List<XjlDwStudent>)map.get("data");
 		DecimalFormat df= new DecimalFormat("######0.00");   
 		//判断老师家委会 得到所有学生的统计数据
 		if(wxUser.isTeacher&&flag==null){
+			Logger.info("老师进入");
 			//考试名称、各个科目，每场考试的各个科目的总分
 			//遍历
 			for (XjlDwExam xjlDwExam : list) {
 				//得到每一场考试的科目
-				dataExamSubject =(List<XjlDwExamSubject>) XjlDwExamSubject.queryByExam(xjlDwExam.examId).get("data");
+				dataExamSubject =(List<XjlDwExamSubject>) XjlDwExamSubject.queryByExamByType(xjlDwExam.examId,examType).get("data");
 				for (XjlDwExamSubject xjlDwExamSubject : dataExamSubject) {
 					chart = new XjlDWGradeChart();
 					chart.exam = xjlDwExam.examTitle;
@@ -392,12 +403,13 @@ public class WorkService extends MobileFilter {
 					//得到科目名称
 					xjlDwSubjectList = (List<XjlDwSubject>) XjlDwSubject.queryXjlDwBySubjectId(xjlDwExamSubject.subjectId).get("data");
 					grade = XjlDwExamGrade.queryGrade(xjlDwExam.examId, xjlDwExamSubject.subjectId,studentId);
-					Logger.info("科目:"+xjlDwSubjectList.get(0).subjectTitle+" 分数:"+grade);
+					Logger.info("平均分："+xjlDwExamSubject.avg);
 					chart.type = xjlDwSubjectList.get(0).subjectTitle;
-					chart.temperature = xjlDwExamSubject.avg;
+					chart.temperature = xjlDwExamSubject.avg==null?0: xjlDwExamSubject.avg;
 					dataChart.add(chart);
 				}
 			}
+			Logger.info("老师结束"+dataChart.size());
 		}
 		//家长入口
 		else{
@@ -406,7 +418,7 @@ public class WorkService extends MobileFilter {
 			//遍历所有场考试
 			for (XjlDwExam xjlDwExam : list) {
 				//得到每一场考试的科目
-				dataExamSubject =(List<XjlDwExamSubject>) XjlDwExamSubject.queryByExam(xjlDwExam.examId).get("data");
+				dataExamSubject =(List<XjlDwExamSubject>) XjlDwExamSubject.queryByExamByType(xjlDwExam.examId,examType).get("data");
 				//遍历该场考试的科目
 				for (XjlDwExamSubject xjlDwExamSubject : dataExamSubject) {
 					chart = new XjlDWGradeChart();
@@ -415,7 +427,7 @@ public class WorkService extends MobileFilter {
 					//得到科目名称
 					xjlDwSubjectList = (List<XjlDwSubject>) XjlDwSubject.queryXjlDwBySubjectId(xjlDwExamSubject.subjectId).get("data");
 					grade = XjlDwExamGrade.queryGrade(xjlDwExam.examId, xjlDwExamSubject.subjectId,wxUser.currentStudent.studentId);
-					Logger.info("科目:"+xjlDwSubjectList.get(0).subjectTitle+" 分数:"+grade);
+					Logger.info("科目:"+xjlDwSubjectList.get(0).subjectTitle+" 分数:"+xjlDwExamSubject.avg);
 					chart.type = xjlDwSubjectList.get(0).subjectTitle;
 					chart.temperature = grade;
 					dataChart.add(chart);
@@ -485,7 +497,7 @@ public class WorkService extends MobileFilter {
 	public static void homeworkPushMsg(){
 		 List<XjlDwSubject> data  = (List<XjlDwSubject>) XjlDwSubject.queryXjlDwBySubjectId(StringUtil.getLong(String.valueOf(params.get("subjectId")))).get("data");
 		 //家庭作业消息推送
-       String jumpUrl = "http://dw201709.com/zz/mobile/W/homeworkList";
+       String jumpUrl = "http://dw201709.com/dw/mobile/W/homeworkList";
        String templateId = "9H40e9q5DHGkzuirevpRCynHV9llBgdawImeZV7EEOQ";
        Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();

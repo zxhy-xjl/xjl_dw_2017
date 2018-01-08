@@ -135,7 +135,45 @@
 </head>
 <body  ng-cloak ng-controller="MainController" style="background-color:white;">
 <div class="main">
-<div class="row" style="width:98%;">
+<div class="row" style="width:98%;" ng-show="${wxUser.isParent} || ${wxUser.isCommittee}">
+<div class="weui-flex">
+        <div class="weui-flex__item"><div class="">${wxUser.currentClass.className}</div></div>
+        <div class="weui-flex__item"><input ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee} " type="button" ng-click="editExam('{{studentInfo.student.studentId}}',$index)" class="btn-blue btn fr margin-l-10"  onClick="window.location=''" value="编辑"/></div>
+</div>
+<div class="weui-flex" style="line-height:20px;">
+   <div class="weui-flex__item">${exam.examTitle} </div>
+</div>
+<h3 class="padded-b-10 border-b  padded-t-10 text-default"></h3>
+  	 <div id="data" class="content" ng-repeat="studentInfo in studentList">
+		<div class="weui-flex">
+	        <div class="weui-flex__item">{{studentInfo.student.studentName}}</div>
+	        <div class="weui-flex__item" >总分:<font style="color: #8D8FFC">{{studentInfo.total}}</font></div>
+			<div class="weui-flex__item"><!-- 家长拥有权限 -->
+  		 	<input ng-if="${wxUser.isParent}" type="button" ng-click="editExamGrade('{{studentInfo.student.studentId}}',$index)"   class="btn-blue btn fr margin-l-10 studentBut" value="编辑"/></div>
+		</div>
+		<div ng-repeat="grade in studentInfo.grade">
+			<div class="weui-flex">
+		        <div class="weui-flex__item">{{grade.subjectTitle}}</div>
+		        <div class="weui-flex__item">{{grade.gradeValue}}</div>
+		        <div class="weui-flex__item"></div>
+			</div>
+		</div>
+	 	 <h3 class="padded-b-10 border-b  padded-t-10 text-default"></h3>
+  	 </div>
+	  	 <div class="weui-flex">
+	        <div class="weui-flex__item"><div class="">${wxUser.currentClass.className}</div></div>
+	        <div class="weui-flex__item" >最高:${max}</div>
+	        <div class="weui-flex__item" >平均:${avg}</div>
+		 </div>
+		 <div ng-repeat="class in studentList[0].class">
+			 <div class="weui-flex">
+		        <div class="weui-flex__item">{{class.statSubjectTitle}}</div>
+		        <div class="weui-flex__item">{{class.statMax}}</div>
+		         <div class="weui-flex__item">{{class.statAvg}}</div>
+			 </div>
+		 </div>
+</div>
+<div class="row" style="width:98%;" ng-show="${wxUser.isTeacher}">
 	<h3 class="padded-b-10 border-b  padded-t-10 text-default"> ${wxUser.currentClass.className} ${exam.examTitle} 
   	 <!-- 老师 家委会拥有-->
   	 <input ng-if="${wxUser.isTeacher} || ${wxUser.isCommittee} " type="button" ng-click="editExam('{{studentInfo.student.studentId}}',$index)" class="btn-blue btn fr margin-l-10"  onClick="window.location=''" value="编辑"/>

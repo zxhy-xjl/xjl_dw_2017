@@ -11,6 +11,10 @@
 <meta content="telephone=no" name="format-detection" />
 <meta content="black" name="apple-mobile-web-app-status-bar-style" />
 <link rel="stylesheet" href="/dw/public/css/main.css" />
+<link rel="stylesheet" href="/dw/public/css/weui.css" />
+<link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+<link rel="stylesheet" href="/dw/public/css/weui3.css"/>
+<script src="/dw/public/js/jquery-1.9.1.min.js"></script>
 <script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/dw/public/widgets/dropload/dropload.min.js"></script>
 <script src="/dw/public/widgets/angularjs/angular.min.js"></script>
@@ -21,12 +25,13 @@
 angular.module('app', ['ngTouch'])
 	.factory('agentRemote',['$http',function($http){
 		return {
-			getData:function(flag){
+			getData:function(flag,examType){
 				return $http({
 					method: 'GET',
                 	url: '/dw/mobile/WorkService/queryChart',
                	  	params: {
-               		  flag:flag
+               	  	 flag:flag,
+              		  examType:examType
                	  	}
 				})
 			}
@@ -35,18 +40,56 @@ angular.module('app', ['ngTouch'])
 	.controller('MainController',['$scope', 'agentRemote','$timeout',function($scope, agentRemote,$timeout){
 		$scope.List = [];
 		$scope.height = 0;
-		$scope.initPage = function(flag){
+		var chart = new G2.Chart({
+			  id: 'c1',
+			  forceFit: true,
+			  height: 400
+			});
+		$scope.dochangeChart = function (flag,examType){
 			var data = [];
-			agentRemote.getData(flag).then(function(response){
+			agentRemote.getData(flag,examType).then(function(response){
 				$scope.List = response.data.data;
 				for(var i = 0;i<$scope.List.length;i++){
 					data[i] = $scope.List[i]
 				}
-				var chart = new G2.Chart({
+				/* var chart = new G2.Chart({
 					  id: 'c1',
 					  forceFit: true,
 					  height: 400
+					}); */
+					chart.source(data, {
+					  exam: {
+					    alias: '考试',
+					    range: [0, 1]
+					  },
+					  temperature: {
+					      alias: '分数'
+					  },
+					  type:{
+						  alias: '科目'
+					  }
 					});
+					chart.line().position('exam*temperature').color('type').size(3).shape('type', ['语文','数学','英语','新概念','历史','政治','生物','地理']); // 展示不同的 step 算法
+					chart.changeData(data);
+					window.addEventListener('orientationchange', function(event){
+					    if ( window.orientation == 180 || window.orientation==0 ) {
+					    	chart.changeSize('',400)
+					    }
+					    if( window.orientation == 90 || window.orientation == -90 ) {
+					    	chart.changeSize('',$(".main").height()-180)
+					    }
+					});
+			}, function (response) {
+            //err
+        	})
+		}
+		$scope.initPage = function(flag){
+			var data = [];
+			agentRemote.getData(flag,'0').then(function(response){
+				$scope.List = response.data.data;
+				for(var i = 0;i<$scope.List.length;i++){
+					data[i] = $scope.List[i]
+				}
 					chart.source(data, {
 					  exam: {
 					    alias: '考试',
@@ -61,11 +104,7 @@ angular.module('app', ['ngTouch'])
 					});
 					chart.source(data);
 					chart.line().position('exam*temperature').color('type').size(3).shape('type', ['语文','数学','英语','新概念','历史','政治','生物','地理']); // 展示不同的 step 算法
-					if(flag==null){
-						chart.render();
-					}else{
-						chart.changeData(data);
-					}
+					chart.render();
 					window.addEventListener('orientationchange', function(event){
 					    if ( window.orientation == 180 || window.orientation==0 ) {
 					    	chart.changeSize('',400)
@@ -79,6 +118,38 @@ angular.module('app', ['ngTouch'])
         	})
 		}
 		$scope.initPage();
+		$scope.changeChart = function(flag){
+			 if(flag == 0){
+					console.log('全部'+flag);
+					$("#all").addClass("weui-btn_primary");
+					$("#all").removeClass("weui-btn_default");
+					$("#qizhongqimo").removeClass("weui-btn_primary");
+					$("#qizhongqimo").addClass("weui-btn_default");
+					$("#yuekao").removeClass("weui-btn_primary");
+					$("#yuekao").addClass("weui-btn_default");
+					$scope.dochangeChart(null,'0');
+			}
+			 else if(flag == 1){
+		    	console.log('月考'+flag);
+				$("#qizhongqimo").removeClass("weui-btn_primary");
+				$("#qizhongqimo").addClass("weui-btn_default");
+				$("#yuekao").removeClass("weui-btn_default");
+				$("#yuekao").addClass("weui-btn_primary");
+				$("#all").addClass("weui-btn_default");
+				$("#all").removeClass("weui-btn_primary");
+				$scope.dochangeChart(null,'1');
+			}
+		    else if(flag == 2){
+				console.log('期中期末'+flag+':'+flag == false);
+				$("#qizhongqimo").removeClass("weui-btn_default");
+				$("#qizhongqimo").addClass("weui-btn_primary");
+				$("#yuekao").removeClass("weui-btn_primary");
+				$("#yuekao").addClass("weui-btn_default");
+				$("#all").addClass("weui-btn_default");
+				$("#all").removeClass("weui-btn_primary");
+				$scope.dochangeChart(null,'2');
+		    }
+		}
 	}]);
 	
  
@@ -92,6 +163,9 @@ angular.module('app', ['ngTouch'])
 		</h3>
 		<h3 ng-if="${wxUser.isParent} || ${wxUser.isCommittee}" class="padded-b-10 border-b  padded-t-10 text-default">${wxUser.currentStudent.studentName}成绩曲线图
 		</h3>
+		 <a href="javascript:;" id="all" class="weui-btn weui-btn_mini weui-btn_primary" ng-click="changeChart(0)">全部</a>
+		  <a href="javascript:;" id="yuekao" class="weui-btn weui-btn_mini weui-btn_default" ng-click="changeChart(1)">月考</a>
+          <a href="javascript:;" id="qizhongqimo" class="weui-btn weui-btn_mini weui-btn_default" ng-click="changeChart(2)">期中期末</a>
 		<div id="c1" style="width:100%;"></div>
 	</div>
 </div>

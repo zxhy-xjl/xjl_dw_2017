@@ -61,7 +61,13 @@ public class XjlDwExam extends GenericModel{
 		List<XjlDwExam> data = ModelUtils.queryData(pageIndex, pageSize, ret, XjlDwExam.class);
 		return ModelUtils.createResultMap(ret, data);
 	}
-	
+	public static Map querya(Map<String, String> condition,int pageIndex, int pageSize){
+		String sql = "select * ";
+		sql += "from xjl_dw_exam a where a.status='0AA' [ and class_id=l:classId] order by CREATE_TIME asc";
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlDwExam> data = ModelUtils.queryData(pageIndex, pageSize, ret, XjlDwExam.class);
+		return ModelUtils.createResultMap(ret, data);
+	}
 	public static XjlDwExam queryById(Long examId){
 		String sql = "select * from xjl_dw_exam where status='0AA' and EXAM_ID='"+examId+"'";
 		Map<String, String> condition = new HashMap<String, String>();

@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import play.db.jpa.GenericModel;
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
+import utils.StringUtil;
 import utils.jpa.ParamObject;
 import utils.jpa.SQLResult;
 import utils.jpa.sql.SQLParser;
@@ -52,6 +53,18 @@ public class XjlDwExamSubject extends GenericModel{
 	public static Map queryByExam(Long examId) {
 		String sql = "select * ";
 		sql += "from xjl_dw_exam_subject a where status='0AA' [ and EXAM_ID=l:examId] ";
+		Map<String, String> condition = new HashMap<String,String>();
+		condition.put("examId", String.valueOf(examId));
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlDwExamSubject> data = ModelUtils.queryData(ret, XjlDwExamSubject.class);
+		return ModelUtils.createResultMap(data);
+	}
+	public static Map queryByExamByType(Long examId,String type) {
+		String sql = "select a.* ";
+		sql += "from xjl_dw_exam_subject a,xjl_dw_exam b where a.EXAM_ID = b.exam_id and a.status='0AA' [ and b.EXAM_ID=l:examId] ";
+		if(!StringUtil.isEmpty(type)&&!"0".equals(type)){
+			sql +=" and b.exam_type='"+type+"'";
+		}
 		Map<String, String> condition = new HashMap<String,String>();
 		condition.put("examId", String.valueOf(examId));
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
