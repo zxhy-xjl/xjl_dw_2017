@@ -193,14 +193,18 @@
 </head>
 <body ng-cloak ng-controller="MainController" style="background-color: white;">
 <div class="main">
+<div style="width:100%;position:relative;">
+  <img  src="/dw/public/images/meiwen.png">
+  	<a href="/dw/mobile/A/articleAdd"  id="meiwen" class="weui-btn   weui-btn_default" style="position:absolute; top:70%; left:37%;width:30%;">投   稿</a>
+ </div>
   <div class="row" style="width:98%">
-    <h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">{{'${type}'=='list'?'美文列表':'美文审核'}} 
+   <!--  <h3 class="padded-b-10 border-b  padded-t-10 text-default" style="background-color:white;">{{'${type}'=='list'?'美文列表':'美文审核'}} 
         <input type="button" value="返回"   onclick="window.location='/dw/mobile/A/articleList?type=list'"
                ng-show="'${type}'=='check'" class="btn-white btn fr padded-r-10 padded-l-10" />
         <a href="/dw/mobile/A/articleAdd"  class="btn-blue btn fr margin-l-10" ng-show="'${type}'=='list'">投稿</a>
    	    <input type="button" class="btn-blue btn fr padded-r-10 padded-l-10" ng-show="false && ${wxUser.isCommittee}&&'${type}'=='list'"
    	      onclick="window.location='/dw/mobile/A/articleList?type=check'"  value="待审核（10）"/>
-    </h3>
+    </h3> -->
     <div class="content" id="scroller" ng-show="notices.length!=0">
         <div class="border-b weui_cells"  ng-repeat="notice in notices">
         <ul class="list weui_cell slidelefts" >
@@ -210,8 +214,8 @@
 				</h3>	
 	         	<a href="/dw/mobile/A/articleDetail?articleId={{notice.articleId}}&type=${type}">
 		          <p class="padded-t-5">
-		          	<span class="text-auxiliaryed padded-r-10">作者：{{notice.articleAuthor}}</span>
-		            <span class="text-auxiliaryed font-size-13">{{notice.articlePublishDate}}</span>
+		          	<!-- <span class="text-auxiliaryed padded-r-10">作者：{{notice.articleAuthor}}</span>
+		            <span class="text-auxiliaryed font-size-13">{{notice.articlePublishDate}}</span> -->
 		          </p>
 		          <p class="margin-t-10 margin-b-10">{{notice.articleContent}}</p>
            		</a> 	

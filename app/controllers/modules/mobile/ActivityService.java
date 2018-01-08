@@ -242,6 +242,34 @@ public class ActivityService extends MobileFilter {
         }
         ok(_xjlDwArticle);
 	}
+	public static void articlePushMsg(){
+		//美文消息推送
+        String jumpUrl = "http://dw201709.com/zz/mobile/A/articleList";
+        String templateId = "SWSrukcVTbMLP1PgNl9Yer3V4l9yltwrfksA0FkVSgI";
+        Map<String, Object> mapData = new HashMap<String, Object>();
+		Map<String, Object> mapDataSon = new HashMap<String, Object>();
+        mapDataSon.put("value","【"+params.get("articleTitle")+"】");
+        mapDataSon.put("color", "#68A8C3");
+		mapData.put("first", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value","美文");
+		mapData.put("keyword1", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value","成功");
+		mapData.put("keyword2", mapDataSon);
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",df.format(new Date()));
+		mapData.put("keyword3", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value","全班");
+		mapData.put("keyword4", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",params.get("articleContent") );
+		mapDataSon.put("color","#808080");
+		mapData.put("remark", mapDataSon);
+		MsgPush.wxMsgPusheTmplate(templateId,jumpUrl,mapData);
+	}
 	/**
 	 * 查询团购条目列表
 	 */

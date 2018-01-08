@@ -19,6 +19,7 @@
     <div class="content padded-b-15">
       <h2 class="text-center margin-b-15 margin-t-15">{{detail.articleTitle}}</h2>
       <h5 class="text-center padded-b-10"><span>作者: {{detail.articleAuthor}}</span></h5>
+      <h5 class="text-center padded-b-10"><span>{{detail.articlePublishDate}}</span></h5>
       <div class="padded-10"  style="white-space:pre-line;">
       	<div  ng-repeat="detail in detail.fileList">
       	<img src="/dw{{detail.fileUrl}}"  width="100%" ng-click="readImage('/dw{{detail.fileUrl}}')"/>

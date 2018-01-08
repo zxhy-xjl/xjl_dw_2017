@@ -125,7 +125,17 @@ ajaxReturn.done(function (data) {
                                  return str.join("&"); 
                             }
                         })
-                    }
+                    },
+                    msgpush:function(notice){
+                      	 return $http({
+                               method: 'GET',
+                               url: '/dw/mobile/ActivityService/articlePushMsg',
+                               params: {
+                                articleTitle:notice.articleTitle,
+                                articleContent:notice.articleContent
+                               }
+                           })
+                      }
                 };
             }])
             .controller('MainController', ['$scope','valid', 'remote','$http', function ($scope,valid,remote,$http) {
@@ -172,6 +182,12 @@ ajaxReturn.done(function (data) {
                                         });
                                     }
                                     else {
+                                    	$scope.article = res.data.data;
+                                        console.log($scope.article);
+                                        if($scope.article.articleContent.length>20){
+                                        	$scope.article.articleContent = $scope.article.articleContent.substring(0,20);
+                                        }
+                                    	remote.msgpush($scope.article);
                                         layer.open({
                                             content: content,
                                             btn: ['确定'],
