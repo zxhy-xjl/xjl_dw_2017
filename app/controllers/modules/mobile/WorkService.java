@@ -480,29 +480,32 @@ public class WorkService extends MobileFilter {
             	XjlDwHomeworkFileBo.save(_xjlDwHomework);
             }
         }
-        List<XjlDwSubject> data  = (List<XjlDwSubject>) XjlDwSubject.queryXjlDwBySubjectId(xjlDwHomework.subjectId).get("data");
-        //家庭作业消息推送
-        String jumpUrl = "http://dw201709.com/dw/mobile/W/homeworkList";
-        String templateId = "RloIJEpxZbWT-9VBN1mWv8KdDIHdtaHg5xlIQdac-Tk";
-        Map<String, Object> mapData = new HashMap<String, Object>();
+        ok(xjlDwHomework);
+	}
+	public static void homeworkPushMsg(){
+		 List<XjlDwSubject> data  = (List<XjlDwSubject>) XjlDwSubject.queryXjlDwBySubjectId(StringUtil.getLong(String.valueOf(params.get("subjectId")))).get("data");
+		 //家庭作业消息推送
+       String jumpUrl = "http://dw201709.com/zz/mobile/W/homeworkList";
+       String templateId = "9H40e9q5DHGkzuirevpRCynHV9llBgdawImeZV7EEOQ";
+       Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value", "有新作业消息提醒");
+		mapDataSon.put("value", "【"+params.get("homeworkTitle")+"】");
+		mapDataSon.put("color", "#68A8C3");
 		mapData.put("first", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value",wxUser.currentStudent.studentName);
-		mapData.put("name", mapDataSon);
-		mapDataSon = new HashMap<String, Object>();
 		mapDataSon.put("value",data.get(0).subjectTitle);
-		mapData.put("subject", mapDataSon);
+		mapData.put("keyword1", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value",xjlDwHomework.homeworkContent);
-		mapData.put("content", mapDataSon);
+		mapDataSon.put("value",params.get("homeworkTitle"));
+		mapData.put("keyword2", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value", "有孩子的作业,赶紧来监督孩子完成作业吧！");
+		mapDataSon.put("value","周一");
+		mapData.put("keyword3", mapDataSon);
+		mapDataSon = new HashMap<String, Object>();
+		mapDataSon.put("value",params.get("homeworkContent"));
+		mapDataSon.put("color","#808080");
 		mapData.put("remark", mapDataSon);
-		Logger.info("参数："+mapData);
 		MsgPush.wxMsgPusheTmplate(templateId, jumpUrl, mapData);
-        ok(xjlDwHomework);
 	}
 	/**
 	 * 保存标榜

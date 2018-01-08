@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="/dw/public/css/weui.css">
 <link rel="stylesheet" href="/dw/public/css/weui2.css"/>
 <link rel="stylesheet" href="/dw/public/css/weui3.css"/>
+ <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
 <script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/dw/public/widgets/dropload/dropload.min.js"></script>
 <script src="/dw/public/widgets/angularjs/angular.min.js"></script>
@@ -67,7 +68,18 @@ ajaxReturn.done(function (data) {
                                 	homework:homework
                                 }
                             })
-                        }
+                        },
+                        msgpush:function(homework){
+                         	 return $http({
+                                  method: 'GET',
+                                  url: '/zz/mobile/WorkService/homeworkPushMsg',
+                                  params: {
+                               	   subjectId:homework.subjectId,
+                               	   homeworkTitle:homework.homeworkTitle,
+                               	   homeworkContent:homework.homeworkContent
+                                  }
+                              })
+                         }
                         
                     }
                 }])
@@ -98,7 +110,18 @@ ajaxReturn.done(function (data) {
                     	console.log("homework",$scope.homework);
                     	agentRemote.saveHomework($scope.homework).then(function (response) {
                             console.log("response",response);
-                            window.location='/dw/mobile/W/homeworkList';
+                            console.log("response",response.data.data);
+                            if(response.data.data.homeworkContent.length>20){
+                            	response.data.data.homeworkContent = response.data.data.homeworkContent.substring(0,20);
+                            }
+                            agentRemote.msgpush(response.data.data);
+                            layer.open({
+                                content: '发布成功',
+                                btn: ['确定'],
+                                end: function () {
+                                	 window.location='/dw/mobile/W/homeworkList';
+                                }
+                            });
                         }, function (response) {
                             //err
                         });
