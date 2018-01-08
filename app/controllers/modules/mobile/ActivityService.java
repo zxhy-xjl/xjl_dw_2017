@@ -912,7 +912,8 @@ public class ActivityService extends MobileFilter {
 	}
 	public static void queryAlbumImageList(){
 		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
-		int pageSize = 99999;
+		//int pageSize = 99999;
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
 		Logger.info("pageSize:"+pageSize);
 		Map condition = params.allSimple();
 		condition.put("albumId",String.valueOf(params.get("albumId")));
@@ -944,25 +945,30 @@ public class ActivityService extends MobileFilter {
         	album.albumTitle = params.get("albumTitle");
         }
         XjlDwAlbum xjlAlbum = XjlDwAlbumBo.save(album);
-        //创建相册增加消息推送
-        String jumpUrl = "http://dw201709.com/dw/mobile/A/albumList";
+        ok(xjlAlbum);
+	}
+	public static void albumPushMsg() throws ParseException{
+		Date d =  DateUtil.getNowDate();
+		 //创建相册增加消息推送
+        String jumpUrl = "http://dw201709.com/zz/mobile/A/albumList";
         String templateId = "PPe-Nsdyf-z0v7qSdWODYkxWLOx-aG1ySuDE61jEWlE";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value", "有新的相册消息提醒哦");
+		mapDataSon.put("value", "【"+params.get("albumTitle")+"】");
+		mapDataSon.put("color", "#68A8C3");
 		mapData.put("first", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value", xjlAlbum.albumTitle);
+		mapDataSon.put("value", params.get("albumTitle"));
 		mapData.put("keyword1", mapDataSon);
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value",df.format(xjlAlbum.createTime));
+		mapDataSon.put("value",df.format(d));
 		mapData.put("keyword2", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value", "赶紧来看看孩子的照片吧！");
+		mapDataSon.put("value", "快来添加照片,记录孩子的成长吧！");
+		mapDataSon.put("color","#808080");
 		mapData.put("remark", mapDataSon);
 		MsgPush.wxMsgPusheTmplate(templateId,jumpUrl,mapData);
-        ok(xjlAlbum);
 	}
 	 public static void saveAlbumImage(){
 		   WxUser wxUser = getWXUser();

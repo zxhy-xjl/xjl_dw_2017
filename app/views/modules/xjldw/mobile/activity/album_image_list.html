@@ -18,6 +18,8 @@
 <script src="/dw/public/widgets/angularjs/angular.min.js"></script>
 <script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script src="/dw/public/js/zepto.min.js"></script>
+<script src="/dw/public/weui/js/lazyimg.js"></script>
 <style type="text/css">
 .icon{
   font-size: 24px;
@@ -28,6 +30,13 @@
 }
 .icon:hover{
   font-size: 32px;
+}
+.img-container{
+    -webkit-animation: fadeIn 01s ease 0.2s 1 both;
+    animation: fadeIn 1s ease 0.2s 1 both;
+    background-position: center center;
+     background-color: #dddddd;
+  overflow: hidden;
 }
 </style>
 </head>
@@ -56,7 +65,7 @@ ajaxReturn.done(function (data) {
 angular.module('app', ['ngTouch'])
 .value('appValue', {
     index: 1,
-    size: 10
+    size: 50
 })
 .factory('agentRemote',['$http','appValue',function($http, appValue){
 		return {
@@ -108,7 +117,7 @@ angular.module('app', ['ngTouch'])
 					 fileId:'',
 					 albumId:'${albumId}'
 			 }
-			/*  $scope.nextPage = function(me){
+				$scope.nextPage = function(me){
 				 agentRemote.getData(++appValue.index).then(function(response){
 					 $scope.lists = $scope.lists.concat(response.data.data.data);
 					 if (me && me.resetload)
@@ -116,7 +125,7 @@ angular.module('app', ['ngTouch'])
 				 },function(response){
 					 
 				 })
-			 }; */
+			 };
 			 //init page function
 			 $scope.initPage = function (me) {
 				   appValue.index = 1;
@@ -227,26 +236,46 @@ angular.module('app', ['ngTouch'])
 				  })
 			 }
 			 $scope.initPage();
+			 $('#scroller').dropload({
+                 domUp: {
+                     domClass: 'dropload-up',
+                     domRefresh: '<div class="dropload-refresh">↓下拉刷新</div>',
+                     domUpdate: '<div class="dropload-update">↑释放更新</div>',
+                     domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                 },
+                 domDown: {
+                     domClass: 'dropload-down',
+                     domRefresh: '<div class="dropload-refresh">↑上拉加载更多</div>',
+                     domUpdate: '<div class="dropload-update">↓释放加载</div>',
+                     domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                 },
+                 scrollArea: window,
+                 loadUpFn: function (me) {
+                	 $scope.nextPage(me);
+                     console.log('down');
+                 },
+                 loadDownFn: function (me) {
+                     $scope.nextPage(me);
+                     console.log('up');
+                 }
+             });
 }])
 </script>
 <body ng-cloak ng-controller="MainController">
 <div id="text" class="page">
     <div class="page__bd">
-        <div class="weui-gallery" id="gallery"> 
-            <span class="weui-gallery__img" id="galleryImg"></span>
-            <div class="weui-gallery__opr">
-                 <a href="javascript:" class="weui-gallery__del">
-                    <i class="weui-icon-delete weui-icon_gallery-delete"></i>
-                </a>
-            </div>
-        </div>
+        <div class="dropload-down">
+      	<div class="dropload-refresh">
+                 当前<span ng-bind="lists.length"></span>条记录 总共<span ng-bind="total"></span>条记录(滑动刷新)
+       </div>
+		</div>
         <div class="weui-cells weui-cells_form">
             <div class="weui-cell">
                 <div class="weui-cell__bd">
-                    <div class="weui-uploader">
+                    <div class="weui-uploader" id="scroller">
                         <div class="weui-uploader__bd" id="uploaderFiles"  ng-show="lists.length!=0">
-                            <ul id="lightgallery" class="weui-uploader__files" class="uploadUl" >
-                                <li id="{{image.fileId}}"  class="weui-uploader__file litype" style="background-image:url(/dw/_web_/images/small{{image.smallUrl}})" ng-click="readImage('/dw{{image.bigUrl}}','{{image.imageTitle}}')"  ng-repeat="image in lists" >
+                            <ul id="lightgallery" class="weui-uploader__files weui-updown" class="uploadUl" >
+                                <li id="{{image.fileId}}"  class="weui-uploader__file litype" style="background-image:url(/dw/_web_/images/small{{image.smallUrl}});-webkit-animation: fadeIn 01s ease 0.2s 1 both;animation: fadeIn 1s ease 0.2s 1 both;" ng-click="readImage('/dw{{image.bigUrl}}','{{image.imageTitle}}')"  ng-repeat="image in lists" >
                                  <!-- <span class="icon icon-72 icontype" ng-click="del('{{image.albumImageId}}')"></span> -->
                                  <div class="icon_sp_area icontype" style="display: none;" ng-click="del({{image.fileId}})">
                                   	 <i class="weui-icon-cancel" ></i>

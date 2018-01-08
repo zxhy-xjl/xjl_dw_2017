@@ -40,7 +40,17 @@ angular.module('app', ['ngTouch'])
                        }
 					  
 				   })
-			   }
+			   },
+               msgpush:function(albumInfo){
+              	 return $http({
+                       method: 'GET',
+                       url: '/zz/mobile/ActivityService/albumPushMsg',
+                       params: {
+                      	 albumTitle:albumInfo.albumTitle,
+                      	 createTime:albumInfo.createTime
+                       }
+                   })
+              }
 		   }
 	   }])
 	   .controller('MainController',['$scope','valid','remote','$http',function($scope,valid,remote,$http){
@@ -48,6 +58,7 @@ angular.module('app', ['ngTouch'])
 				   albumTitle:'',
 				   albumTemplateId:'1'
 		   }
+		   $scope.albumInfo={};
 		   $scope.saveAlbum = function(){
 			   var vaildRes = valid.albumInfo($scope.album);
 			   if(vaildRes.flag){
@@ -58,6 +69,9 @@ angular.module('app', ['ngTouch'])
                                btn: ['知道了']
                            });
 					   }else{
+						   console.log(res.data.data);
+						   $scope.albumInfo = res.data.data
+                       		remote.msgpush($scope.albumInfo);
 						   layer.open({
                                content: '发布成功',
                                btn: ['确定'],
