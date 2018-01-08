@@ -21,6 +21,18 @@
 <script src="https://res.wx.qq.com/open/libs/weuijs/1.0.0/weui.min.js"></script>
  <script src="/dw/public/js/zepto.min.js"></script> 
 <title>团购</title>
+<style type="text/css">
+	.icon_lists .icon{
+  font-size: 24px;
+  line-height: 40px;
+  margin: 5px 0;
+  color:#18b4ed;
+  -webkit-transition: font-size 0.25s ease-out 0s;
+  -moz-transition: font-size 0.25s ease-out 0s;
+  transition: font-size 0.25s ease-out 0s;
+
+}
+</style>
 <script>
         angular.module('app', ['ngTouch'])
                 .value('appValue', {
@@ -69,11 +81,12 @@
                     }
                 }])
                 .controller('MainController', ['$scope', 'appValue', 'agentRemote','$timeout', function ($scope, appValue, agentRemote,$timeout) {
-                    $scope.lists = [];
+                	$scope.lists = [];
                     $scope.master='';
                     $scope.groupItems = [];
                     $scope.groupItemsTotalPrice=0;
                     $scope.isRunning=true; //标注团购是否结束
+                    $scope.itemNum = 0;
                     $scope.class='${wxUser.currentClass.classId}';
                     console.log("isCommittee"+${wxUser.isCommittee});
                     //next page function
@@ -81,8 +94,8 @@
                         agentRemote.getData(++appValue.index).then(function (response) {
                             $scope.lists = $scope.lists.concat(response.data.data.data);
                             $scope.master = $scope.lists[0].groupBuyInfo.wxOpenId;
-                            if('${wxUser.wxOpenId}' == $scope.master){
-                            	   loadScript("/dw/public/js/slideleft.js", function() {})
+                            if(${wxUser.isCommittee}){
+                            	loadScript("/zz/public/js/slideleft.js", function() {})
                             }
                             if (me && me.resetload)
                                 me.resetload();
@@ -98,8 +111,8 @@
                             $scope.total = response.data.data.total;
                             $scope.lists = response.data.data.data;
                             $scope.master = $scope.lists[0].groupBuyInfo.wxOpenId;
-                            if('${wxUser.wxOpenId}' == $scope.master){
-                            	   loadScript("/dw/public/js/slideleft.js", function() {})
+                            if(${wxUser.isCommittee}){
+                            	loadScript("/zz/public/js/slideleft.js", function() {})
                             }
                             if (me && me.resetload)
                                 me.resetload();
@@ -182,6 +195,7 @@
                     	agentRemote.getGroupItemData(groupBuyId).then(function (response) {
                     		if(response.data.ret=="0"){
                     			  $scope.groupItems = response.data.data.data;
+                    			 
                     			  getTotalPrice($scope.groupItems);
                     			  console.log($scope.groupItems);
                     		}else{
@@ -243,19 +257,29 @@
                     	 $scope.groupItems[index].isGroupBuy = checked;
                     	 getTotalPrice($scope.groupItems);
                     };
-                    
                     var getTotalPrice=function(groupItems){
                     	var groupItemsTotalPrice=0;
                    	 	angular.forEach(groupItems,function(item,index){  
                            if(item.isGroupBuy){
-                           	groupItemsTotalPrice+=item.groupItemPrice;
+                        	   var doubPrice = parseFloat(item.price);
+                              	groupItemsTotalPrice+=(doubPrice*item.itemNum)
                            }  
                         }); 
-                   	    $scope.groupItemsTotalPrice=groupItemsTotalPrice;
+                   	    $scope.groupItemsTotalPrice=groupItemsTotalPrice.toFixed(2);
                     }
                     $scope.close= function () {
                     	$scope.groupBuyFlag=false;
                     };
+                    $scope.add = function(index){
+						 $scope.groupItems[index].itemNum++;
+						 getTotalPrice($scope.groupItems);
+                   }
+                   $scope.remove = function(index){
+                   	if($scope.groupItems[index].itemNum >1){
+                   		$scope.groupItems[index].itemNum--;
+                   	}
+                   	 getTotalPrice($scope.groupItems);
+                   }
                     //init list for item
                     //init dropload plugin
                     //it's not the best way,just try it
@@ -276,16 +300,16 @@
                         loadUpFn: function (me) {
                             $scope.initPage(me);
                             console.log('down');
-                            if('${wxUser.wxOpenId}' == $scope.master){
-                          	   loadScript("/dw/public/js/slideleft.js", function() {})
-                          	}
+                            if(${wxUser.isCommittee}){
+                            	loadScript("/zz/public/js/slideleft.js", function() {})
+                            }
                         },
                         loadDownFn: function (me) {
                             $scope.nextPage(me);
                             console.log('up');
-                            if('${wxUser.wxOpenId}' == $scope.master){
-                          	   loadScript("/dw/public/js/slideleft.js", function() {})
-                          	}
+                            if(${wxUser.isCommittee}){
+                            	loadScript("/zz/public/js/slideleft.js", function() {})
+                            }
                         }
                     });
                 }]);
@@ -294,12 +318,12 @@
 <body ng-cloak ng-controller="MainController" style="background-color:white;">
 <div class="main" style="width:98%">
   <div class="row">
-    <h3  class="padded-b-10 border-b  padded-t-10 text-default">团购
+    <h3  class="padded-b-10 border-b  padded-t-10 text-default" style="height:42px;">
       <input ng-if="${wxUser.isCommittee}" ng-show="true || ${wxUser.isCommittee}==true" type="button" class="btn-blue btn fr" onClick="window.location='/dw/mobile/a/groupAdd'" value="发布新团购"/>
     </h3>
     <div class="content" id="scroller">
     <div class="weui_cells"  ng-repeat="item in lists">
-	     <a href="/dw/mobile/A/groupDetail?groupBuyId={{item.groupBuyInfo.groupBuyId}}">
+	    <a href="/dw/mobile/A/groupDetail?groupBuyId={{item.groupBuyInfo.groupBuyId}}"> 
 	     <ul class="list weui_cell slidelefts" >
 	      <li class="weui_cell_bd weui_cell_primary">
 	          <h3 class="padded-t-10 font-weight-b ellipsis-2 text-main">{{item.groupBuyInfo.groupBuyTitle}}</h3>
@@ -309,16 +333,16 @@
            		<span ng-if="${wxUser.isParent}" class="text-warning font-size-13">
            			<input type="button" class=" btn wid3 bg-warning" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})"  
 	             		value="团"   ng-show="item.isRunning && !item.hasOrderFlag"/>
-		            <input type="button" class=" btn wid3 bg-warning" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})"  
-		             		value="已团" ng-show="item.hasOrderFlag"/>
+		            <input type="button" class=" btn wid3 bg-success" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})"  
+		             		value="修改" ng-show="item.hasOrderFlag && item.isRunning"/>
            		</span>
         	  </p>
 	      </li>
-	       <div class="slideleft">
+	       <div class="slideleft" ng-show="${wxUser.wxOpenId} == {{item.groupBuyInfo.wxOpenId}}">
               		<span class="bg-warning f-white dels" style="width:100px;" ng-click="modify('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})" >修改</span>
                </div>
 	     </ul>
-	     </a>
+	    </a> 
 	    </div>
       <!-- <ul>
         <li class="border-b posrel"  ng-repeat="item in lists">
@@ -356,7 +380,7 @@
           <span class="margin-l-15 font-size-14 text-auxiliary">￥{{item.groupItemPrice}}</span>
     </div> -->
           <div class="weui-cells weui-cells_checkbox" ng-repeat="item in groupItems">
-            <label class="weui-cell weui-check__label" for="checkbox{{item.groupItemId}}">
+            <label class="weui-cell weui-check__label" style="width:60%" for="checkbox{{item.groupItemId}}">
                 <div class="weui-cell__hd" ng-show="groupmodifyFlag==false" >
                     <input type="checkbox" class="weui-check" name="checkbox1" ng-model="item.isGroupBuy" ng-click="checkboxItemFun(item.isGroupBuy,$index)" id="checkbox{{item.groupItemId}}" />
                     <i class="weui-icon-checked"></i>
@@ -365,8 +389,15 @@
                   <!--   <p>{{item.groupItemTitle}}</p> -->
                     <span class="margin-l-10">{{item.groupItemTitle}}</span>
                    <!--  <p>￥{{item.groupItemPrice}}</p> -->
-                    <span class="margin-l-15 font-size-14 text-auxiliary">￥{{item.groupItemPrice}}</span>
+                    <span class="margin-l-15 font-size-14 text-auxiliary">￥{{item.price}}</span>
+                   
                 </div>
+            </label>
+             <div class="weui-cell__bd  icon_lists " style="width:40%;float:right;margin-top:-12%;display:inline-block; "  ng-show="groupmodifyFlag==false" >
+                 	 <span class="icon icon-122" style="margin-left:15%;display:inline-block; "ng-click="remove($index);"></span>
+                 	  <span class="icon" style="display:inline-block;margin-left:10%">{{item.itemNum}}</span>
+                 	   <span class="icon icon-36" style="margin-left:13%;display:inline-block; "ng-click="add($index);"></span>
+               </div>
                 <div class="weui-cell__bd" ng-show="groupmodifyFlag==true" >
                   <!--   <p>{{item.groupItemTitle}}</p> -->
                     <span class="margin-l-10">{{item.groupItemTitle}}</span>
@@ -377,13 +408,14 @@
 			        </div>
                     </span>
                 </div>
-            </label>
         </div>
     <div class="hr margin-b-10 margin-t-10" ng-show="groupmodifyFlag==false"></div>
     <div class="padded-5 clearfix"  ><span ng-show="groupmodifyFlag==false">合计：</span><span class="text-danger" ng-show="groupmodifyFlag==false">￥{{groupItemsTotalPrice}}</span>
-      <input type="button" class="fr btn wid4"  ng-click="close()" value="关闭"/>
       <input type="button" ng-show="groupmodifyFlag==false" class="fr btn bg-success wid4 margin-r-10" ng-show="isRunning==true"  ng-click="groupBuy()" value="确定"/>
       <input type="button" ng-show="groupmodifyFlag==true" class="fr btn bg-success wid4 margin-r-10" ng-show="isRunning==true"  ng-click="modifyGroup()" value="确定"/>
+      
+      
+      <input type="button" class="fr btn wid4"  ng-click="close()" value="关闭"/>
     
       <!--input type="button" class="fr btn bgdefault text-default wid4"  onClick="window.location='index.html'" value="已结束"/--> 
     </div>

@@ -11,10 +11,123 @@
 	<meta content="telephone=no" name="format-detection" />
 	<meta content="black" name="apple-mobile-web-app-status-bar-style" />
 	<link rel="stylesheet" href="/dw/public/css/main.css" />
+	<link rel="stylesheet" href="/dw/public/css/weui.css" />
+	<link rel="stylesheet" href="/dw/public/css/weui2.css"/>
+	<link rel="stylesheet" href="/dw/public/css/weui3.css"/>
 </head>
 
-<body  ng-controller="MainController">
-<div class="main">
+<body  ng-controller="MainController"  style="background-color:white;">
+<div class="main" >
+<div id="scroller" class="row posrel page__bd page__bd_spacing" ng-show="showSummary==true">
+<div class="weui-flex" style="line-height:50px;">
+   <div class="weui-flex__item"><strong>{{title}}</strong></div>
+</div>
+<div class="weui-flex">
+        <div class="weui-flex__item"><div class="">参与人数:{{totalBuyer}}</div></div>
+        <div class="weui-flex__item"><div style="float:left;">购买数量:{{totalCount}}</div></div>
+</div>
+<div class="weui-flex" style="line-height:50px;">
+         <div class="weui-flex__item"><div class="">合计金额:{{totalAmount}}</div></div>
+</div>
+<div class="weui-flex" style="line-height:50px;vertical-align:inherit;">
+     <div class="weui-flex__item"><strong>明细:</strong></div>
+     <div class="weui-flex__item"><div> <!-- <a href="javascript:;" id="all" class="weui-btn weui-btn_mini weui-btn_primary" ng-click="switchSummary(false)">切换汇总</a> --></div></div>
+</div>
+<div id="data" class="content"   ng-repeat="studentInfo in itemInfoList">
+<div class="weui-flex">
+        <div class="weui-flex__item"><div class="">{{studentInfo.gatherStudentName}}</div></div>
+        <div class="weui-flex__item"><div class="">合计:{{studentInfo.gatherPrice}}元{{studentInfo.gatherQuantity}}个</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_1 != 'null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_1 == 'true'"  ><strong style="color: #75bc00;">{{studentInfo.param_1}}</strong><strong>({{studentInfo.param_1_buy_num}})</strong></div>
+   <div class="weui-flex__item" ng-show="studentInfo._param_1 =='false'"><div>{{studentInfo.param_1}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_2 !='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_2 =='true'" ><strong style="color: #75bc00;">{{studentInfo.param_2}}</strong><strong>({{studentInfo.param_2_buy_num}})</strong></div>
+    <div class="weui-flex__item" ng-show="studentInfo._param_2 =='false'"><div >{{studentInfo.param_2}}</div></div>
+</div>
+<div class="weui-flex" ng-if="studentInfo.param_3 != 'null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_3 =='true'"><strong style="color: #75bc00;"  >{{studentInfo.param_3}}</strong><strong>({{studentInfo.param_3_buy_num}})</strong></div>
+    <div class="weui-flex__item" ng-show="studentInfo._param_3=='false'"><div >{{studentInfo.param_3}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_4 != 'null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_4 == 'true'"><strong style="color: #75bc00;" >{{studentInfo.param_4}}</strong><strong>({{studentInfo.param_4_buy_num}})</strong></div>
+   <div class="weui-flex__item" ng-show="studentInfo._param_4 == 'false'"><div >{{studentInfo.param_4}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_5 !='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_5 == 'true'"><strong style="color: #75bc00;" >{{studentInfo.param_5}}</strong><strong>({{studentInfo.param_5_buy_num}})</strong></div>
+   <div class="weui-flex__item" ng-show="studentInfo._param_5 == 'false'"><div >{{studentInfo.param_5}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_6!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_6 == 'true'"><strong style="color: #75bc00;" >{{studentInfo.param_6}}</strong><strong>({{studentInfo.param_6_buy_num}})</strong></div>
+     <div class="weui-flex__item" ng-show="studentInfo._param_6 == 'false'"><div >{{studentInfo.param_6}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_7!='null'">
+   <div class="weui-flex__item"  ng-show="studentInfo._param_7 == 'true'"><strong style="color: #75bc00;" >{{studentInfo.param_7}}</strong><strong>({{studentInfo.param_7_buy_num}})</strong></div>
+    <div class="weui-flex__item"  ng-show="studentInfo._param_7 == 'false'"><div >{{studentInfo.param_7}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_8!='null'">
+   <div class="weui-flex__item"  ng-show="studentInfo._param_8 == 'true'"><strong style="color: #75bc00;" >{{studentInfo.param_8}}</strong><strong>({{studentInfo.param_8_buy_num}})</strong></div>
+    <div class="weui-flex__item"  ng-show="studentInfo._param_8 =='false'"><div >{{studentInfo.param_8}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_9!='null'">
+   <div class="weui-flex__item"  ng-show="studentInfo._param_9 == 'true'"><strong style="color: #75bc00;" >{{studentInfo.param_9}}</strong><strong>({{studentInfo.param_9_buy_num}})</strong></div>
+    <div class="weui-flex__item"  ng-show="studentInfo._param_9 == 'false'"><div >{{studentInfo.param_9}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_10!='null'">
+   <div class="weui-flex__item"  ng-show="studentInfo._param_10 == 'true'"><strong style="color: #75bc00;" >{{studentInfo.param_10}}</strong><strong>({{studentInfo.param_10_buy_num}})</strong></div>
+    <div class="weui-flex__item"  ng-show="studentInfo._param_10 =='false'"><div >{{studentInfo.param_10}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_11!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_11 =='true'"><strong style="color: #75bc00;">{{studentInfo.param_11}}</strong><strong>({{studentInfo.param_11_buy_num}})</strong></div>
+    <div class="weui-flex__item" ng-show="studentInfo._param_11 == 'false'"><div >{{studentInfo.param_11}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_12!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_12 == 'true'"><strong style="color: #75bc00;">{{studentInfo.param_12}}</strong><strong>({{studentInfo.param_12_buy_num}})</strong></div>
+    <div class="weui-flex__item" ng-show="studentInfo._param_12 == 'false'"><div >{{studentInfo.param_12}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_13!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_13=='true'"><strong style="color: #75bc00;">{{studentInfo.param_13}}</strong><strong>({{studentInfo.param_13_buy_num}})</strong></div>
+   <div class="weui-flex__item" ng-show="studentInfo._param_13=='false'"><div >{{studentInfo.param_13}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_14!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_14 =='true'"><strong style="color: #75bc00;">{{studentInfo.param_14}}</strong><strong>({{studentInfo.param_14_buy_num}})</strong></div>
+     <div class="weui-flex__item" ng-show="studentInfo._param_14 =='false'"><div >{{studentInfo.param_14}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_15!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_15 == 'true'"><strong style="color: #75bc00;">{{studentInfo.param_15}}</strong><strong>({{studentInfo.param_15_buy_num}})</strong></div>
+    <div class="weui-flex__item" ng-show="studentInfo._param_15 == 'false'"><div >{{studentInfo.param_15}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_16!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_16=='true'"><strong style="color: #75bc00;">{{studentInfo.param_16}}</strong><strong>({{studentInfo.param_16_buy_num}})</strong></div>
+    <div class="weui-flex__item" ng-show="studentInfo._param_16=='false'"><div >{{studentInfo.param_16}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_17!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_17 == 'true'"><strong style="color: #75bc00;">{{studentInfo.param_17}}</strong><strong>({{studentInfo.param_17_buy_num}})</strong></div>
+    <div class="weui-flex__item" ng-show="studentInfo._param_17 == 'false'"><div >{{studentInfo.param_17}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_18!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_18 =='true'"><strong style="color: #75bc00;">{{studentInfo.param_18}}</strong><strong>({{studentInfo.param_18_buy_num}})</strong></div>
+    <div class="weui-flex__item" ng-show="studentInfo.param_18 =='false'"><div >{{studentInfo.param_18}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_19!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_19 =='true'"><strong style="color: #75bc00;">{{studentInfo.param_19}}</strong><strong>({{studentInfo.param_19_buy_num}})</strong></div>
+   <div class="weui-flex__item" ng-show="studentInfo._param_19 =='false'"><div >{{studentInfo.param_19}}</div></div>
+</div>
+<div class="weui-flex" ng-show="studentInfo.param_20!='null'">
+   <div class="weui-flex__item" ng-show="studentInfo._param_20 =='true'"><strong style="color: #75bc00;">{{studentInfo.param_20}}</strong><strong>({{studentInfo.param_20_buy_num}})</strong></div>
+    <div class="weui-flex__item" ng-show="studentInfo._param_20=='false'"><div >{{studentInfo.param_20}}</div></div>
+</div>
+<h3 class="padded-b-10 border-b  padded-t-10 text-default"></h3>
+</div>
+ <div class="margin-t-15 margin-b-15 clearfix">
+      <span>截止:{{endTime}}</span>
+      <input ng-show="${wxUser.isCommittee}==true && state=='1'" type="button" class="btn fr wid45 line-height-2 bg-warning" ng-click="closeGroupBuy()" value="现在关闭"/>
+      <input ng-show="${wxUser.isCommittee}==false && state=='1'" type="button" class="btn fr wid45 line-height-2 bg-warning" value="进行中"/>
+      <input ng-show="state=='2'" type="button" class="btn fr wid45 line-height-2" style="background-color:gray;" value="已结束"/>
+    </div>
+</div>
+<!-- <div class="main">
   <div class="row posrel" ng-show="showSummary==true">
    <div class="tabbtn">
       <input type="button" value="切换汇总" class="btn btn-blue" ng-click="switchSummary(false)"/>
@@ -22,7 +135,7 @@
     <div class="padded-t-10">人数：<span class="font-size-16 font-weight-b">{{totalBuyer}}&nbsp;</span>
          <span>金额：{{totalAmount}}元</span>&nbsp;&nbsp;<span>数量：{{totalCount}}</span>
     </div>
-    <div class="padded-t-10 padded-b-10">购买数量统计：<!-- <input type="button" value="导出" class="btn btn-blue" ng-click="print()"/> --></div>
+    <div class="padded-t-10 padded-b-10">购买数量统计：<input type="button" value="导出" class="btn btn-blue" ng-click="print()"/> </div>
     <div class="padded-t-10 border-b" ng-repeat="studentInfo in studentInfoList">
       <p class="padded-10"><span class="padded-r-10">{{studentInfo.name}}</span>
       <span ng-repeat="item in studentInfo.itemInfo">
@@ -54,25 +167,28 @@
       <input ng-show="state=='2'" type="button" class="btn fr wid45 line-height-2 bg-warning" value="已结束"/>
     </div>
   </div> 
-</div>
-<script src="/dw/public/js/jquery-1.9.1.min.js"></script>
-<script src="/dw/public/widgets/echarts/echarts.js"></script>
+ --></div>
 <script src="/dw/public/widgets/layer.m/layer.m.js"></script>
+<script src="/dw/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/dw/public/widgets/dropload/dropload.min.js"></script>
 <script src="/dw/public/widgets/angularjs/angular.min.js"></script>
 <script src="/dw/public/widgets/angularjs/angular-touch.min.js"></script>
-    <script type="text/javascript">
-
-    </script>
 <script>
     angular.module('app', ['ngTouch'])
-            .factory('remote', ['$http', function ($http) {
+    .value('appValue', {
+			    index: 1,
+			    size: 50
+			})
+            .factory('remote', ['$http','appValue', function ($http,appValue) {
                 return {
-                	queryGroupStatistics: function (groupBuyId) {
+                	queryGroupStatistics: function (groupBuyId,index,size,searchText) {
                         return $http({
                             method: 'GET',
-                            url: '/dw/mobile/ActivityService/queryGroupStatistics',
+                            url: '/dw/mobile/ActivityService/queryGroupGatherStatistics',
                             params: {
-                            	groupBuyId:groupBuyId
+                            	groupBuyId:groupBuyId,
+                            	PAGE_INDEX: index || appValue.index,
+                                PAGE_SIZE: size || appValue.size
                             }
                         })
                     },
@@ -114,7 +230,7 @@
                     }
                 };
             }])
-            .controller('MainController', ['$scope', 'remote', function ($scope, remote) {
+            .controller('MainController', ['$scope','appValue', 'remote', function ($scope,appValue, remote) {
             	$scope.showSummary=true;
             	$scope.title;//标题
             	$scope.titleSplit;//检测标题内容
@@ -127,7 +243,7 @@
              	$scope.closeFlag;//团购结束标识
             	$scope.itemInfoList=[];//团购明细
              	$scope.studentInfoList=[];//学生信息列表
-             	$("#groupEcharts").width($(window).width());
+             	/* $("#groupEcharts").width($(window).width());
              	$scope.initChart = function(me){
             		 remote.queryChart('${groupBuyId}').then(function (response) {
             			var itemInfoList = response.data.data.itemInfoList;
@@ -180,17 +296,37 @@
                        if (me && me.resetload)
                            me.resetload();
             		 });
-            	}
+            	} */
+           	 $scope.nextPage = function(me){
+         		remote.queryGroupStatistics('${groupBuyId}',++appValue.index).then(function(response){
+         			if(response.data.data.data.length >0){
+         				$scope.itemInfoList = response.data.data.data;
+	                    	$scope.title = response.data.data.data[0].groupbuyTitle;
+	                    	$scope.totalBuyer = response.data.data.allBuypeopleCount;
+	                    	$scope.totalAmount = response.data.data.allprice;
+	                    	$scope.totalCount = response.data.data.allQuantity;
+	                    	$scope.endTime = response.data.data.endTime;
+	                    	$scope.state = response.data.data.state;
+	                    	console.log(response.data.data.data);
+         			}
+						 if (me && me.resetload)
+	                         me.resetload();
+					 },function(response){
+						 
+					 })
+				 };
                 $scope.initPage = function (me) {
-                    remote.queryGroupStatistics('${groupBuyId}').then(function (response) {
-                        $scope.title = response.data.data.title;
-                        $scope.state = response.data.data.state;
-                        $scope.totalBuyer = response.data.data.totalBuyer;
-                        $scope.totalAmount = response.data.data.totalAmount;
-                        $scope.endTime = response.data.data.endTime;
-                        $scope.closeFlag = response.data.data.closeFlag;
-                        $scope.studentInfoList = response.data.data.studentInfoList;
-                        $scope.initChart();
+                    remote.queryGroupStatistics('${groupBuyId}',1).then(function (response) {
+                    	if(response.data.data.data.length >0){
+                        	$scope.itemInfoList = response.data.data.data;
+                        	$scope.title = response.data.data.data[0].groupbuyTitle;
+                        	$scope.totalBuyer = response.data.data.allBuypeopleCount;
+                        	$scope.totalAmount = response.data.data.allprice;
+                        	$scope.totalCount = response.data.data.allQuantity;
+                        	$scope.endTime = response.data.data.endTime;
+                        	$scope.state = response.data.data.state;
+                        	console.log(response.data.data.data);
+                        	}
                         if (me && me.resetload)
                             me.resetload();
                     }, function (response) {
@@ -198,24 +334,6 @@
                     });
                 };
                 $scope.initPage();
-                //手动导出
-                $scope.print = function(){
-                	var $loadingToast = $('#loadingToast');
-                	if ($loadingToast.css('display') != 'none') return;
-                    $loadingToast.fadeIn(100);
-                	remote.printExcel('${groupBuyId}').then(function(res){
-                		if(res.data.data){
-                			 setTimeout(function () {
-                		         $loadingToast.fadeOut(100);
-                		     }, 2000);
-                			  layer.open({
-                                  content: '导出成功',
-                                  btn: ['知道了']
-                              });
-                			//var url="/zz/_web_/text/${wxUser.wxOpenId}.xls";
-                		}
-                	});
-                }
                 // 基于准备好的dom，初始化echarts实例
                 //手动关闭团购
                 $scope.closeGroupBuy=function(){
@@ -253,15 +371,30 @@
                 $scope.switchSummary=function(flag){
                    $scope.showSummary=flag;
                 }
+                $('#scroller').dropload({
+                    domUp: {
+                        domClass: 'dropload-up',
+                        domRefresh: '<div class="dropload-refresh">↓下拉刷新</div>',
+                        domUpdate: '<div class="dropload-update">↑释放更新</div>',
+                        domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                    },
+                    domDown: {
+                        domClass: 'dropload-down',
+                        domRefresh: '<div class="dropload-refresh">↑上拉加载更多</div>',
+                        domUpdate: '<div class="dropload-update">↓释放加载</div>',
+                        domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                    },
+                    scrollArea: window,
+                    loadUpFn: function (me) {
+                    	 $scope.nextPage(me);
+                        console.log('down');
+                    },
+                    loadDownFn: function (me) {
+                        $scope.nextPage(me);
+                        console.log('up');
+                    }
+                });
             }]);
 </script>
-<!-- loading toast -->
-    <div id="loadingToast" style="display:none;">
-        <div class="weui-mask_transparent"></div>
-        <div class="weui-toast">
-            <i class="weui-loading weui-icon_toast"></i>
-            <p class="weui-toast__content">数据加载中</p>
-        </div>
-    </div>
 </body>
 </html>

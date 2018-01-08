@@ -3,6 +3,7 @@ package controllers.modules.mobile;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import models.modules.mobile.XjlDwFile;
 import models.modules.mobile.XjlDwGroupBuy;
 import models.modules.mobile.XjlDwGroupBuyItem;
 import models.modules.mobile.XjlDwGroupBuyOrder;
+import models.modules.mobile.XjlDwGroupGather;
 import models.modules.mobile.XjlDwNotice;
 import models.modules.mobile.XjlDwNoticeFile;
 import models.modules.mobile.XjlDwStudent;
@@ -255,17 +257,39 @@ public class ActivityService extends MobileFilter {
 		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
 		Map condition = params.allSimple();
 		condition.put("groupBuyId", groupBuyId);
+		Logger.info("参数:"+groupBuyId+":"+wxUser.currentStudent.studentId);
+		XjlDwGroupGather data =  XjlDwGroupGather.queryXjlDwGroupGather(groupBuyId,wxUser.currentStudent.studentId);
+		String [] singBuyNum = null;
+		String [] singBuy = null;
+		Logger.info("得到数量"+data);
+		if(null !=data&&!"0".equals(data.singBuyNum)){
+			singBuyNum = data.singBuyNum.split(",");
+			singBuy = data.singBuy.split(",");
+		}
 		Map ret = XjlDwGroupBuyItem.queryXjlDwGroupBuyItemListByPage(condition, pageIndex, pageSize);
+		int index = 0;
 		if(ret!=null&&ret.get("data")!=null){
 			List<XjlDwGroupBuyItem> listGroupBuyItem = (List<XjlDwGroupBuyItem>)ret.get("data");
 			for(XjlDwGroupBuyItem groupBuyItem : listGroupBuyItem){
 				groupBuyItem.isGroupBuy=false;
-				groupBuyItem.price = String.valueOf(groupBuyItem.groupItemPrice);
 				Object [] paramObject = {groupBuyItem.groupBuyId,groupBuyItem.groupItemId,wxUser.wxOpenId};
 				XjlDwGroupBuyOrder xjlDwGroupBuyOrder=XjlDwGroupBuyOrder.find("from XjlDwGroupBuyOrder where status='0AA' and groupBuyId=? and groupItemId=? and wxOpenId=?", paramObject).first();
 				if(xjlDwGroupBuyOrder!=null){
 					groupBuyItem.isGroupBuy=true;
 				}
+				Logger.info(groupBuyItem.groupItemTitle);
+				Logger.info("...."+index);
+				if(null != singBuy){
+					for (int i = 0; i < singBuy.length; i++) {
+						if(singBuy[i].equals(groupBuyItem.groupItemTitle)){
+							groupBuyItem.itemNum = Integer.parseInt(String.valueOf(singBuyNum[index]));
+							index++;
+						}
+					}
+					
+					
+				}
+				groupBuyItem.price = String.valueOf(groupBuyItem.groupItemPrice);
 			}
 		}
 		ok(ret);
@@ -353,6 +377,139 @@ public class ActivityService extends MobileFilter {
 		hm.put("titleSplit", result_str.substring(0, result_str.indexOf(",")));
 		hm.put("titleSplitCount", title_split_count);
 		Logger.info("--------------------------------------------"+hm.get("itemInfoList"));
+		ok(hm);
+	}
+	public static void queryGroupGatherStatistics(){
+		WxUser wxUser = getWXUser();
+		Long groupBuyId=0l;
+	   if(StringUtil.isNotEmpty(params.get("groupBuyId"))) {
+	    	groupBuyId = StringUtil.getLong(params.get("groupBuyId"));
+        }else{
+        	nok("groupBuyId丢失!");
+        }
+	    int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Logger.info("index:"+pageIndex);
+		Logger.info("pageSize:"+pageSize);
+		Map condition = params.allSimple();
+		condition.put("groupBuyId", groupBuyId);
+		Map ret = XjlDwGroupGather.queryXjlDwGroupGatherListByPage(condition, pageIndex, pageSize);
+		List<XjlDwGroupGather> data = (List<XjlDwGroupGather>) ret.get("data");
+		Logger.info("第一波团购列表行数:"+data.size());
+		Double allprice = 0.0;
+		int allQuantity = 0;
+		int allBuypeopleCount = 0;
+		String [] singBuyArr = null;
+		String [] singBuyNum = null;
+		BigDecimal b = null;
+		if(!data.isEmpty()){
+			for (int i = 0; i < data.size(); i++) {
+				allprice+= StringUtil.getDouble(data.get(i).gatherPrice);
+				allQuantity+=Integer.parseInt(String.valueOf(data.get(i).gatherQuantity));
+				//allQuantity+= Integer.valueOf(data.get(i).gatherQuantity);
+				//设置购买标记
+			    if(!"0".equals(data.get(i).singBuy)){
+			    	singBuyArr = data.get(i).singBuy.split(",");
+			    	singBuyNum = data.get(i).singBuyNum.split(",");
+			    	for (int j = 0; j < singBuyArr.length; j++) {
+			    		if(data.get(i).param_1.equals(singBuyArr[j])){
+			    			data.get(i)._param_1 = "true";
+			    			data.get(i).param_1_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_2.equals(singBuyArr[j])){
+			    			data.get(i)._param_2 = "true";
+			    			data.get(i).param_2_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_3.equals(singBuyArr[j])){
+			    			data.get(i)._param_3 ="true";
+			    			data.get(i).param_3_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_4.equals(singBuyArr[j])){
+			    			data.get(i)._param_4 = "true";
+			    			data.get(i).param_4_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_5.equals(singBuyArr[j])){
+			    			data.get(i)._param_5 ="true";
+			    			data.get(i).param_5_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_6.equals(singBuyArr[j])){
+			    			data.get(i)._param_6="true";
+			    			data.get(i).param_6_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_7.equals(singBuyArr[j])){
+			    			data.get(i)._param_7 = "true";
+			    			data.get(i).param_7_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_8.equals(singBuyArr[j])){
+			    			data.get(i)._param_8 = "true";
+			    			data.get(i).param_8_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_9.equals(singBuyArr[j])){
+			    			data.get(i)._param_9 = "true";
+			    			data.get(i).param_9_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_10.equals(singBuyArr[j])){
+			    			data.get(i)._param_10 = "true";
+			    			data.get(i).param_10_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_11.equals(singBuyArr[j])){
+			    			data.get(i)._param_11 = "true";
+			    			data.get(i).param_11_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_12.equals(singBuyArr[j])){
+			    			data.get(i)._param_12 = "true";
+			    			data.get(i).param_12_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_13.equals(singBuyArr[j])){
+			    			data.get(i)._param_13 = "true";
+			    			data.get(i).param_13_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_14.equals(singBuyArr[j])){
+			    			data.get(i)._param_14 = "true";
+			    			data.get(i).param_14_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_15.equals(singBuyArr[j])){
+			    			data.get(i)._param_15 = "true";
+			    			data.get(i).param_15_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_16.equals(singBuyArr[j])){
+			    			data.get(i)._param_16 = "true";
+			    			data.get(i).param_16_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_17.equals(singBuyArr[j])){
+			    			data.get(i)._param_17 = "true";
+			    			data.get(i).param_17_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_18.equals(singBuyArr[j])){
+			    			data.get(i)._param_18 = "true";
+			    			data.get(i).param_18_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_19.equals(singBuyArr[j])){
+			    			data.get(i)._param_19 = "true";
+			    			data.get(i).param_19_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+			    		else if(data.get(i).param_20.equals(singBuyArr[j])){
+			    			data.get(i)._param_20 = "true";
+			    			data.get(i).param_20_buy_num = Integer.parseInt(String.valueOf(singBuyNum[j]));
+			    		}
+					}
+			    } 
+				if(Integer.valueOf(data.get(i).gatherQuantity) >0){
+					allBuypeopleCount++;
+				}
+				b = new BigDecimal(StringUtil.getDouble(data.get(i).gatherPrice));
+				data.get(i).gatherPrice = String.valueOf(b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+		XjlDwGroupBuy groupBuy = XjlDwGroupBuy.findById(groupBuyId);
+		Map hm=new HashMap();
+		b = new BigDecimal(allprice);
+		hm.put("allprice", b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		hm.put("allQuantity", allQuantity);
+		hm.put("allBuypeopleCount", allBuypeopleCount);
+		hm.put("endTime", DateFormatUtils.format(groupBuy.groupBuyEndTime,"yyyy-MM-dd HH:mm"));
+		hm.put("state", groupBuy.groupBuyState);
+		hm.put("data", data);
 		ok(hm);
 	}
 	/**
@@ -502,25 +659,29 @@ public class ActivityService extends MobileFilter {
         	}
 	
         }
-        //团购新增消息推送
-        String jumpUrl = "http://dw201709.com/dw/mobile/A/groupList";
+        ok(xjlDwGroupBuy);
+	}
+	public static void groupPushMsg(){
+		WxUser wxUser = getWXUser();
+		//团购新增消息推送
+        String jumpUrl = "http://dw201709.com/zz/mobile/A/groupList";
         String templateId = "k5jpj4exq5Kucqtlks-EHWEVGLAV35uGDj3423TTMUU";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value", "有新团购消息提醒");
+		mapDataSon.put("value", "【"+params.get("groupBuyTitle")+"】");
+		mapDataSon.put("color", "#68A8C3");
 		mapData.put("first", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value",xjlDwGroupBuy.groupBuyTitle);
+		mapDataSon.put("value",params.get("groupBuyTitle"));
 		mapData.put("Pingou_ProductName", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value",wxUser.currentClass.className+"的团购信息");
+		mapDataSon.put("value",wxUser.nickName);
 		mapData.put("Weixin_ID", mapDataSon);
 		mapDataSon = new HashMap<String, Object>();
-		mapDataSon.put("value", "有新的团购,赶紧来抢购吧！");
-		mapData.put("remark", mapDataSon);
+		mapDataSon.put("value", "快来参与团购吧！");
+		mapDataSon.put("color","#808080");
+		mapData.put("Remark", mapDataSon);
 		MsgPush.wxMsgPusheTmplate(templateId, jumpUrl, mapData);
-        ok(xjlDwGroupBuy);
-        ok(xjlDwGroupBuy);
 	}
 	/**
 	 * 关闭团购,需要团购id参数
@@ -576,6 +737,50 @@ public class ActivityService extends MobileFilter {
 		filterGroupBuyData(ret);
 		ok(ret);
 	}
+	public static void modifyGroupGather(String [] gradeItem){
+		JSONArray gradeList = JSONArray.fromObject(gradeItem); 
+		Long groupBuyId = 0l;
+		List<Map<String,Object>> newPrice = new ArrayList<>();
+		Map<String,Object> _map = null;
+		Boolean flag = false;
+		for (int i = 0; i < gradeList.size(); i++) {
+			JSONObject gradeJson = gradeList.getJSONObject(i);
+			flag = gradeJson.getBoolean("isGroupBuy");
+			if(flag){
+				_map = new HashMap<>();
+				_map.put(gradeJson.getString("groupItemTitle"),StringUtil.getLong(String.valueOf(gradeJson.get("groupItemPrice")))*Integer.parseInt(String.valueOf(gradeJson.get("itemNum"))));
+				newPrice.add(_map);
+			}
+			if(i == 0){
+				groupBuyId = gradeJson.getLong("groupBuyId");
+			}
+		}
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map condition = params.allSimple();
+		condition.put("groupBuyId",groupBuyId);
+		List<XjlDwGroupGather> data = (List<XjlDwGroupGather>) XjlDwGroupGather.queryXjlDwGroupGatherListByPage(condition, pageIndex, pageSize).get("data");
+		if(!data.isEmpty()){
+			String [] singBuyArr = null;
+			for (int i = 0; i < data.size(); i++) {
+				int price = 0;
+				Logger.info(data.get(i).gatherStudentName+":"+data.get(i).singBuy);
+				if(!"0".equals(data.get(i).singBuy)){
+					singBuyArr = data.get(i).singBuy.split(",");
+					for (int j = 0; j < singBuyArr.length; j++) {
+						Logger.info("需要修改价格的:"+singBuyArr[j]);
+						for (int j2 = 0; j2 <newPrice.size(); j2++) {
+							if(null != newPrice.get(j2).get(singBuyArr[j])){
+								price +=Integer.valueOf(String.valueOf(newPrice.get(j2).get(singBuyArr[j])));
+							}
+						}
+					}
+				}
+				Logger.info("最新价格："+price);
+				XjlDwGroupGather.modifyXjlDwGroupGatherPrice(price,data.get(i).studentId, groupBuyId);
+			}
+		}
+	}
 	public static void modifyGroup(){
 		Object obj = params.getAll("gradeItem");
 		JSONArray gradeList = JSONArray.fromObject(obj); 
@@ -584,7 +789,35 @@ public class ActivityService extends MobileFilter {
 			JSONObject gradeJson = gradeList.getJSONObject(i);
 			XjlDwGroupBuyItem.modifyPrice(gradeJson.getDouble("groupItemPrice"), gradeJson.getLong("groupItemId"));
 		}
+		modifyGroupGather(params.getAll("gradeItem"));
 		ok();
+	}
+	public static void saveGroupGatherBuy(String [] groupItems){
+		WxUser wxUser = getWXUser();
+		JSONArray groupItemsArray = JSONArray.fromObject(groupItems); 
+		Double price = 0.0;
+		int num = 0;
+		Long groupbuyId = null;
+		String singBuy="";
+		String singBuyNum="";
+		Logger.info("购买数量:"+groupItemsArray.size());
+		XjlDwGroupBuyItem xjlDwGroupBuyItem = null;
+		for(int i=0;i<groupItemsArray.size();i++){
+			 JSONObject jsonObject = groupItemsArray.getJSONObject(i);
+			 if("true".equals(jsonObject.get("isGroupBuy").toString())){
+				 price += StringUtil.getDouble((String.valueOf(jsonObject.get("price"))))*Integer.parseInt(String.valueOf(jsonObject.getString("itemNum")));
+				 groupbuyId =  StringUtil.getLong(jsonObject.get("groupBuyId").toString());
+				 xjlDwGroupBuyItem = XjlDwGroupBuyItem.findById(StringUtil.getLong(jsonObject.get("groupItemId").toString()));
+				 singBuyNum += jsonObject.getString("itemNum")+",";
+				 if(null !=xjlDwGroupBuyItem){
+					 singBuy+=xjlDwGroupBuyItem.groupItemTitle+",";
+				 }
+				 num +=Integer.parseInt(String.valueOf(jsonObject.getString("itemNum")));
+				 //num++;
+			 }
+			
+		}
+		XjlDwGroupGather.modifyXjlDwGroupGather(num, price, wxUser.currentStudent.studentId,groupbuyId,singBuy,singBuyNum);
 	}
 	/**
 	 * 保存团购订单，新建和修改都使用这个方法
@@ -622,7 +855,7 @@ public class ActivityService extends MobileFilter {
 	        	    }
         	    }
         	}
-		
+        	saveGroupGatherBuy(params.getAll("groupItems"));
     	}
         ok(listOrderItem);
 	}
@@ -874,8 +1107,8 @@ public class ActivityService extends MobileFilter {
 		String savePath = FileUploadPathUtil.getUploadPath(wxUser.wxOpenId);
 		Logger.info("excelpath:"+savePath);
 		System.out.println(savePath);
-		OutputStream out = new FileOutputStream("/home/lls/xjl_dw_zz/_web_/text/"+wxUser.wxOpenId+".xls");
-		String downFile="http://dw201709.com/zz/"+"_web_/text/"+wxUser.wxOpenId+".xls";
+		OutputStream out = new FileOutputStream("/home/lls/xjl_dw/_web_/text/"+wxUser.wxOpenId+".xls");
+		String downFile="http://dw201709.com/dw/"+"_web_/text/"+wxUser.wxOpenId+".xls";
 		Logger.info(""+dataset.size());
 		List<Map<String,Object>> dataList = new ArrayList<>();
 		Map<String,Object> _map = null;

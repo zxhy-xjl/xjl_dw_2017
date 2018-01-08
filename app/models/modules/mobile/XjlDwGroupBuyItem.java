@@ -45,7 +45,10 @@ public class XjlDwGroupBuyItem extends GenericModel{
 
 	@Column(name = "STATUS")
 	public String status;
-	
+	@Transient
+	public int itemNum = 1;
+	@Transient
+	public String price;
 	@Transient
 	public boolean isGroupBuy;
 

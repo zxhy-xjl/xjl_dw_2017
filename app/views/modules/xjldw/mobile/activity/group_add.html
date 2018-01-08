@@ -79,7 +79,16 @@
                             url: '/dw/mobile/ActivityService/saveGropuBuy',
                             params: article
                         })
-                    }
+                    },
+                    msgpush:function(groupInfo){
+                     	 return $http({
+                              method: 'GET',
+                              url: '/zz/mobile/ActivityService/groupPushMsg',
+                              params: {
+                           	   groupBuyTitle:groupInfo.groupBuyTitle,
+                              }
+                          })
+                     }
                 };
             }])
             .controller('MainController', ['$scope','valid', 'remote','$http', function ($scope,valid,remote,$http) {
@@ -134,6 +143,8 @@
                                         });
                                     }
                                     else {
+                                    	console.log($scope.groupInfo);
+                                    	remote.msgpush($scope.groupInfo);
                                         layer.open({
                                             content: "发布成功",
                                             btn: ['确定'],
