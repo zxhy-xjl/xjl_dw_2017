@@ -30,7 +30,7 @@
 //], function () {
 
 $.ajax({
-    url: '/mobile/ActivityService/qryMeunByUserId',
+    url: '/dw/mobile/ActivityService/qryMeunByUserId',
     data: {
     	openId: openId
     }

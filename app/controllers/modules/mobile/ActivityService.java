@@ -48,6 +48,7 @@ import controllers.modules.mobile.bo.XjlDwArticleBo;
 import controllers.modules.mobile.bo.XjlDwGroupBuyBo;
 import controllers.modules.mobile.bo.XjlDwGroupBuyItemBo;
 import controllers.modules.mobile.bo.XjlDwGroupBuyOrderBo;
+import controllers.modules.mobile.bo.XjlDwGroupGatherBo;
 import controllers.modules.mobile.bo.XjlDwWxClassBo;
 import controllers.modules.mobile.filter.MobileFilter;
 import controllers.modules.mobile.bo.XjlDwNoticeBo;
@@ -57,6 +58,7 @@ import utils.ExcelEntityUtils;
 import utils.ExcelUtil;
 import utils.FileUploadPathUtil;
 import utils.MsgPush;
+import utils.PinyinHelper;
 import utils.StringUtil;
 
 /**
@@ -198,6 +200,14 @@ public class ActivityService extends MobileFilter {
 		}
 		ret.put("data", list);
 	}
+	
+	public static void queryGroupPageForPc(){
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map condition = params.allSimple();
+		Map data =  XjlDwGroupBuy.queryXjlDwGroupBuyListByPage(condition, pageIndex, pageSize);
+		ok(data);
+	}
 	/**
 	 * 保存美文
 	 */
@@ -244,7 +254,7 @@ public class ActivityService extends MobileFilter {
 	}
 	public static void articlePushMsg(){
 		//美文消息推送
-        String jumpUrl = "http://dw201709.com/zz/mobile/A/articleList";
+        String jumpUrl = "http://dw201709.com/dw/mobile/A/articleList";
         String templateId = "SWSrukcVTbMLP1PgNl9Yer3V4l9yltwrfksA0FkVSgI";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
@@ -633,7 +643,74 @@ public class ActivityService extends MobileFilter {
 		hm.put("studentInfoList", studentInfoList);
 		ok(hm);
 	}
-	
+	public static void saveGroupGather(String [] groupItems,Long groupBuyId,String groupBuyTitle){
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map condition = params.allSimple();
+		List<XjlDwStudent> studentData = (List<XjlDwStudent>) XjlDwStudent.queryXjlDwStudentListByPage(condition, pageIndex, pageSize).get("data");
+		List<Map<String,Object>> listgather = new ArrayList<>();
+		Map<String,Object> _temp = null;
+		if(!studentData.isEmpty()){
+            JSONArray groupItemsArray = JSONArray.fromObject(groupItems); 
+            PinyinHelper ph = PinyinHelper.getInstance();
+            for (int i = 0; i < studentData.size(); i++) {
+            	_temp = new HashMap<>();
+            	_temp.put("gatherStudentName",studentData.get(i).studentName);
+            	_temp.put("studentId",studentData.get(i).studentId);
+            	ph.setResource(studentData.get(i).studentName);
+            	_temp.put("gatherStudentPingyin",ph.getSpellingHead());
+            	for(int j=0;j<groupItemsArray.size();j++){
+            		JSONObject jsonObject = groupItemsArray.getJSONObject(j);
+            		_temp.put("param_"+(j+1), jsonObject.get("groupItemTitle").toString());
+            	}
+            	_temp.put("gatherPrice", 0);
+            	_temp.put("singBuy", 0);
+            	_temp.put("singBuyNum", 0);
+            	_temp.put("gatherQuantity","0");
+            	_temp.put("gatherPay","T");
+            	listgather.add(_temp);
+			}
+		}
+		WxUser wxUser = getWXUser();
+		if(!listgather.isEmpty()){
+			XjlDwGroupGather gg = null;
+			for (int i = 0; i < listgather.size(); i++) {
+				gg = new XjlDwGroupGather();
+				gg.groupBuyId = groupBuyId;
+				gg.studentId = Long.parseLong(String.valueOf(listgather.get(i).get("studentId")));
+				gg.gatherStudentName =String.valueOf( listgather.get(i).get("gatherStudentName"));
+				gg.gatherStudentPingyin = String.valueOf(listgather.get(i).get("gatherStudentPingyin"));
+				gg.groupbuyTitle = groupBuyTitle;
+				gg.param_1 = String.valueOf(listgather.get(i).get("param_1"));
+				gg.param_2 = String.valueOf(listgather.get(i).get("param_2"));
+				gg.param_3 = String.valueOf(listgather.get(i).get("param_3"));
+				gg.param_4 = String.valueOf(listgather.get(i).get("param_4"));
+				gg.param_5 = String.valueOf(listgather.get(i).get("param_5"));
+				gg.param_6 = String.valueOf(listgather.get(i).get("param_6"));
+				gg.param_7 = String.valueOf(listgather.get(i).get("param_7"));
+				gg.param_8 = String.valueOf(listgather.get(i).get("param_8"));
+				gg.param_9 = String.valueOf(listgather.get(i).get("param_9"));
+				gg.param_10 = String.valueOf(listgather.get(i).get("param_10"));
+				gg.param_11 = String.valueOf(listgather.get(i).get("param_11"));
+				gg.param_12 = String.valueOf(listgather.get(i).get("param_12"));
+				gg.param_13 = String.valueOf(listgather.get(i).get("param_13"));
+				gg.param_14 = String.valueOf(listgather.get(i).get("param_14"));
+				gg.param_15 = String.valueOf(listgather.get(i).get("param_15"));
+				gg.param_16 = String.valueOf(listgather.get(i).get("param_16"));
+				gg.param_17 = String.valueOf(listgather.get(i).get("param_17"));
+				gg.param_18 = String.valueOf(listgather.get(i).get("param_18"));
+				gg.param_19 = String.valueOf(listgather.get(i).get("param_19"));
+				gg.param_20 = String.valueOf(listgather.get(i).get("param_20"));
+				gg.gatherQuantity = String.valueOf(listgather.get(i).get("gatherQuantity"));
+				gg.gatherPrice = String.valueOf(listgather.get(i).get("gatherPrice"));
+				gg.gatherPay = String.valueOf(listgather.get(i).get("gatherPay"));
+				gg.wxOpenId = wxUser.wxOpenId;
+				gg.singBuy = String.valueOf(listgather.get(i).get("singBuy"));
+				gg.singBuyNum = String.valueOf(listgather.get(i).get("singBuyNum"));
+				XjlDwGroupGatherBo.save(gg);
+			}
+		}
+	}
 	/**
 	 * 保存团购
 	 */
@@ -683,6 +760,7 @@ public class ActivityService extends MobileFilter {
 	        	    xjlDwGroupBuyItem.groupItemPrice= Double.valueOf(jsonObject.get("groupItemPrice").toString());
 	        	    xjlDwGroupBuyItem=XjlDwGroupBuyItemBo.save(xjlDwGroupBuyItem);
 	        	}
+	        	saveGroupGather(params.getAll("groupItems"),xjlDwGroupBuy.groupBuyId,params.get("groupBuyTitle"));
 			
         	}
 	
@@ -692,7 +770,7 @@ public class ActivityService extends MobileFilter {
 	public static void groupPushMsg(){
 		WxUser wxUser = getWXUser();
 		//团购新增消息推送
-        String jumpUrl = "http://dw201709.com/zz/mobile/A/groupList";
+        String jumpUrl = "http://dw201709.com/dw/mobile/A/groupList";
         String templateId = "k5jpj4exq5Kucqtlks-EHWEVGLAV35uGDj3423TTMUU";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
@@ -950,7 +1028,7 @@ public class ActivityService extends MobileFilter {
 	public static void albumPushMsg() throws ParseException{
 		Date d =  DateUtil.getNowDate();
 		 //创建相册增加消息推送
-        String jumpUrl = "http://dw201709.com/zz/mobile/A/albumList";
+        String jumpUrl = "http://dw201709.com/dw/mobile/A/albumList";
         String templateId = "PPe-Nsdyf-z0v7qSdWODYkxWLOx-aG1ySuDE61jEWlE";
         Map<String, Object> mapData = new HashMap<String, Object>();
 		Map<String, Object> mapDataSon = new HashMap<String, Object>();
