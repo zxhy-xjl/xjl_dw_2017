@@ -1242,6 +1242,26 @@ public class ActivityService extends MobileFilter {
 			Logger.info("map顺序:"+_map);
 			dataList.add(_map);
 		}
+		
+		//对导出集合去重
+		List<Map<String,Object>> newDataList = null;
+		if(!dataList.isEmpty()){
+			Logger.info("进入去重");
+			newDataList = new ArrayList<Map<String,Object>>();
+			newDataList.addAll(dataList);
+			Logger.info("进入去重复循环");
+			 for (Map<String, Object> map : dataList) {
+				 Logger.info("进入第一层"+newDataList.size());
+				 for (Map<String, Object> _map1 : newDataList) {
+						Logger.info("新1:"+_map1.get("name"));
+						Logger.info("旧1:"+map.get("name"));
+						if(_map1.get("name").equals(map.get("name"))){
+							Logger.info("新"+Integer.parseInt(String.valueOf(_map1.get("price"))));
+							Logger.info("旧"+Integer.parseInt(String.valueOf(map.get("price"))));
+						}
+					}
+			}
+		}
 		Logger.info("整理后集合长度:"+dataList.size());
 		ExcelUtil<ExcelEntityUtils> ex = new ExcelUtil<ExcelEntityUtils>();
 		ex.exportExcel(title,header,dataList,out,"yyyy-MM-dd");

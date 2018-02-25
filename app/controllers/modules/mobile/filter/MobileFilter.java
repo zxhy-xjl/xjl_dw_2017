@@ -214,30 +214,48 @@ public class MobileFilter extends BaseController{
 					    	accessToken = Sign.getAccessToken(appId,secret,false);
 					    	url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token="+accessToken+"&openid="+openId+"&lang=zh_CN";
 					    	json = HttpClientUtil.invoke(url, "POST", null);
-					    	Logger.info("snsapi_base json = " + json);
-					    	Logger.info(" wxUser.wxOpenId==== = " + wxUser.wxOpenId);
-					    	if(json!=null&&json.containsKey("openid")){
-					    		if(json.containsKey("nickname")){
-					    			wxUser.nickName = json.getString("nickname");
-					    			wxUser.sex = json.getString("sex");
-					    			wxUser.sex = "1".equals(wxUser.sex)?"男":"女";
-					        		wxUser.language = json.getString("language");
-					    			wxUser.city = json.getString("city");
-					    			wxUser.province = json.getString("province"); 
-					    			wxUser.country = json.getString("country");
-					    			
-					    			wxUser.headImgUrl = getWXSmallHeadImage(json.getString("headimgurl"));
-					    			wxUser.schoolId =xjlDwSchool.schoolId;
-					    			wxUser.isConcerned = "Y";
-					    			//wxUser.wxRole="0";
-					    			wxUser.openIdChanncel="web_grant";
-					    			wxUser.upOpenidTime=DateUtil.getNowDate();
-					    			wxUser = WxUserBo.save(wxUser);
-					        		wxUser = WxUser.getFindByOpenId(openId);
-					        		sessionInfo.setWxUser(wxUser);
-					        		setSessionInfo(sessionInfo);
+					    	if(json!=null){
+					    		Logger.info("start snsapi_base json >>>>>>>>>>>>>>> " + json);
+					    		//判断返回json是否异常
+					    		if(json.containsKey("errcode")){
+					    			accessToken = Sign.getAccessToken(appId,secret,true);
+					    			Logger.info("重新获取token" +accessToken);
+					    			url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token="+accessToken+"&openid="+openId+"&lang=zh_CN";
+					    			json = HttpClientUtil.invoke(url, "POST", null);
+					    			REQ_TIME++;
+					    			Logger.info("异常报错,进入重新请求计次" +REQ_TIME);
 					    		}
+					    		Logger.info(" success snsapi_base json >>>>>>>>>>>>>>>>>>>" + json);
+						    	Logger.info(" wxUser.wxOpenId==== = " + wxUser.wxOpenId);
+						    	
+						    	Logger.info("snsapi_base json = " + json);
+						    	Logger.info(" wxUser.wxOpenId==== = " + wxUser.wxOpenId);
+						    	if(json!=null&&json.containsKey("openid")){
+						    		if(json.containsKey("nickname")){
+						    			wxUser.nickName = json.getString("nickname");
+						    			wxUser.sex = json.getString("sex");
+						    			wxUser.sex = "1".equals(wxUser.sex)?"男":"女";
+						        		wxUser.language = json.getString("language");
+						    			wxUser.city = json.getString("city");
+						    			wxUser.province = json.getString("province"); 
+						    			wxUser.country = json.getString("country");
+						    			
+						    			wxUser.headImgUrl = getWXSmallHeadImage(json.getString("headimgurl"));
+						    			wxUser.schoolId =xjlDwSchool.schoolId;
+						    			wxUser.isConcerned = "Y";
+						    			//wxUser.wxRole="0";
+						    			wxUser.openIdChanncel="web_grant";
+						    			wxUser.upOpenidTime=DateUtil.getNowDate();
+						    			wxUser = WxUserBo.save(wxUser);
+						        		wxUser = WxUser.getFindByOpenId(openId);
+						        		sessionInfo.setWxUser(wxUser);
+						        		setSessionInfo(sessionInfo);
+						        		REQ_TIME = 0;
+						    		}
+						    	}
+					    		
 					    	}
+					    	
 						}
 					}
 			    }else{
@@ -249,18 +267,32 @@ public class MobileFilter extends BaseController{
 		//检查有没有绑定学生，如果没有绑定学生需要跳转到绑定学生页面
 		//wxUser = getWXUser();
 		//不是老师，也不是家长，需要做老师或者家长的绑定
-		if (!wxUser.isTeacher&&!wxUser.isParent){
-			//由于会出现重新绑定的问题，这里先简单的处理下，从数据库中重新获取下
-			Logger.info("当前用户没有绑定老师或者学生：opendid=", wxUser.wxOpenId);
-			Logger.info("从数据库中重新获取用户信息，并放入session，更新当前用户用户对象");
-			WxUser dbWxUser = WxUser.getFindByOpenId(wxUser.wxOpenId);
-			sessionInfo.setWxUser(dbWxUser);
-    		setSessionInfo(sessionInfo);
-    		wxUser = dbWxUser;
-    		if (!wxUser.isTeacher&&!wxUser.isParent){
-    			Logger.info("从数据库重新获取用户之后依然不是老师和家长，进行绑定");
-    			render("modules/xjldw/mobile/my/student_none.html");
-    		}
+		if (wxUser!=null&&!wxUser.isTeacher&&wxUser.currentStudent == null&&("testPC".equals(deviceFlag)||isMobile(userAgent))){
+			Logger.info("参数deviceFlag"+deviceFlag);
+			Logger.info("参数userAgent"+isMobile(userAgent));
+			if(wxUser!=null){
+				Logger.info("缓存用户信息不为空:"+wxUser.wxOpenId+":"+wxUser.nickName);
+				if(!wxUser.isTeacher&&wxUser.currentStudent == null){
+					Logger.info("判断不是老师");
+					Logger.info("是否家长："+wxUser.isParent);
+					Logger.info("是否家委会："+wxUser.isCommittee);
+					Logger.info("是否有学生："+wxUser.currentStudent);
+					
+				}
+			}
+//			//由于会出现重新绑定的问题，这里先简单的处理下，从数据库中重新获取下
+//			Logger.info("当前用户没有绑定老师或者学生：opendid=", wxUser.wxOpenId);
+//			Logger.info("从数据库中重新获取用户信息，并放入session，更新当前用户用户对象");
+//			WxUser dbWxUser = WxUser.getFindByOpenId(wxUser.wxOpenId);
+//			sessionInfo.setWxUser(dbWxUser);
+//    		setSessionInfo(sessionInfo);
+//    		wxUser = dbWxUser;
+//    		if (!wxUser.isTeacher&&!wxUser.isParent){
+//    			Logger.info("从数据库重新获取用户之后依然不是老师和家长，进行绑定");
+//    			render("modules/xjldw/mobile/my/student_none.html");
+//    		}
+			
+			render("modules/xjldw/mobile/my/student_none.html");
 		} else {
 			if(!"PC".equals(sessionInfo.getDeviceFlag())){
 				log.debug("当前登录设备不是pc，是:" + sessionInfo.getDeviceFlag());

@@ -1,30 +1,16 @@
 package models.modules.mobile;
-import java.sql.*;
 import java.util.Date;
 import java.util.*;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
 import org.slf4j.LoggerFactory;
-
-import controllers.comm.BOResult;
-import controllers.comm.SessionInfo;
-
-
 import play.Logger;
 import play.db.jpa.GenericModel;
-import play.db.jpa.JPA;
-import play.db.jpa.Model;
 import utils.StringUtil;
-import utils.jpa.ParamObject;
 import utils.jpa.SQLResult;
-import utils.jpa.sql.SQLParser;
-
 @Entity
 @Table(name = "wx_user")
 public class WxUser extends GenericModel{
