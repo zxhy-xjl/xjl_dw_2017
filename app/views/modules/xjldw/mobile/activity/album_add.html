@@ -44,7 +44,7 @@ angular.module('app', ['ngTouch'])
                msgpush:function(albumInfo){
               	 return $http({
                        method: 'GET',
-                       url: '/zz/mobile/ActivityService/albumPushMsg',
+                       url: '/dw/mobile/ActivityService/albumPushMsg',
                        params: {
                       	 albumTitle:albumInfo.albumTitle,
                       	 createTime:albumInfo.createTime

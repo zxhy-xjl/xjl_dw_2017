@@ -120,6 +120,7 @@ public class WxUser extends GenericModel{
         	//查询该用户默认关注的编辑和学生
         	XjlDwWxStudent wxStudent = XjlDwWxStudent.queryDefaultByOpenId(wxUser.wxOpenId);
         	if (wxStudent != null){
+        		Logger.info("得到学生是否为空:"+wxStudent.student);
     			wxUser.currentStudent = wxStudent.student;
     			wxUser.currentClass=wxStudent.dwClass;
     			wxUser.isParent = true;
@@ -141,6 +142,7 @@ public class WxUser extends GenericModel{
         	}
         	Logger.info("获取第一个符合条件老师:" + wxUser.teacherId);
         	Logger.info("获取第一个符合条件家会家长:" + wxUser.isCommittee);
+        	Logger.info("获取第一个符合条件家长:" + wxUser.isParent);
         	wxUser.isTeacher = wxUser.teacherId != null;
         	Logger.info("WxisTeacher:"+wxUser.isTeacher);
         	return wxUser;
