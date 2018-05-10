@@ -251,4 +251,9 @@ public class XjlDwGroupBuyOrder extends GenericModel{
 		}
 		return data;
 	}
+	public static int modifyStatus(Long groupItemId,Long groupBuyId){
+		String sql=" update xjl_dw_group_buy_order set  STATUS='0XX' where group_item_id='"+groupItemId+"' and GROUP_BUY_ID ='"+groupBuyId+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
 }

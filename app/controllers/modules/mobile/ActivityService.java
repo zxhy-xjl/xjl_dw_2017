@@ -830,11 +830,22 @@ public class ActivityService extends MobileFilter {
 				//添加团购信息
 				groupBuyMap.put("groupBuyInfo", groupBuy);
 				boolean hasOrderFlag = false;
+				boolean hasOrderFlag_02 = false;
+				boolean isRunningOrder = false;
 				if(!wxUser.isTeacher){
-					hasOrderFlag = XjlDwGroupBuyOrder.hasOrder(groupBuy.groupBuyId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
+					if(XjlDwGroupBuy.groupBuyState_running.equals(groupBuy.groupBuyState)){
+						hasOrderFlag = XjlDwGroupBuyOrder.hasOrder(groupBuy.groupBuyId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
+					}else{
+						hasOrderFlag = false;
+						hasOrderFlag_02 = XjlDwGroupBuyOrder.hasOrder(groupBuy.groupBuyId, wxUser.wxOpenId,wxUser.currentStudent.studentId);
+						if(hasOrderFlag_02){
+							isRunningOrder = true;
+						}
+					}
 				}
 				//添加订单信息
 				groupBuyMap.put("hasOrderFlag", hasOrderFlag);
+				groupBuyMap.put("isRunningOrder", isRunningOrder);
 				groupBuyMap.put("isRunning", XjlDwGroupBuy.groupBuyState_running.equals(groupBuy.groupBuyState));
 				groupBuyInfo.add(groupBuyMap);
 			}
@@ -849,9 +860,11 @@ public class ActivityService extends MobileFilter {
 		List<Map<String,Object>> newPrice = new ArrayList<>();
 		Map<String,Object> _map = null;
 		Boolean flag = false;
+		String grouByNum = "";
 		for (int i = 0; i < gradeList.size(); i++) {
 			JSONObject gradeJson = gradeList.getJSONObject(i);
 			flag = gradeJson.getBoolean("isGroupBuy");
+			grouByNum +=gradeJson.getString("itemNum")+",";
 			if(flag){
 				_map = new HashMap<>();
 				_map.put(gradeJson.getString("groupItemTitle"),StringUtil.getLong(String.valueOf(gradeJson.get("groupItemPrice")))*Integer.parseInt(String.valueOf(gradeJson.get("itemNum"))));
@@ -866,12 +879,16 @@ public class ActivityService extends MobileFilter {
 		Map condition = params.allSimple();
 		condition.put("groupBuyId",groupBuyId);
 		List<XjlDwGroupGather> data = (List<XjlDwGroupGather>) XjlDwGroupGather.queryXjlDwGroupGatherListByPage(condition, pageIndex, pageSize).get("data");
+		WxUser wxUser = getWXUser();
 		if(!data.isEmpty()){
 			String [] singBuyArr = null;
 			for (int i = 0; i < data.size(); i++) {
 				int price = 0;
 				Logger.info(data.get(i).gatherStudentName+":"+data.get(i).singBuy);
 				if(!"0".equals(data.get(i).singBuy)){
+					if(wxUser.currentStudent.studentId.equals(data.get(i).studentId)){
+						data.get(i).singBuyNum = grouByNum;
+					}
 					singBuyArr = data.get(i).singBuy.split(",");
 					for (int j = 0; j < singBuyArr.length; j++) {
 						Logger.info("需要修改价格的:"+singBuyArr[j]);
@@ -883,17 +900,33 @@ public class ActivityService extends MobileFilter {
 					}
 				}
 				Logger.info("最新价格："+price);
-				XjlDwGroupGather.modifyXjlDwGroupGatherPrice(price,data.get(i).studentId, groupBuyId);
+				Logger.info("更新后的数量："+data.get(i).singBuyNum);
+				XjlDwGroupGather.modifyXjlDwGroupGatherPrice(price,data.get(i).studentId, groupBuyId,data.get(i).singBuyNum);
 			}
 		}
 	}
 	public static void modifyGroup(){
+		WxUser wxUser = getWXUser();
 		Object obj = params.getAll("gradeItem");
 		JSONArray gradeList = JSONArray.fromObject(obj); 
 		Logger.info("团购长度："+gradeList.size());
 		for (int i = 0; i < gradeList.size(); i++) {
 			JSONObject gradeJson = gradeList.getJSONObject(i);
-			XjlDwGroupBuyItem.modifyPrice(gradeJson.getDouble("groupItemPrice"), gradeJson.getLong("groupItemId"));
+			if("false".equals(gradeJson.getString("isGroupBuy"))){
+				XjlDwGroupBuyOrder.modifyStatus(gradeJson.getLong("groupItemId"),gradeJson.getLong("groupBuyId"));
+			}else{
+				//判断是否存在
+				boolean flag = XjlDwGroupBuyOrder.hasOrder(gradeJson.getLong("groupItemId"),wxUser.wxOpenId,wxUser.currentStudent.studentId);
+				if(!flag){
+				    XjlDwGroupBuyOrder xjlDwGroupBuyOrder=new XjlDwGroupBuyOrder();
+					xjlDwGroupBuyOrder.wxOpenId=wxUser.wxOpenId;
+        	    	xjlDwGroupBuyOrder.studentId=wxUser.currentStudent.studentId;
+	        	    xjlDwGroupBuyOrder.groupBuyId=StringUtil.getLong(gradeJson.get("groupBuyId").toString());
+	        	    xjlDwGroupBuyOrder.groupItemId=StringUtil.getLong(gradeJson.get("groupItemId").toString());
+	        	    xjlDwGroupBuyOrder=XjlDwGroupBuyOrderBo.save(xjlDwGroupBuyOrder);
+				}
+				XjlDwGroupBuyItem.modifyPrice(gradeJson.getDouble("groupItemPrice"), gradeJson.getLong("groupItemId"));
+			}
 		}
 		modifyGroupGather(params.getAll("gradeItem"));
 		ok();

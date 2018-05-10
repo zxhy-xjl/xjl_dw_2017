@@ -56,7 +56,7 @@ public class XjlDwGroupBuyItem extends GenericModel{
 		int pageIndex, int pageSize) {
 		String sql = "select * ";
 		sql += "from xjl_dw_group_buy_item a ";
-		sql +="where 1=3 [or a.group_buy_id=l:groupBuyId]";
+		sql +="where 1=3 [or a.group_buy_id=l:groupBuyId] order by create_time asc";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlDwGroupBuyItem> data = ModelUtils.queryData(pageIndex, pageSize, ret, XjlDwGroupBuyItem.class);
 		return ModelUtils.createResultMap(ret, data);

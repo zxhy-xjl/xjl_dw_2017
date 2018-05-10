@@ -88,6 +88,8 @@
                     $scope.isRunning=true; //标注团购是否结束
                     $scope.itemNum = 0;
                     $scope.class='${wxUser.currentClass.classId}';
+                    $scope.showGroupFlag = false;
+                    $scope.isRunningOrder = false;
                     console.log("isCommittee"+${wxUser.isCommittee});
                     //next page function
                     $scope.nextPage = function (me) {
@@ -95,7 +97,7 @@
                             $scope.lists = $scope.lists.concat(response.data.data.data);
                             $scope.master = $scope.lists[0].groupBuyInfo.wxOpenId;
                             if(${wxUser.isCommittee}){
-                            	loadScript("/zz/public/js/slideleft.js", function() {})
+                            	loadScript("/dw/public/js/slideleft.js", function() {})
                             }
                             if (me && me.resetload)
                                 me.resetload();
@@ -108,11 +110,14 @@
                     $scope.initPage = function (me) {
                         appValue.index = 1;
                         agentRemote.getData(1).then(function (response) {
-                            $scope.total = response.data.data.total;
+                            console.log(response);
+                        	$scope.total = response.data.data.total;
                             $scope.lists = response.data.data.data;
-                            $scope.master = $scope.lists[0].groupBuyInfo.wxOpenId;
+                            if($scope.lists.length >0){
+                            	 $scope.master = $scope.lists[0].groupBuyInfo.wxOpenId;
+                            }
                             if(${wxUser.isCommittee}){
-                            	loadScript("/zz/public/js/slideleft.js", function() {})
+                            	loadScript("/dw/public/js/slideleft.js", function() {})
                             }
                             if (me && me.resetload)
                                 me.resetload();
@@ -188,10 +193,12 @@
                        });
                    }
                     //点击团或已团按钮触发事件
-                    $scope.buy=function(groupBuyId,isRunning){
+                    $scope.buy=function(groupBuyId,isRunning,hasOrderFlag,isRuningOrder){
                     	$scope.isRunning=isRunning;
                     	$scope.groupBuyFlag=true;
                     	$scope.groupmodifyFlag=false;
+                    	$scope.showGroupFlag = hasOrderFlag;
+                    	$scope.isRunningOrder = isRuningOrder;
                     	agentRemote.getGroupItemData(groupBuyId).then(function (response) {
                     		if(response.data.ret=="0"){
                     			  $scope.groupItems = response.data.data.data;
@@ -301,14 +308,14 @@
                             $scope.initPage(me);
                             console.log('down');
                             if(${wxUser.isCommittee}){
-                            	loadScript("/zz/public/js/slideleft.js", function() {})
+                            	loadScript("/dw/public/js/slideleft.js", function() {})
                             }
                         },
                         loadDownFn: function (me) {
                             $scope.nextPage(me);
                             console.log('up');
                             if(${wxUser.isCommittee}){
-                            	loadScript("/zz/public/js/slideleft.js", function() {})
+                            	loadScript("/dw/public/js/slideleft.js", function() {})
                             }
                         }
                     });
@@ -331,15 +338,19 @@
            		<span class="text-auxiliaryed font-size-13">截止时间：{{item.groupBuyInfo.groupBuyEndTime}}</span>
            		<span class="text-warning padded-l-10 font-size-13">{{item.groupBuyInfo.groupBuyStateInfo}}</span>
            		<span ng-if="${wxUser.isParent}" class="text-warning font-size-13">
-           			<input type="button" class=" btn wid3 bg-warning" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})"  
+           			<input type="button" class=" btn wid3 bg-warning" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}},{{item.hasOrderFlag}},{{item.isRunningOrder}})"  
 	             		value="团"   ng-show="item.isRunning && !item.hasOrderFlag"/>
-		            <input type="button" class=" btn wid3 bg-success" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})"  
+		            <input type="button" class=" btn wid3 bg-success" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}},{{item.hasOrderFlag}},{{item.isRunningOrder}})"  
 		             		value="修改" ng-show="item.hasOrderFlag && item.isRunning"/>
+           			 <input type="button" class=" btn wid3 bg-warning" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}},{{item.hasOrderFlag}},{{item.isRunningOrder}})"  
+             		value="已团" ng-show="item.hasOrderFlag && !item.isRunning"/>
+             		<input type="button" class=" btn wid3 bg-warning" ng-click="buy('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}},{{item.hasOrderFlag}},{{item.isRunningOrder}})"  
+             		value="已团" ng-show="item.isRunningOrder"/>
            		</span>
         	  </p>
 	      </li>
 	       <div class="slideleft" ng-show="${wxUser.wxOpenId} == {{item.groupBuyInfo.wxOpenId}}">
-              		<span class="bg-warning f-white dels" style="width:100px;" ng-click="modify('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})" >修改</span>
+              		<span class="bg-warning f-white dels" style="width:100px;" ng-click="modify('{{item.groupBuyInfo.groupBuyId}}',{{item.isRunning}})" >已团</span>
                </div>
 	     </ul>
 	    </a> 
@@ -411,8 +422,8 @@
         </div>
     <div class="hr margin-b-10 margin-t-10" ng-show="groupmodifyFlag==false"></div>
     <div class="padded-5 clearfix"  ><span ng-show="groupmodifyFlag==false">合计：</span><span class="text-danger" ng-show="groupmodifyFlag==false">￥{{groupItemsTotalPrice}}</span>
-      <input type="button" ng-show="groupmodifyFlag==false" class="fr btn bg-success wid4 margin-r-10" ng-show="isRunning==true"  ng-click="groupBuy()" value="确定"/>
-      <input type="button" ng-show="groupmodifyFlag==true" class="fr btn bg-success wid4 margin-r-10" ng-show="isRunning==true"  ng-click="modifyGroup()" value="确定"/>
+      <input type="button" ng-show="groupmodifyFlag==false && showGroupFlag == false && isRunningOrder == false" class="fr btn bg-success wid4 margin-r-10" ng-show="isRunning==true"  ng-click="groupBuy()" value="确定"/>
+      <input type="button" ng-show="groupmodifyFlag==false && showGroupFlag == true  && isRunningOrder == false" class="fr btn bg-success wid4 margin-r-10" ng-show="isRunning==true"  ng-click="modifyGroup()" value="确定"/>
       
       
       <input type="button" class="fr btn wid4"  ng-click="close()" value="关闭"/>

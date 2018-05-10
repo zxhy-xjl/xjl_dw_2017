@@ -208,8 +208,8 @@ public class XjlDwGroupGather extends GenericModel{
 		return ModelUtils.executeDelete(condition, sql);
 	}
 	
-	public static int modifyXjlDwGroupGatherPrice(int gatherPrice,Long studentId,Long groupBuyId){
-		String sql="update xjl_dw_group_gather set  gather_price='"+gatherPrice+"' where student_id='"+studentId+"' and GROUP_BUY_ID='"+groupBuyId+"'";
+	public static int modifyXjlDwGroupGatherPrice(int gatherPrice,Long studentId,Long groupBuyId,String singBuyNum){
+		String sql="update xjl_dw_group_gather set  gather_price='"+gatherPrice+"',sing_Buy_num='"+singBuyNum+"' where student_id='"+studentId+"' and GROUP_BUY_ID='"+groupBuyId+"'";
 		Map<String, String> condition = new HashMap<String, String>();
 		return ModelUtils.executeDelete(condition, sql);
 	}
