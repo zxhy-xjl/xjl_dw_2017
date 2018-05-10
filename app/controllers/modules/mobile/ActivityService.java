@@ -70,7 +70,7 @@ import utils.StringUtil;
 public class ActivityService extends MobileFilter {
 	/**
 	 * 查询 通知列表
-	 */
+	 */ 
 	public static void queryNoticeList() {
 		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
 		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
